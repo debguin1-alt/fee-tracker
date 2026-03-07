@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Tuition Fee Manager</title>
+  <meta name="theme-color" content="#0d0d1a">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:       #0d0d1a;
+      --surface:  #141428;
+      --surface2: #1e1e38;
+      --border:   rgba(255,255,255,0.07);
+      --accent:   #7c6bff;
+      --accent2:  #ff6b9d;
+      --accent3:  #00d4aa;
+      --text:     #f0f0f8;
+      --muted:    #6868a0;
+      --yellow:   #ffd166;
+      --red:      #ff4d6d;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+    /* ── AMBIENT BLOBS ── */
+    .blob{position:fixed;border-radius:50%;pointer-events:none;z-index:0;}
+    .blob1{width:500px;height:500px;top:-200px;left:-200px;background:radial-gradient(circle,rgba(124,107,255,.13),transparent 70%);}
+    .blob2{width:400px;height:400px;bottom:-150px;right:-150px;background:radial-gradient(circle,rgba(255,107,157,.09),transparent 70%);}
+
+    /* ── SCREENS ── */
+    .screen{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;transition:opacity .3s,transform .3s;}
+    .screen.hidden{opacity:0;pointer-events:none;transform:translateY(12px);}
+
+    /* ── LOGIN SCREEN ── */
+    #loginScreen{background:var(--bg);}
+    .login-logo{font-family:'Syne',sans-serif;font-size:52px;font-weight:800;background:linear-gradient(135deg,#7c6bff,#ff6b9d);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;}
+    .login-sub{font-size:13px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:48px;}
+    .google-btn{display:flex;align-items:center;gap:12px;background:#fff;color:#1a1a2e;border:none;border-radius:16px;padding:16px 28px;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 8px 32px rgba(0,0,0,.3);transition:transform .15s,box-shadow .15s;width:100%;max-width:320px;justify-content:center;}
+    .google-btn:active{transform:scale(.97);box-shadow:0 4px 16px rgba(0,0,0,.2);}
+    .google-icon{width:22px;height:22px;}
+    .login-note{margin-top:20px;font-size:12px;color:var(--muted);text-align:center;max-width:280px;line-height:1.6;}
+
+    /* ── MAIN APP ── */
+    #appScreen{background:var(--bg);justify-content:flex-start;padding:0;overflow-y:auto;}
+    .app-inner{width:100%;max-width:480px;margin:0 auto;padding:0 16px 48px;}
+
+    /* ── TOPBAR ── */
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:44px 16px 16px;position:sticky;top:0;background:linear-gradient(180deg,var(--bg) 80%,transparent);z-index:5;}
+    .topbar-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--text);}
+    .topbar-right{display:flex;align-items:center;gap:10px;}
+    .avatar{width:36px;height:36px;border-radius:50%;border:2px solid var(--accent);object-fit:cover;cursor:pointer;}
+    .avatar-fallback{width:36px;height:36px;border-radius:50%;border:2px solid var(--accent);background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;}
+    .add-btn{width:36px;height:36px;border-radius:50%;background:var(--accent);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(124,107,255,.4);transition:transform .15s;}
+    .add-btn:active{transform:scale(.93);}
+
+    /* ── TOTAL CARD ── */
+    .total-card{background:linear-gradient(135deg,#7c6bff,#ff6b9d);border-radius:24px;padding:26px 22px;margin-bottom:20px;position:relative;overflow:hidden;box-shadow:0 16px 48px rgba(124,107,255,.28);}
+    .total-card::before{content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;background:rgba(255,255,255,.07);border-radius:50%;}
+    .total-card::after{content:'';position:absolute;bottom:-60px;left:10px;width:200px;height:200px;background:rgba(255,255,255,.04);border-radius:50%;}
+    .total-label{font-size:10px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;opacity:.8;margin-bottom:8px;position:relative;z-index:1;}
+    .total-amount{font-family:'Syne',sans-serif;font-size:46px;font-weight:800;line-height:1;letter-spacing:-2px;position:relative;z-index:1;}
+    .total-amount .cur{font-size:26px;opacity:.75;vertical-align:top;margin-top:8px;display:inline-block;letter-spacing:0;}
+    .total-sub{margin-top:12px;font-size:12px;opacity:.7;position:relative;z-index:1;}
+
+    /* ── SEARCH ── */
+    .search-wrap{position:relative;margin-bottom:20px;}
+    .search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none;}
+    .search-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:13px 38px 13px 40px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;transition:border-color .2s;}
+    .search-input:focus{border-color:var(--accent);}
+    .search-input::placeholder{color:var(--muted);}
+    .search-clear{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;cursor:pointer;padding:4px;}
+    .no-results{text-align:center;color:var(--muted);font-size:14px;padding:32px 0;}
+
+    /* ── SECTION LABEL ── */
+    .section-label{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+
+    /* ── TEACHER CARD ── */
+    .teacher-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;margin-bottom:12px;overflow:hidden;animation:fadeUp .35s ease both;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+    .card-overdue{border-color:rgba(255,166,0,.25)!important;}
+    .card-critical{border-color:rgba(255,77,109,.35)!important;box-shadow:0 0 0 1px rgba(255,77,109,.1);}
+    .card-top{padding:16px 16px 14px;}
+    .card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+    .teacher-name-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+    .teacher-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text);}
+    .teacher-subject{font-size:12px;color:var(--muted);margin-top:2px;}
+    .last-paid{font-size:11px;color:var(--accent3);margin-top:3px;font-weight:500;}
+    .last-paid.never{color:var(--red);opacity:.75;}
+    .overdue-badge{font-size:10px;font-weight:700;font-family:'Syne',sans-serif;padding:3px 8px;border-radius:20px;background:rgba(255,166,0,.12);color:#ffaa00;border:1px solid rgba(255,166,0,.28);white-space:nowrap;}
+    .overdue-badge.critical{background:rgba(255,77,109,.12);color:var(--red);border-color:rgba(255,77,109,.3);animation:pulse 2s infinite;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+    .due-badge{text-align:right;flex-shrink:0;}
+    .due-amount{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--yellow);}
+    .due-amount.zero{color:var(--accent3);}
+    .due-amount.critical{color:var(--red)!important;}
+    .due-months{font-size:11px;color:var(--muted);margin-top:2px;}
+    .pay-row{display:flex;gap:10px;align-items:center;}
+    .pay-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:11px 14px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;transition:border-color .2s;-moz-appearance:textfield;}
+    .pay-input::-webkit-outer-spin-button,.pay-input::-webkit-inner-spin-button{-webkit-appearance:none;}
+    .pay-input:focus{border-color:var(--accent);}
+    .pay-input::placeholder{color:var(--muted);}
+    .pay-btn{background:linear-gradient(135deg,var(--accent),#5a4de6);color:#fff;border:none;border-radius:12px;padding:11px 18px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 4px 14px rgba(124,107,255,.32);transition:opacity .2s,transform .1s;}
+    .pay-btn:active{transform:scale(.97);opacity:.85;}
+    .pay-btn:disabled{background:var(--surface2);color:var(--muted);box-shadow:none;cursor:not-allowed;}
+    .card-actions{display:flex;border-top:1px solid var(--border);}
+    .history-toggle{flex:1;display:flex;align-items:center;gap:6px;padding:11px 16px;cursor:pointer;font-size:12px;font-weight:500;color:var(--muted);transition:color .2s;user-select:none;}
+    .history-toggle:hover{color:var(--accent);}
+    .toggle-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);opacity:.5;}
+    .arrow{margin-left:auto;font-size:10px;transition:transform .2s;}
+    .history-toggle.open .arrow{transform:rotate(180deg);}
+    .del-teacher-btn{padding:11px 14px;border:none;border-left:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:14px;transition:color .2s;}
+    .del-teacher-btn:hover{color:var(--red);}
+    .history-panel{display:none;padding:0 16px 12px;}
+    .history-panel.open{display:block;}
+    .hist-empty{font-size:12px;color:var(--muted);padding:12px 0 2px;text-align:center;}
+    .swipe-hint{font-size:10px;color:var(--muted);text-align:center;padding:8px 0 2px;letter-spacing:.3px;}
+    .payment-item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--surface2);border-radius:10px;margin-top:8px;font-size:13px;touch-action:pan-y;will-change:transform;transition:transform .15s,background .15s;}
+    .payment-item:first-child{margin-top:10px;}
+    .pay-months-txt{font-weight:500;color:var(--text);}
+    .pay-date-txt{font-size:11px;color:var(--muted);margin-top:2px;}
+    .pay-amt-tag{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--accent3);}
+
+    /* ── EMPTY STATE ── */
+    .empty-state{text-align:center;padding:48px 24px;}
+    .empty-icon{font-size:48px;margin-bottom:16px;}
+    .empty-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:8px;}
+    .empty-sub{font-size:13px;color:var(--muted);line-height:1.6;}
+
+    /* ── MODAL ── */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);z-index:200;display:flex;align-items:flex-end;justify-content:center;padding:0;animation:fadeIn .15s ease;}
+    .modal-overlay.hidden{display:none;}
+    .modal{background:var(--surface);border:1px solid var(--border);border-radius:28px 28px 0 0;padding:28px 24px 40px;width:100%;max-width:480px;animation:slideUp .25s cubic-bezier(.34,1.56,.64,1);}
+    .modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 24px;}
+    .modal-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;margin-bottom:20px;}
+    .field{margin-bottom:16px;}
+    .field label{display:block;font-size:12px;font-weight:500;color:var(--muted);letter-spacing:.5px;margin-bottom:6px;}
+    .field input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;transition:border-color .2s;}
+    .field input:focus{border-color:var(--accent);}
+    .field input::placeholder{color:var(--muted);}
+    .modal-actions{display:flex;gap:10px;margin-top:24px;}
+    .btn-cancel{flex:1;padding:13px;border-radius:14px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;}
+    .btn-primary{flex:1;padding:13px;border-radius:14px;border:none;background:linear-gradient(135deg,var(--accent),#5a4de6);color:#fff;font-size:14px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 4px 14px rgba(124,107,255,.32);}
+    .btn-primary:active{opacity:.88;}
+
+    /* ── CONFIRM DIALOG ── */
+    .confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);z-index:300;display:flex;align-items:center;justify-content:center;padding:24px;animation:fadeIn .15s ease;}
+    .confirm-overlay.hidden{display:none;}
+    .confirm-box{background:var(--surface2);border:1px solid var(--border);border-radius:22px;padding:24px;width:100%;max-width:320px;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:slideUp .2s ease;}
+    .confirm-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:10px;}
+    .confirm-msg{font-size:14px;color:#a0a0c0;line-height:1.5;margin-bottom:22px;}
+    .confirm-actions{display:flex;gap:10px;}
+
+    /* ── USER MENU ── */
+    .user-menu{position:fixed;top:80px;right:16px;z-index:100;background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:8px;min-width:200px;box-shadow:0 16px 48px rgba(0,0,0,.5);animation:fadeIn .15s ease;}
+    .user-menu.hidden{display:none;}
+    .user-info{padding:10px 12px 14px;border-bottom:1px solid var(--border);margin-bottom:6px;}
+    .user-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;}
+    .user-email{font-size:11px;color:var(--muted);margin-top:2px;}
+    .menu-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:14px;color:var(--text);transition:background .15s;}
+    .menu-item:hover{background:var(--surface);}
+    .menu-item.danger{color:var(--red);}
+
+    /* ── TOAST ── */
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:12px 22px;border-radius:14px;font-size:13px;font-weight:500;z-index:400;transition:transform .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 30px rgba(0,0,0,.5);white-space:nowrap;pointer-events:none;}
+    .toast.show{transform:translateX(-50%) translateY(0);}
+    .toast.success{border-color:var(--accent3);color:var(--accent3);}
+    .toast.error{border-color:var(--red);color:var(--red);}
+
+    /* ── SKELETON ── */
+    .skeleton{background:linear-gradient(90deg,var(--surface) 25%,var(--surface2) 50%,var(--surface) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:20px;height:120px;margin-bottom:12px;}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+    /* pull indicator */
+    #pull-indicator{position:fixed;top:0;left:0;right:0;text-align:center;padding:14px;font-size:13px;font-weight:600;color:var(--accent);background:rgba(13,13,26,.95);transform:translateY(-100%);transition:transform .2s;z-index:50;letter-spacing:1px;}
+  </style>
+</head>
+<body>
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+
+  <!-- LOGIN SCREEN -->
+  <div class="screen" id="loginScreen">
+    <div class="login-logo">₹</div>
+    <div class="login-sub">Tuition Fee Manager</div>
+    <button class="google-btn" id="googleSignInBtn">
+      <svg class="google-icon" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      </svg>
+      Continue with Google
+    </button>
+    <p class="login-note">Your data is private and only visible to you. Each account has its own teachers and payment history.</p>
+  </div>
+
+  <!-- MAIN APP SCREEN -->
+  <div class="screen hidden" id="appScreen">
+    <div id="pull-indicator">↓ Pull to refresh</div>
+    <div class="topbar">
+      <div class="topbar-title">₹ Tuition</div>
+      <div class="topbar-right">
+        <button class="add-btn" id="addTeacherBtn" title="Add teacher">+</button>
+        <div class="avatar-fallback" id="avatarEl">?</div>
+      </div>
+    </div>
+    <div class="app-inner" id="appInner">
+      <div class="skeleton"></div>
+      <div class="skeleton" style="height:90px;opacity:.6;animation-delay:.1s"></div>
+      <div class="skeleton" style="height:90px;opacity:.4;animation-delay:.2s"></div>
+    </div>
+  </div>
+
+  <!-- USER MENU -->
+  <div class="user-menu hidden" id="userMenu">
+    <div class="user-info">
+      <div class="user-name" id="menuName">—</div>
+      <div class="user-email" id="menuEmail">—</div>
+    </div>
+    <div class="menu-item danger" id="signOutBtn">🚪 Sign out</div>
+  </div>
+
+  <!-- ADD TEACHER MODAL -->
+  <div class="modal-overlay hidden" id="addModal">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Add Teacher</div>
+      <div class="field"><label>TEACHER NAME</label><input id="f-name" placeholder="e.g. Arpan sir" /></div>
+      <div class="field"><label>SUBJECT</label><input id="f-subject" placeholder="e.g. Physics" /></div>
+      <div class="field"><label>MONTHLY FEE (₹)</label><input id="f-fee" type="number" placeholder="500" /></div>
+      <div class="field"><label>LAST PAID MONTH (1–12)</label><input id="f-month" type="number" placeholder="3" min="1" max="12"/></div>
+      <div class="field"><label>LAST PAID YEAR</label><input id="f-year" type="number" placeholder="2025" /></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="cancelAddBtn">Cancel</button>
+        <button class="btn-primary" id="confirmAddBtn">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIRM DIALOG -->
+  <div class="confirm-overlay hidden" id="confirmOverlay">
+    <div class="confirm-box">
+      <div class="confirm-title" id="confirmTitle">Confirm</div>
+      <div class="confirm-msg" id="confirmMsg"></div>
+      <div class="confirm-actions">
+        <button class="btn-cancel" id="confirmCancelBtn">Cancel</button>
+        <button class="btn-primary" id="confirmOkBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import {
+      getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc, query, where
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import {
+      getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDlpLbd5g78eHv_elhiiLRlOdhPMvn9ijA",
+      authDomain: "debguin1-alt.github.io",
+      projectId: "fee-tracker-f32f8",
+      storageBucket: "fee-tracker-f32f8.firebasestorage.app",
+      messagingSenderId: "1061066310105",
+      appId: "1:1061066310105:web:4ca8c0feaa9d6614cd19c8"
+    };
+
+    const app      = initializeApp(firebaseConfig);
+    const db       = getFirestore(app);
+    const auth     = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    // ── STATE ──
+    let currentUser = null;
+    let teachers    = {};   // { teacherId: { name, subject, fee, lateAfter, latePerDay, baselineMonth, baselineYear } }
+    let payments    = [];
+    let searchQuery = '';
+    const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    // ── HELPERS ──
+    function uid() { return currentUser.uid; }
+    function teachersCol()  { return collection(db, 'users', uid(), 'teachers'); }
+    function paymentsCol()  { return collection(db, 'users', uid(), 'payments'); }
+    function teacherDoc(id) { return doc(db, 'users', uid(), 'teachers', id); }
+    function paymentDoc(id) { return doc(db, 'users', uid(), 'payments', id); }
+
+    function monthsBetween(a, b) {
+      return (b.year - a.year) * 12 + (b.month - a.month);
+    }
+    function addMonths(base, count) {
+      let m = base.month + count, y = base.year;
+      while (m > 12) { m -= 12; y++; }
+      return { month: m, year: y };
+    }
+
+    // ── TOAST ──
+    function showToast(msg, type='') {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.className = 'toast ' + type;
+      void t.offsetWidth; t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2400);
+    }
+
+    // ── CONFIRM ──
+    function showConfirm(title, msg, okLabel='Confirm') {
+      return new Promise(resolve => {
+        document.getElementById('confirmTitle').textContent = title;
+        document.getElementById('confirmMsg').innerHTML = msg;
+        document.getElementById('confirmOkBtn').textContent = okLabel;
+        document.getElementById('confirmOverlay').classList.remove('hidden');
+        const ok  = document.getElementById('confirmOkBtn');
+        const cancel = document.getElementById('confirmCancelBtn');
+        const cleanup = val => {
+          document.getElementById('confirmOverlay').classList.add('hidden');
+          ok.replaceWith(ok.cloneNode(true));
+          cancel.replaceWith(cancel.cloneNode(true));
+          resolve(val);
+        };
+        document.getElementById('confirmOkBtn').onclick   = () => cleanup(true);
+        document.getElementById('confirmCancelBtn').onclick = () => cleanup(false);
+      });
+    }
+
+    // ── DUE CALCULATION ──
+    function getLastPaid(teacherId) {
+      const t = teachers[teacherId];
+      let lp = { month: t.baselineMonth, year: t.baselineYear };
+      const ordered = payments.filter(p => p.teacherId === teacherId).sort((a,b) => a.timestamp - b.timestamp);
+      ordered.forEach(p => { if (p.monthsPaid) lp = addMonths(lp, p.monthsPaid); });
+      return lp;
+    }
+    function getMonthsDue(teacherId) {
+      const now = new Date();
+      return Math.max(monthsBetween(getLastPaid(teacherId), { month: now.getMonth()+1, year: now.getFullYear() }), 0);
+    }
+    function calculateDue(teacherId) {
+      const t = teachers[teacherId];
+      const months = getMonthsDue(teacherId);
+      if (months === 0) return 0;
+      let due = months * t.fee;
+      if (t.lateAfter) {
+        const today = new Date().getDate();
+        if (today > t.lateAfter) due += (today - t.lateAfter) * (t.latePerDay || 0);
+      }
+      return due;
+    }
+    function calculateTotalDue() {
+      return Object.keys(teachers).reduce((s, id) => s + calculateDue(id), 0);
+    }
+    function getLastPaidStr(teacherId) {
+      const tp = payments.filter(p => p.teacherId === teacherId).sort((a,b) => b.timestamp - a.timestamp);
+      if (!tp.length) return null;
+      const p = tp[0];
+      return p.paidOn ? `${p.paidOn.day} ${MONTH_NAMES[p.paidOn.month-1]} ${p.paidOn.year}` : null;
+    }
+
+    // ── LOAD DATA ──
+    async function loadAll() {
+      const [tSnap, pSnap] = await Promise.all([getDocs(teachersCol()), getDocs(paymentsCol())]);
+      teachers = {};
+      tSnap.forEach(d => { teachers[d.id] = d.data(); });
+      payments = pSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+      render();
+    }
+
+    // ── PAY ──
+    async function payMonths(teacherId) {
+      const maxMonths = getMonthsDue(teacherId);
+      if (maxMonths === 0) return showToast('No dues pending ✓', 'success');
+      const input = document.getElementById('pay-' + teacherId);
+      const n = parseInt(input.value);
+      if (!n || n < 1 || n > maxMonths) return showToast(`Enter 1 – ${maxMonths}`, 'error');
+      const t = teachers[teacherId];
+      const amount = n * t.fee;
+      const ok = await showConfirm('Confirm Payment',
+        `Pay <strong style="color:#f0f0f8">₹${amount.toLocaleString('en-IN')}</strong> for <strong style="color:#f0f0f8">${n} month${n>1?'s':''}</strong> to ${t.name}?`, 'Pay');
+      if (!ok) return;
+      const now = new Date();
+      await addDoc(paymentsCol(), {
+        teacherId, teacherName: t.name, subject: t.subject,
+        monthsPaid: n, amount,
+        paidOn: { day: now.getDate(), month: now.getMonth()+1, year: now.getFullYear() },
+        timestamp: Date.now()
+      });
+      showToast(`Paid ₹${amount.toLocaleString('en-IN')} ✓`, 'success');
+      await loadAll();
+    }
+
+    // ── DELETE PAYMENT ──
+    async function deletePayment(id) {
+      const ok = await showConfirm('Delete Payment', 'This cannot be undone.', 'Delete');
+      if (!ok) return;
+      await deleteDoc(paymentDoc(id));
+      showToast('Payment deleted', '');
+      await loadAll();
+    }
+
+    // ── DELETE TEACHER ──
+    async function deleteTeacher(teacherId) {
+      const t = teachers[teacherId];
+      const ok = await showConfirm('Remove Teacher', `Remove <strong style="color:#f0f0f8">${t.name}</strong> and all their payment history?`, 'Remove');
+      if (!ok) return;
+      // delete all payments for this teacher
+      const tPayments = payments.filter(p => p.teacherId === teacherId);
+      await Promise.all(tPayments.map(p => deleteDoc(paymentDoc(p.id))));
+      await deleteDoc(teacherDoc(teacherId));
+      showToast(`${t.name} removed`, '');
+      await loadAll();
+    }
+
+    // ── ADD TEACHER ──
+    function openAddModal() { document.getElementById('addModal').classList.remove('hidden'); }
+    function closeAddModal() {
+      document.getElementById('addModal').classList.add('hidden');
+      ['f-name','f-subject','f-fee','f-month','f-year'].forEach(id => document.getElementById(id).value = '');
+    }
+    async function confirmAdd() {
+      const name    = document.getElementById('f-name').value.trim();
+      const subject = document.getElementById('f-subject').value.trim();
+      const fee     = parseInt(document.getElementById('f-fee').value);
+      const month   = parseInt(document.getElementById('f-month').value);
+      const year    = parseInt(document.getElementById('f-year').value);
+      if (!name || !subject || !fee || !month || !year) return showToast('Fill all fields', 'error');
+      if (month < 1 || month > 12) return showToast('Month must be 1–12', 'error');
+      await addDoc(teachersCol(), { name, subject, fee, baselineMonth: month, baselineYear: year });
+      closeAddModal();
+      showToast(`${name} added ✓`, 'success');
+      await loadAll();
+    }
+
+    // ── TOGGLE HISTORY ──
+    function toggleHistory(id) {
+      const panel  = document.getElementById('hist-' + id);
+      const toggle = document.getElementById('tog-'  + id);
+      panel.classList.toggle('open');
+      toggle.classList.toggle('open');
+    }
+
+    // ── SWIPE ──
+    let swipeStartX = 0;
+    function startSwipe(e, el) { swipeStartX = e.touches[0].clientX; el.style.transition='none'; }
+    function moveSwipe(e, el)  {
+      const diff = e.touches[0].clientX - swipeStartX;
+      if (diff < 0) { el.style.transform=`translateX(${diff}px)`; el.style.background='rgba(255,77,109,.18)'; }
+    }
+    function endSwipe(el, id)  {
+      const moved = Math.abs(el.getBoundingClientRect().left - el.parentElement.getBoundingClientRect().left);
+      if (moved > 80) { deletePayment(id); }
+      else { el.style.transition='transform .2s'; el.style.transform='translateX(0)'; el.style.background=''; }
+    }
+
+    // ── PULL TO REFRESH ──
+    let pullStartY=0, pulling=false;
+    const pullIndicator = document.getElementById('pull-indicator');
+    document.addEventListener('touchstart', e => {
+      if (window.scrollY===0) { pullStartY=e.touches[0].clientY; pulling=true; }
+    }, {passive:true});
+    document.addEventListener('touchmove', e => {
+      if (!pulling) return;
+      const dist = e.touches[0].clientY - pullStartY;
+      if (dist > 10) {
+        pullIndicator.style.transform = `translateY(${Math.min(dist-10,60)}px)`;
+        pullIndicator.textContent = dist > 70 ? '↑ Release to refresh' : '↓ Pull to refresh';
+      }
+    }, {passive:true});
+    document.addEventListener('touchend', async e => {
+      if (!pulling) return; pulling=false;
+      const dist = e.changedTouches[0].clientY - pullStartY;
+      pullIndicator.style.transform='translateY(-100%)';
+      if (dist > 70) {
+        pullIndicator.textContent='⟳ Refreshing...';
+        pullIndicator.style.transform='translateY(0)';
+        await loadAll();
+        showToast('Refreshed ✓','success');
+        setTimeout(()=>{ pullIndicator.style.transform='translateY(-100%)'; }, 600);
+      }
+    }, {passive:true});
+
+    // ── SEARCH ──
+    function onSearch(val) {
+      searchQuery = val; render();
+      const inp = document.querySelector('.search-input');
+      if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+    }
+
+    // ── USER MENU ──
+    document.getElementById('avatarEl').addEventListener('click', e => {
+      e.stopPropagation();
+      document.getElementById('userMenu').classList.toggle('hidden');
+    });
+    document.addEventListener('click', () => document.getElementById('userMenu').classList.add('hidden'));
+    document.getElementById('userMenu').addEventListener('click', e => e.stopPropagation());
+    document.getElementById('signOutBtn').addEventListener('click', async () => {
+      await signOut(auth);
+    });
+
+    // ── RENDER ──
+    function render() {
+      const root     = document.getElementById('appInner');
+      const totalDue = calculateTotalDue();
+      const now      = new Date();
+      const dateStr  = now.toLocaleDateString('en-IN', {day:'numeric', month:'long', year:'numeric'});
+      const maxMo    = Math.max(...Object.keys(teachers).map(id => getMonthsDue(id)), 1);
+
+      let html = `
+        <div class="total-card">
+          <div class="total-label">Total Outstanding</div>
+          <div class="total-amount"><span class="cur">₹</span>${totalDue.toLocaleString('en-IN')}</div>
+          <div class="total-sub">As of ${dateStr}</div>
+        </div>
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input class="search-input" type="text" placeholder="Search teacher or subject…"
+            value="${searchQuery}" oninput="onSearch(this.value)"/>
+          ${searchQuery ? `<span class="search-clear" onclick="onSearch('')">✕</span>` : ''}
+        </div>
+        <div class="section-label">Teachers</div>
+      `;
+
+      if (Object.keys(teachers).length === 0) {
+        html += `<div class="empty-state">
+          <div class="empty-icon">📚</div>
+          <div class="empty-title">No teachers yet</div>
+          <div class="empty-sub">Tap the <strong>+</strong> button above to add your first teacher.</div>
+        </div>`;
+        root.innerHTML = html; return;
+      }
+
+      const sorted = Object.keys(teachers)
+        .sort((a,b) => calculateDue(b) - calculateDue(a))
+        .filter(id => {
+          const q = searchQuery.toLowerCase();
+          return !q || teachers[id].name.toLowerCase().includes(q) || teachers[id].subject.toLowerCase().includes(q);
+        });
+
+      if (sorted.length === 0) {
+        html += `<div class="no-results">No teachers match "<strong>${searchQuery}</strong>"</div>`;
+        root.innerHTML = html; return;
+      }
+
+      let delay = 0;
+      for (const id of sorted) {
+        const t          = teachers[id];
+        const dueMonths  = getMonthsDue(id);
+        const dueAmount  = calculateDue(id);
+        const lastPaidStr= getLastPaidStr(id);
+        const isOverdue  = dueMonths >= 3;
+        const isCritical = dueMonths >= 6;
+        const tPay       = payments.filter(p => p.teacherId === id).sort((a,b) => b.timestamp - a.timestamp);
+        let badge = '';
+        if (isCritical) badge = `<span class="overdue-badge critical">🚨 ${dueMonths}mo</span>`;
+        else if (isOverdue) badge = `<span class="overdue-badge">⚠️ ${dueMonths}mo</span>`;
+
+        html += `
+          <div class="teacher-card ${isCritical?'card-critical':isOverdue?'card-overdue':''}" style="animation-delay:${delay}s">
+            <div class="card-top">
+              <div class="card-header">
+                <div>
+                  <div class="teacher-name-row">
+                    <div class="teacher-name">${t.name}</div>${badge}
+                  </div>
+                  <div class="teacher-subject">${t.subject} · ₹${t.fee}/mo</div>
+                  ${lastPaidStr ? `<div class="last-paid">Last paid: ${lastPaidStr}</div>` : `<div class="last-paid never">Never paid</div>`}
+                </div>
+                <div class="due-badge">
+                  <div class="due-amount ${dueAmount===0?'zero':isCritical?'critical':''}">₹${dueAmount.toLocaleString('en-IN')}</div>
+                  <div class="due-months">${dueMonths===0?'All clear ✓':`${dueMonths} month${dueMonths>1?'s':''} due`}</div>
+                </div>
+              </div>
+              <div class="pay-row">
+                <input id="pay-${id}" class="pay-input" type="number" min="1" max="${dueMonths}"
+                  placeholder="${dueMonths>0?`Months (1–${dueMonths})`:'No dues'}">
+                <button class="pay-btn" ${dueMonths===0?'disabled':''} onclick="payMonths('${id}')">Pay</button>
+              </div>
+            </div>
+            <div class="card-actions">
+              <div class="history-toggle" id="tog-${id}" onclick="toggleHistory('${id}')">
+                <span class="toggle-dot"></span>History (${tPay.length})<span class="arrow">▾</span>
+              </div>
+              <button class="del-teacher-btn" onclick="deleteTeacher('${id}')" title="Remove teacher">🗑</button>
+            </div>
+            <div class="history-panel" id="hist-${id}">
+              ${tPay.length===0
+                ? '<div class="hist-empty">No payments yet</div>'
+                : '<div class="swipe-hint">← swipe to delete</div>' +
+                  tPay.map(p=>`
+                    <div class="payment-item"
+                      ontouchstart="startSwipe(event,this)"
+                      ontouchmove="moveSwipe(event,this)"
+                      ontouchend="endSwipe(this,'${p.id}')">
+                      <div>
+                        <div class="pay-months-txt">${p.monthsPaid} month${p.monthsPaid>1?'s':''}</div>
+                        <div class="pay-date-txt">${p.paidOn?`${p.paidOn.day} ${MONTH_NAMES[p.paidOn.month-1]} ${p.paidOn.year}`:'—'}</div>
+                      </div>
+                      <div class="pay-amt-tag">₹${p.amount.toLocaleString('en-IN')}</div>
+                    </div>`).join('')}
+            </div>
+          </div>`;
+        delay += 0.05;
+      }
+      root.innerHTML = html;
+    }
+
+    // ── AUTH ──
+    function showApp(user) {
+      currentUser = user;
+      document.getElementById('menuName').textContent  = user.displayName || 'User';
+      document.getElementById('menuEmail').textContent = user.email || '';
+      const av = document.getElementById('avatarEl');
+      if (user.photoURL) {
+        av.outerHTML = `<img class="avatar" id="avatarEl" src="${user.photoURL}" />`;
+        document.getElementById('avatarEl').addEventListener('click', e => {
+          e.stopPropagation();
+          document.getElementById('userMenu').classList.toggle('hidden');
+        });
+      } else {
+        av.textContent = (user.displayName || 'U')[0].toUpperCase();
+      }
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('appScreen').classList.remove('hidden');
+    }
+
+    // First check if we're returning from a redirect
+    getRedirectResult(auth).then(async result => {
+      if (result && result.user) {
+        showApp(result.user);
+        await loadAll();
+      }
+    }).catch(e => {
+      console.error('getRedirectResult error:', e.code, e.message);
+      if (e.code && e.code !== 'auth/no-current-user') {
+        showToast('Login error: ' + e.code, 'error');
+      }
+    });
+
+    // Also listen for persisted auth state (already logged in)
+    onAuthStateChanged(auth, async user => {
+      if (user) {
+        showApp(user);
+        await loadAll();
+      } else {
+        currentUser = null;
+        document.getElementById('loginScreen').classList.remove('hidden');
+        document.getElementById('appScreen').classList.add('hidden');
+      }
+    });
+
+    document.getElementById('googleSignInBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('googleSignInBtn');
+      btn.textContent = 'Redirecting to Google…';
+      btn.disabled = true;
+      try {
+        await signInWithRedirect(auth, provider);
+      } catch(e) {
+        console.error('signInWithRedirect error:', e);
+        showToast('Error: ' + e.message, 'error');
+        btn.disabled = false;
+        btn.textContent = 'Continue with Google';
+      }
+    });
+
+    // ── ADD TEACHER MODAL WIRING ──
+    document.getElementById('addTeacherBtn').addEventListener('click', openAddModal);
+    document.getElementById('cancelAddBtn').addEventListener('click', closeAddModal);
+    document.getElementById('confirmAddBtn').addEventListener('click', confirmAdd);
+    document.getElementById('addModal').addEventListener('click', e => {
+      if (e.target === document.getElementById('addModal')) closeAddModal();
+    });
+
+    // ── EXPOSE GLOBALS ──
+    window.payMonths     = payMonths;
+    window.deletePayment = deletePayment;
+    window.deleteTeacher = deleteTeacher;
+    window.toggleHistory = toggleHistory;
+    window.startSwipe    = startSwipe;
+    window.moveSwipe     = moveSwipe;
+    window.endSwipe      = endSwipe;
+    window.onSearch      = onSearch;
+  </script>
+</body>
+</html>
