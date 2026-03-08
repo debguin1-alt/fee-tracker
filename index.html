@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Fee Tracker</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#080812">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Fee Tracker">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#080812;--surface:#10101e;--surface2:#181830;--surface3:#1e1e3a;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--accent:#7c6bff;--accent-dim:rgba(124,107,255,0.15);--accent2:#ff6b9d;--accent3:#00d4aa;--accent4:#ff9a3c;--text:#f0f0f8;--text2:#a0a0c8;--muted:#5a5a88;--yellow:#ffd166;--red:#ff4d6d;}
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+    .blob{position:fixed;border-radius:50%;pointer-events:none;z-index:0;}
+    .blob1{width:600px;height:600px;top:-250px;left:-250px;background:radial-gradient(circle,rgba(124,107,255,.1),transparent 65%);}
+    .blob2{width:500px;height:500px;bottom:-200px;right:-200px;background:radial-gradient(circle,rgba(255,107,157,.07),transparent 65%);}
+    .blob3{width:300px;height:300px;top:40%;left:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(0,212,170,.04),transparent 65%);}
+    .screen{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;transition:opacity .3s,transform .3s;}
+    .screen.hidden{opacity:0;pointer-events:none;transform:translateY(10px);}
+
+    /* LOGIN */
+    #loginScreen{background:var(--bg);}
+    .login-glyph{font-family:'Syne',sans-serif;font-size:64px;font-weight:800;background:linear-gradient(135deg,#7c6bff 0%,#ff6b9d 60%,#ff9a3c 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;line-height:1;}
+    .login-name{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.5px;margin-bottom:4px;}
+    .login-sub{font-size:12px;color:var(--muted);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:52px;}
+    .google-btn{display:flex;align-items:center;gap:12px;background:#fff;color:#1a1a2e;border:none;border-radius:18px;padding:16px 28px;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 8px 40px rgba(0,0,0,.4);transition:transform .15s,box-shadow .15s;width:100%;max-width:320px;justify-content:center;}
+    .google-btn:active{transform:scale(.97);}
+    .google-icon{width:22px;height:22px;flex-shrink:0;}
+    .login-note{margin-top:20px;font-size:12px;color:var(--muted);text-align:center;max-width:280px;line-height:1.7;}
+
+    /* APP */
+    #appScreen{background:var(--bg);justify-content:flex-start;padding:0;overflow-y:auto;}
+    .app-inner{width:100%;max-width:480px;margin:0 auto;padding:0 16px 64px;}
+
+    /* TOPBAR */
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:52px 20px 16px;position:sticky;top:0;background:linear-gradient(180deg,var(--bg) 80%,transparent);z-index:5;gap:12px;}
+    .topbar-left{flex:1;min-width:0;}
+    .topbar-label{font-size:10px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);margin-bottom:3px;}
+    .topbar-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--text);letter-spacing:-.3px;}
+    .topbar-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+    .add-btn{width:44px;height:44px;border-radius:14px;background:var(--accent);border:none;color:#fff;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(124,107,255,.45);transition:transform .15s;}
+    .add-btn:active{transform:scale(.9);}
+    .avatar-btn{width:40px;height:40px;border-radius:50%;border:2.5px solid var(--accent);background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;overflow:hidden;box-shadow:0 2px 12px rgba(124,107,255,.35);transition:opacity .15s,transform .15s;}
+    .avatar-btn img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+    .avatar-btn:active{opacity:.75;transform:scale(.93);}
+
+    /* PROFILE STRIP */
+    .profile-strip{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background .15s;position:relative;overflow:hidden;}
+    .profile-strip::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(124,107,255,.05),transparent 60%);pointer-events:none;}
+    .profile-strip:active{background:var(--surface2);}
+    .ps-avatar{width:48px;height:48px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:18px;font-weight:700;overflow:hidden;box-shadow:0 3px 12px rgba(124,107,255,.3);}
+    .ps-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+    .ps-info{flex:1;min-width:0;}
+    .ps-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .ps-sub{font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .ps-role-badge{font-size:10px;font-weight:700;letter-spacing:.5px;padding:4px 10px;border-radius:20px;flex-shrink:0;}
+    .ps-role-student{background:rgba(124,107,255,.15);color:var(--accent);}
+    .ps-role-teacher{background:rgba(0,212,170,.15);color:var(--accent3);}
+    .ps-arrow{color:var(--muted);font-size:16px;flex-shrink:0;}
+
+    /* SETUP BANNER */
+    .setup-banner{background:linear-gradient(135deg,rgba(124,107,255,.1),rgba(255,107,157,.07));border:1px solid rgba(124,107,255,.2);border-radius:18px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;cursor:pointer;}
+    .setup-banner-icon{font-size:26px;flex-shrink:0;}
+    .setup-banner-text{flex:1;}
+    .setup-banner-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text);}
+    .setup-banner-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+    .setup-banner-btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:8px 16px;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
+
+    /* TOTAL CARD */
+    .total-card{background:linear-gradient(135deg,#7c6bff,#9b5de5,#ff6b9d);border-radius:26px;padding:24px 22px;margin-bottom:20px;position:relative;overflow:hidden;box-shadow:0 16px 60px rgba(124,107,255,.22);}
+    .total-card::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;background:rgba(255,255,255,.07);border-radius:50%;}
+    .total-card::after{content:'';position:absolute;bottom:-70px;left:0;width:240px;height:240px;background:rgba(255,255,255,.04);border-radius:50%;}
+    .total-label{font-size:10px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;opacity:.8;margin-bottom:8px;position:relative;z-index:1;}
+    .total-amount{font-family:'Syne',sans-serif;font-size:46px;font-weight:800;line-height:1;letter-spacing:-2px;position:relative;z-index:1;}
+    .total-amount .cur{font-size:24px;opacity:.75;vertical-align:top;margin-top:10px;display:inline-block;letter-spacing:0;}
+    .total-sub{margin-top:8px;font-size:12px;opacity:.7;position:relative;z-index:1;}
+    .total-meta{display:flex;gap:10px;margin-top:14px;position:relative;z-index:1;}
+    .total-meta-item{background:rgba(255,255,255,.13);border-radius:12px;padding:8px 14px;backdrop-filter:blur(10px);}
+    .total-meta-val{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;}
+    .total-meta-lbl{font-size:10px;opacity:.7;margin-top:1px;}
+
+    /* SEARCH */
+    .search-wrap{position:relative;margin-bottom:20px;}
+    .search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none;opacity:.45;}
+    .search-input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:13px 38px 13px 44px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;transition:border-color .2s,background .2s;}
+    .search-input:focus{border-color:rgba(124,107,255,.4);background:var(--surface2);}
+    .search-input::placeholder{color:var(--muted);}
+    .search-clear{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;cursor:pointer;padding:5px;background:var(--surface2);border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;}
+
+    /* SECTION LABEL */
+    .section-label{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+    .section-label-txt{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);}
+    .section-label-count{font-size:11px;color:var(--muted);background:var(--surface2);padding:3px 9px;border-radius:20px;border:1px solid var(--border);}
+
+    /* TEACHER CARD */
+    .teacher-card{background:var(--surface);border:1px solid var(--border);border-radius:22px;margin-bottom:12px;overflow:hidden;animation:fadeUp .35s ease both;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    .card-overdue{border-color:rgba(255,166,0,.2);}
+    .card-critical{border-color:rgba(255,77,109,.28);box-shadow:0 0 0 1px rgba(255,77,109,.07);}
+    .card-top{padding:16px 16px 14px;}
+    .card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+    .card-left{flex:1;min-width:0;padding-right:12px;}
+    .teacher-name-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px;}
+    .teacher-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text);}
+    .teacher-subject{font-size:12px;color:var(--text2);margin-top:1px;}
+    .last-paid{font-size:11px;color:var(--accent3);margin-top:4px;font-weight:500;}
+    .last-paid.never{color:var(--red);opacity:.75;}
+    .overdue-badge{font-size:10px;font-weight:700;font-family:'Syne',sans-serif;padding:3px 8px;border-radius:20px;background:rgba(255,166,0,.1);color:#ffaa00;border:1px solid rgba(255,166,0,.22);white-space:nowrap;}
+    .overdue-badge.critical{background:rgba(255,77,109,.1);color:var(--red);border-color:rgba(255,77,109,.28);animation:pulse 2s infinite;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+    .due-badge{text-align:right;flex-shrink:0;}
+    .due-amount{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--yellow);letter-spacing:-.5px;}
+    .due-amount.zero{color:var(--accent3);}
+    .due-amount.critical{color:var(--red);}
+    .due-months{font-size:11px;color:var(--muted);margin-top:2px;}
+    .partial-chip{font-size:10px;color:var(--accent4);margin-top:4px;background:rgba(255,154,60,.1);padding:2px 8px;border-radius:8px;display:inline-block;border:1px solid rgba(255,154,60,.2);}
+
+    /* PAY TABS */
+    .pay-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;}
+    .pay-tab{padding:9px 0;border-radius:12px;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);font-size:12px;font-weight:600;font-family:'Syne',sans-serif;cursor:pointer;transition:all .15s;letter-spacing:.3px;}
+    .pay-tab.active{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 3px 12px rgba(124,107,255,.32);}
+    .pay-tab.active-partial{background:linear-gradient(135deg,#ff9a3c,#e07000);color:#fff;border-color:#ff9a3c;box-shadow:0 3px 12px rgba(255,154,60,.32);}
+    .pay-tab.active-advance{background:linear-gradient(135deg,var(--accent3),#00a884);color:#fff;border-color:var(--accent3);box-shadow:0 3px 12px rgba(0,212,170,.32);}
+    .pay-tab:disabled{opacity:.25;cursor:not-allowed;}
+    .pay-row{display:flex;gap:8px;align-items:center;}
+    .pay-row.hidden{display:none;}
+    .pay-input{flex:1;min-width:0;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:11px 12px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;transition:border-color .2s;-moz-appearance:textfield;}
+    .pay-input::-webkit-outer-spin-button,.pay-input::-webkit-inner-spin-button{-webkit-appearance:none;}
+    .pay-input:focus{border-color:rgba(124,107,255,.45);}
+    .pay-input::placeholder{color:var(--muted);font-size:12px;}
+    .pay-btn{flex-shrink:0;background:linear-gradient(135deg,var(--accent),#5a4de6);color:#fff;border:none;border-radius:12px;padding:11px 18px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 4px 14px rgba(124,107,255,.28);transition:opacity .15s,transform .1s;}
+    .pay-btn:active{transform:scale(.96);opacity:.85;}
+    .pay-btn:disabled{background:var(--surface2);color:var(--muted);box-shadow:none;cursor:not-allowed;}
+    .pay-btn-partial{background:linear-gradient(135deg,#ff9a3c,#e07000)!important;box-shadow:0 4px 14px rgba(255,154,60,.28)!important;}
+    .pay-btn-advance{background:linear-gradient(135deg,var(--accent3),#00a884)!important;box-shadow:0 4px 14px rgba(0,212,170,.28)!important;}
+
+    /* CARD ACTIONS */
+    .card-actions{display:flex;border-top:1px solid var(--border);}
+    .history-toggle{flex:1;display:flex;align-items:center;gap:7px;padding:11px 16px;cursor:pointer;font-size:12px;font-weight:500;color:var(--muted);transition:color .15s;user-select:none;}
+    .history-toggle:active{color:var(--accent);}
+    .toggle-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);opacity:.5;}
+    .h-arrow{margin-left:auto;font-size:10px;transition:transform .2s;}
+    .history-toggle.open .h-arrow{transform:rotate(180deg);}
+    .del-teacher-btn{padding:11px 16px;border:none;border-left:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:14px;transition:color .15s;}
+    .del-teacher-btn:active{color:var(--red);}
+
+    /* HISTORY */
+    .history-panel{display:none;padding:0 12px 12px;}
+    .history-panel.open{display:block;}
+    .hist-empty{font-size:12px;color:var(--muted);padding:12px 0 2px;text-align:center;}
+    .swipe-hint{font-size:10px;color:var(--muted);text-align:center;padding:8px 0 4px;letter-spacing:.3px;}
+    .payment-item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--surface2);border-radius:12px;margin-top:6px;touch-action:pan-y;will-change:transform;transition:transform .15s,background .15s;}
+    .pay-months-txt{font-weight:500;color:var(--text);font-size:13px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+    .pay-date-txt{font-size:11px;color:var(--muted);margin-top:2px;}
+    .pay-amt-tag{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--accent3);}
+    .hist-badge{font-size:9px;font-weight:700;letter-spacing:.5px;padding:2px 7px;border-radius:6px;text-transform:uppercase;}
+    .hist-partial{background:rgba(255,154,60,.14);color:var(--accent4);}
+    .hist-advance{background:rgba(0,212,170,.14);color:var(--accent3);}
+
+    /* EMPTY */
+    .empty-state{text-align:center;padding:56px 24px;}
+    .empty-icon{font-size:52px;margin-bottom:16px;}
+    .empty-title{font-family:'Syne',sans-serif;font-size:19px;font-weight:700;margin-bottom:8px;}
+    .empty-sub{font-size:13px;color:var(--muted);line-height:1.7;}
+    .no-results{text-align:center;color:var(--muted);font-size:14px;padding:36px 0;}
+
+    /* MODAL OVERLAY */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(10px);z-index:200;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .15s ease;}
+    .modal-overlay.hidden{display:none;}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .modal-sheet{background:var(--surface);border:1px solid var(--border2);border-radius:28px 28px 0 0;padding:20px 20px 44px;width:100%;max-width:480px;animation:slideUp .28s cubic-bezier(.34,1.4,.64,1);max-height:92vh;overflow-y:auto;}
+    @keyframes slideUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+    .modal-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 20px;}
+    .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+    .modal-title{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;letter-spacing:-.2px;}
+    .modal-close{width:32px;height:32px;border-radius:50%;border:none;background:var(--surface2);color:var(--text2);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);}
+    .modal-close:active{background:var(--surface3);}
+
+    /* FORM FIELDS */
+    .field-group{margin-bottom:15px;}
+    .field-group label{display:block;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:7px;}
+    .field-input{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:14px;padding:13px 14px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;transition:border-color .2s,background .2s;}
+    .field-input:focus{border-color:rgba(124,107,255,.5);background:var(--surface3);}
+    .field-input::placeholder{color:var(--muted);}
+    .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .field-hint{font-size:11px;color:var(--muted);margin-top:5px;padding-left:2px;line-height:1.5;}
+
+    /* ROLE TOGGLE */
+    .role-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px;}
+    .role-opt{padding:14px 10px;border-radius:16px;border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;text-align:center;transition:all .15s;user-select:none;}
+    .role-opt:active{transform:scale(.97);}
+    .role-opt.sel-student{border-color:var(--accent);background:rgba(124,107,255,.1);}
+    .role-opt.sel-teacher{border-color:var(--accent3);background:rgba(0,212,170,.1);}
+    .role-opt-icon{font-size:28px;margin-bottom:6px;}
+    .role-opt-label{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text);}
+    .role-opt-sub{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4;}
+
+    /* CHIPS */
+    .chips-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:10px;}
+    .chip{padding:9px 4px;border-radius:11px;border:1.5px solid var(--border);background:var(--surface2);font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;text-align:center;transition:all .15s;user-select:none;}
+    .chip:active{transform:scale(.95);}
+    .chip.selected{background:rgba(124,107,255,.14);border-color:var(--accent);color:var(--accent);font-weight:700;}
+
+    /* SUBJECT TAGS */
+    .subject-tags{display:flex;flex-wrap:wrap;gap:7px;min-height:10px;}
+    .subject-tag{display:flex;align-items:center;gap:5px;background:var(--surface3);border:1px solid var(--border);border-radius:10px;padding:6px 10px;font-size:12px;font-weight:500;color:var(--text);}
+    .subj-rm{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0;margin-left:2px;transition:color .1s;}
+    .subj-rm:active{color:var(--red);}
+    .add-tag-row{display:flex;gap:8px;margin-top:8px;}
+    .add-tag-input{flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:10px 13px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;transition:border-color .2s;}
+    .add-tag-input:focus{border-color:rgba(124,107,255,.4);}
+    .add-tag-input::placeholder{color:var(--muted);}
+    .add-tag-btn{background:var(--surface3);border:1.5px solid var(--border);border-radius:12px;padding:10px 16px;font-size:13px;color:var(--text2);cursor:pointer;white-space:nowrap;transition:all .15s;font-weight:600;}
+    .add-tag-btn:active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent);}
+
+    /* ACTION BUTTONS */
+    .btn-row{display:flex;gap:10px;margin-top:22px;}
+    .btn-cancel{flex:1;padding:14px;border-radius:16px;border:1.5px solid var(--border);background:transparent;color:var(--text2);font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:background .15s;}
+    .btn-cancel:active{background:var(--surface2);}
+    .btn-primary{flex:2;padding:14px;border-radius:16px;border:none;background:linear-gradient(135deg,var(--accent),#5a4de6);color:#fff;font-size:14px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;box-shadow:0 4px 18px rgba(124,107,255,.32);transition:opacity .15s,transform .1s;}
+    .btn-primary:active{opacity:.88;transform:scale(.98);}
+
+    /* CONFIRM */
+    .confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(10px);z-index:300;display:flex;align-items:center;justify-content:center;padding:24px;animation:fadeIn .15s ease;}
+    .confirm-overlay.hidden{display:none;}
+    .confirm-box{background:var(--surface2);border:1px solid var(--border2);border-radius:24px;padding:24px;width:100%;max-width:320px;box-shadow:0 24px 80px rgba(0,0,0,.6);animation:slideUp .2s ease;}
+    .confirm-icon{font-size:32px;margin-bottom:10px;text-align:center;}
+    .confirm-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;margin-bottom:8px;}
+    .confirm-msg{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:22px;}
+    .confirm-actions{display:flex;gap:10px;}
+
+    /* USER MENU */
+    .menu-backdrop{position:fixed;inset:0;z-index:99;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);animation:fadeIn .15s ease;}
+    .menu-backdrop.hidden{display:none;}
+    .user-menu{position:fixed;top:68px;right:16px;z-index:100;background:var(--surface2);border:1px solid var(--border2);border-radius:24px;min-width:255px;max-width:calc(100vw - 32px);box-shadow:0 24px 80px rgba(0,0,0,.7);animation:menuPop .22s cubic-bezier(.34,1.5,.64,1);overflow:hidden;}
+    @keyframes menuPop{from{opacity:0;transform:translateY(-10px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+    .user-menu.hidden{display:none;}
+    .menu-user-section{padding:16px 16px 12px;display:flex;align-items:center;gap:13px;}
+    .menu-avatar{width:50px;height:50px;border-radius:50%;border:2.5px solid var(--accent);background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:18px;font-weight:700;flex-shrink:0;overflow:hidden;}
+    .menu-avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover;}
+    .menu-user-info{min-width:0;flex:1;}
+    .menu-user-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .menu-user-email{font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .menu-role-pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-top:5px;padding:3px 9px;border-radius:20px;}
+    .menu-role-pill.student{background:rgba(124,107,255,.15);color:var(--accent);}
+    .menu-role-pill.teacher{background:rgba(0,212,170,.15);color:var(--accent3);}
+    .menu-hr{height:1px;background:var(--border);margin:0 12px;}
+    .menu-list{padding:8px;}
+    .menu-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;cursor:pointer;font-size:14px;color:var(--text);transition:background .12s;font-weight:500;}
+    .menu-item:active{background:rgba(255,255,255,.06);}
+    .menu-item-icon{font-size:18px;width:24px;text-align:center;flex-shrink:0;}
+    .menu-item-label{flex:1;}
+    .menu-item-arrow{color:var(--muted);font-size:12px;}
+    .menu-item.danger{color:var(--red);background:rgba(255,77,109,.06);border:1px solid rgba(255,77,109,.1);}
+    .menu-item.danger:active{background:rgba(255,77,109,.14);}
+
+    /* TEACHER MODE */
+    .teacher-mode-header{background:linear-gradient(135deg,rgba(0,212,170,.1),rgba(124,107,255,.06));border:1px solid rgba(0,212,170,.18);border-radius:20px;padding:16px;margin-bottom:20px;display:flex;align-items:center;gap:12px;}
+    .tmh-icon{font-size:32px;}
+    .tmh-info{flex:1;}
+    .tmh-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--accent3);}
+    .tmh-sub{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5;}
+    .batch-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;margin-bottom:12px;overflow:hidden;animation:fadeUp .35s ease both;}
+    .batch-header{padding:14px 16px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+    .batch-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--text);}
+    .batch-meta{font-size:11px;color:var(--muted);margin-top:3px;}
+    .batch-session-badge{font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;background:rgba(0,212,170,.1);color:var(--accent3);border:1px solid rgba(0,212,170,.2);white-space:nowrap;flex-shrink:0;}
+    .batch-subject-list{display:flex;gap:6px;flex-wrap:wrap;padding:10px 16px 14px;}
+    .batch-subj-chip{font-size:11px;font-weight:600;padding:4px 10px;border-radius:8px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);}
+    .batch-actions{display:flex;border-top:1px solid var(--border);}
+    .batch-del-btn{padding:11px 16px;border:none;border-left:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:14px;transition:color .15s;}
+    .batch-del-btn:active{color:var(--red);}
+    .batch-info-btn{flex:1;display:flex;align-items:center;gap:7px;padding:11px 16px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);background:none;border:none;font-family:'DM Sans',sans-serif;}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface3);border:1px solid var(--border2);color:var(--text);padding:12px 22px;border-radius:16px;font-size:13px;font-weight:500;z-index:500;transition:transform .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 40px rgba(0,0,0,.5);white-space:nowrap;pointer-events:none;}
+    .toast.show{transform:translateX(-50%) translateY(0);}
+    .toast.success{border-color:rgba(0,212,170,.35);color:var(--accent3);}
+    .toast.error{border-color:rgba(255,77,109,.35);color:var(--red);}
+
+    /* SKELETON */
+    .skeleton{background:linear-gradient(90deg,var(--surface) 25%,var(--surface2) 50%,var(--surface) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:22px;height:130px;margin-bottom:12px;}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+    #pull-indicator{position:fixed;top:0;left:0;right:0;text-align:center;padding:14px;font-size:12px;font-weight:600;color:var(--accent);background:rgba(8,8,18,.95);transform:translateY(-100%);transition:transform .2s;z-index:50;letter-spacing:1px;}
+    .hidden{display:none!important;}
+  </style>
+</head>
+<body>
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="blob blob3"></div>
+
+  <!-- LOGIN -->
+  <div class="screen" id="loginScreen">
+    <div class="login-glyph">₹</div>
+    <div class="login-name">Fee Tracker</div>
+    <div class="login-sub">Smart · Simple · Personal</div>
+    <button class="google-btn" id="googleSignInBtn">
+      <svg class="google-icon" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      </svg>
+      Continue with Google
+    </button>
+    <p class="login-note">Your data is private. Works for students tracking fees and teachers managing batches.</p>
+  </div>
+
+  <!-- APP -->
+  <div class="screen hidden" id="appScreen">
+    <div id="pull-indicator">↓ Pull to refresh</div>
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-label" id="topbarLabel">📚 Personal Tracker</div>
+        <div class="topbar-title">Fee Tracker</div>
+      </div>
+      <div class="topbar-right">
+        <button class="add-btn" id="addBtn" title="Add">+</button>
+        <div class="avatar-btn" id="avatarEl">?</div>
+      </div>
+    </div>
+    <div class="app-inner" id="appInner">
+      <div class="skeleton"></div>
+      <div class="skeleton" style="height:90px;opacity:.6;animation-delay:.1s"></div>
+      <div class="skeleton" style="height:90px;opacity:.35;animation-delay:.2s"></div>
+    </div>
+  </div>
+
+  <!-- MENU BACKDROP -->
+  <div class="menu-backdrop hidden" id="menuBackdrop"></div>
+
+  <!-- USER MENU -->
+  <div class="user-menu hidden" id="userMenu">
+    <div class="menu-user-section">
+      <div class="menu-avatar" id="menuAvatar">?</div>
+      <div class="menu-user-info">
+        <div class="menu-user-name" id="menuName">—</div>
+        <div class="menu-user-email" id="menuEmail">—</div>
+        <div class="menu-role-pill student" id="menuRolePill">🎓 Student</div>
+      </div>
+    </div>
+    <div class="menu-hr"></div>
+    <div class="menu-list">
+      <div class="menu-item" id="editProfileBtn">
+        <span class="menu-item-icon">✏️</span>
+        <span class="menu-item-label">Edit Profile</span>
+        <span class="menu-item-arrow">›</span>
+      </div>
+      <div class="menu-item danger" id="signOutBtn">
+        <span class="menu-item-icon">🚪</span>
+        <span class="menu-item-label">Sign out</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE MODAL -->
+  <div class="modal-overlay hidden" id="profileModal">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title">Your Profile</div>
+        <button class="modal-close" id="closeProfileBtn">✕</button>
+      </div>
+
+      <!-- Avatar -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:22px;">
+        <div style="width:76px;height:76px;border-radius:50%;padding:3px;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 4px 24px rgba(124,107,255,.4);">
+          <div id="profileAvatar" style="width:100%;height:100%;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:28px;font-weight:700;overflow:hidden;">?</div>
+        </div>
+        <div style="font-size:12px;color:var(--muted);letter-spacing:.5px;">Tell us about you 👋</div>
+      </div>
+
+      <!-- Role -->
+      <div style="margin-bottom:18px;">
+        <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;">I am a…</div>
+        <div class="role-toggle">
+          <div class="role-opt" id="roleStudent" onclick="selectRole('student')">
+            <div class="role-opt-icon">🎓</div>
+            <div class="role-opt-label">Student</div>
+            <div class="role-opt-sub">Track my tuition fees</div>
+          </div>
+          <div class="role-opt" id="roleTeacher" onclick="selectRole('teacher')">
+            <div class="role-opt-icon">👨‍🏫</div>
+            <div class="role-opt-label">Teacher</div>
+            <div class="role-opt-sub">Manage my batches</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Name -->
+      <div class="field-group">
+        <label>Your Name</label>
+        <input class="field-input" id="profileName" type="text" placeholder="e.g. Debaguin" maxlength="40" autocomplete="name">
+      </div>
+
+      <!-- Student fields -->
+      <div id="studentFields">
+        <div class="field-group">
+          <label>Class / Grade / Year</label>
+          <div class="chips-grid">
+            <div class="chip" data-val="Class 9"  onclick="selectChip(this)">Cls 9</div>
+            <div class="chip" data-val="Class 10" onclick="selectChip(this)">Cls 10</div>
+            <div class="chip" data-val="Class 11" onclick="selectChip(this)">Cls 11</div>
+            <div class="chip" data-val="Class 12" onclick="selectChip(this)">Cls 12</div>
+            <div class="chip" data-val="1st Year" onclick="selectChip(this)">1st Yr</div>
+            <div class="chip" data-val="2nd Year" onclick="selectChip(this)">2nd Yr</div>
+            <div class="chip" data-val="3rd Year" onclick="selectChip(this)">3rd Yr</div>
+            <div class="chip" data-val="Graduation" onclick="selectChip(this)">Grad</div>
+          </div>
+          <input class="field-input" id="profileClass" type="text" placeholder="Or type your own class/grade…" maxlength="30">
+          <div class="field-hint">E.g. Class 10, B.Tech 2nd Year, Graduation</div>
+        </div>
+      </div>
+
+      <!-- Teacher fields -->
+      <div id="teacherFields" class="hidden">
+        <div class="field-group">
+          <label>Subjects You Teach</label>
+          <div class="subject-tags" id="subjectTagsDisplay"></div>
+          <div class="add-tag-row">
+            <input class="add-tag-input" id="subjectTagInput" type="text" placeholder="e.g. Physics, Math…" maxlength="30">
+            <button class="add-tag-btn" onclick="addSubjectTag()">+ Add</button>
+          </div>
+          <div class="field-hint">Press Enter or tap Add after each subject</div>
+        </div>
+        <div class="field-group">
+          <label>Academic Session</label>
+          <input class="field-input" id="profileSession" type="text" placeholder="e.g. 2025–26" maxlength="20">
+          <div class="field-hint">The current academic session or year</div>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="saveProfileBtn" style="width:100%;margin-top:6px;padding:15px;border-radius:16px;font-size:15px;">Save Profile</button>
+    </div>
+  </div>
+
+  <!-- ADD MODAL -->
+  <div class="modal-overlay hidden" id="addModal">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title" id="addModalTitle">Add Teacher</div>
+        <button class="modal-close" id="cancelAddXBtn">✕</button>
+      </div>
+
+      <!-- Student: add teacher -->
+      <div id="addStudentFields">
+        <div class="field-group">
+          <label>Teacher Name</label>
+          <input class="field-input" id="f-name" placeholder="e.g. Arpan sir">
+        </div>
+        <div class="field-group">
+          <label>Subject</label>
+          <input class="field-input" id="f-subject" placeholder="e.g. Physics">
+        </div>
+        <div class="field-group">
+          <label>Monthly Fee (₹)</label>
+          <input class="field-input" id="f-fee" type="number" placeholder="500">
+        </div>
+        <div class="field-group">
+          <label>Baseline — Last Paid</label>
+          <div class="field-row">
+            <input class="field-input" id="f-month" type="number" placeholder="Month (1–12)" min="1" max="12">
+            <input class="field-input" id="f-year"  type="number" placeholder="Year e.g. 2025">
+          </div>
+          <div class="field-hint">When was this teacher last paid? This is the starting point for calculating dues.</div>
+        </div>
+      </div>
+
+      <!-- Teacher: add batch -->
+      <div id="addTeacherFields" class="hidden">
+        <div class="field-group">
+          <label>Batch Name</label>
+          <input class="field-input" id="b-name" placeholder="e.g. Morning Batch Class 10">
+        </div>
+        <div class="field-group">
+          <label>Subjects for This Batch</label>
+          <input class="field-input" id="b-subject" placeholder="e.g. Physics, Chemistry">
+        </div>
+        <div class="field-row" style="margin-bottom:15px;">
+          <div class="field-group" style="margin-bottom:0">
+            <label>Class / Grade</label>
+            <input class="field-input" id="b-class" placeholder="e.g. Class 10">
+          </div>
+          <div class="field-group" style="margin-bottom:0">
+            <label>Session</label>
+            <input class="field-input" id="b-session" placeholder="e.g. 2025–26">
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Monthly Fee Per Student (₹)</label>
+          <input class="field-input" id="b-fee" type="number" placeholder="500">
+        </div>
+        <div class="field-group">
+          <label>Timing / Schedule</label>
+          <input class="field-input" id="b-timing" placeholder="e.g. Mon/Wed/Fri 8–9 AM">
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-cancel" id="cancelAddBtn">Cancel</button>
+        <button class="btn-primary" id="confirmAddBtn">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIRM -->
+  <div class="confirm-overlay hidden" id="confirmOverlay">
+    <div class="confirm-box">
+      <div class="confirm-icon" id="confirmIcon">⚠️</div>
+      <div class="confirm-title" id="confirmTitle">Confirm</div>
+      <div class="confirm-msg" id="confirmMsg"></div>
+      <div class="confirm-actions">
+        <button class="btn-cancel" id="confirmCancelBtn">Cancel</button>
+        <button class="btn-primary" id="confirmOkBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc }
+      from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged }
+      from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    const cfg = { apiKey:"AIzaSyDlpLbd5g78eHv_elhiiLRlOdhPMvn9ijA", authDomain:"fee-tracker-f32f8.firebaseapp.com", projectId:"fee-tracker-f32f8", storageBucket:"fee-tracker-f32f8.firebasestorage.app", messagingSenderId:"1061066310105", appId:"1:1061066310105:web:4ca8c0feaa9d6614cd19c8" };
+    const db = getFirestore(initializeApp(cfg));
+    const auth = getAuth(); const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt:'select_account' });
+
+    // STATE
+    let cu = null, teachers = {}, batches = {}, payments = [], searchQ = '', profile = {};
+    const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    // REFS
+    const uid    = () => cu.uid;
+    const tcCol  = () => collection(db,'users',uid(),'teachers');
+    const btCol  = () => collection(db,'users',uid(),'batches');
+    const pyCol  = () => collection(db,'users',uid(),'payments');
+    const tcDoc  = id => doc(db,'users',uid(),'teachers',id);
+    const btDoc  = id => doc(db,'users',uid(),'batches',id);
+    const pyDoc  = id => doc(db,'users',uid(),'payments',id);
+    const prRef  = () => doc(db,'users',uid(),'meta','profile');
+    const isT    = () => profile.role === 'teacher';
+
+    // UTILS
+    function mBetween(a,b){ return (b.year-a.year)*12+(b.month-a.month); }
+    function addM(b,n){ let m=b.month+n,y=b.year; while(m>12){m-=12;y++;} return {month:m,year:y}; }
+
+    // TOAST
+    function toast(msg,type=''){
+      const t=document.getElementById('toast');
+      t.textContent=msg; t.className='toast '+type;
+      void t.offsetWidth; t.classList.add('show');
+      setTimeout(()=>t.classList.remove('show'),2600);
+    }
+
+    // CONFIRM
+    function confirm2(title,msg,ok='Confirm',icon='⚠️'){
+      return new Promise(res=>{
+        document.getElementById('confirmIcon').textContent=icon;
+        document.getElementById('confirmTitle').textContent=title;
+        document.getElementById('confirmMsg').innerHTML=msg;
+        document.getElementById('confirmOkBtn').textContent=ok;
+        document.getElementById('confirmOverlay').classList.remove('hidden');
+        const okB=document.getElementById('confirmOkBtn'), canB=document.getElementById('confirmCancelBtn');
+        const done=v=>{ document.getElementById('confirmOverlay').classList.add('hidden'); okB.replaceWith(okB.cloneNode(true)); canB.replaceWith(canB.cloneNode(true)); res(v); };
+        document.getElementById('confirmOkBtn').onclick=()=>done(true);
+        document.getElementById('confirmCancelBtn').onclick=()=>done(false);
+      });
+    }
+
+    // DUE CALC
+    function lastPaid(id){
+      const t=teachers[id];
+      let lp={month:t.baselineMonth,year:t.baselineYear};
+      let rp=0;
+      payments.filter(p=>p.teacherId===id).sort((a,b)=>a.timestamp-b.timestamp).forEach(p=>{
+        if(p.type==='partial'){ rp+=p.amount; const c=Math.floor(rp/t.fee); if(c>0){lp=addM(lp,c);rp%=t.fee;} }
+        else if(p.monthsPaid){ lp=addM(lp,p.monthsPaid); rp=0; }
+      });
+      return lp;
+    }
+    function partialBal(id){
+      const t=teachers[id]; let c=0;
+      payments.filter(p=>p.teacherId===id).sort((a,b)=>a.timestamp-b.timestamp).forEach(p=>{
+        if(p.type==='partial'){c+=p.amount;c%=t.fee;} else if(p.monthsPaid) c=0;
+      });
+      return c;
+    }
+    function monthsDue(id){ const n=new Date(); return Math.max(mBetween(lastPaid(id),{month:n.getMonth()+1,year:n.getFullYear()}),0); }
+    function calcDue(id){
+      const t=teachers[id],mo=monthsDue(id); if(!mo) return 0;
+      let d=mo*t.fee;
+      if(t.lateAfter){ const td=new Date().getDate(); if(td>t.lateAfter) d+=(td-t.lateAfter)*(t.latePerDay||0); }
+      return Math.max(d-partialBal(id),0);
+    }
+    function totalDue(){ return Object.keys(teachers).reduce((s,id)=>s+calcDue(id),0); }
+    function lastPaidStr(id){
+      const tp=payments.filter(p=>p.teacherId===id).sort((a,b)=>b.timestamp-a.timestamp);
+      if(!tp.length) return null;
+      const p=tp[0]; return p.paidOn?`${p.paidOn.day} ${MONTHS[p.paidOn.month-1]} ${p.paidOn.year}`:null;
+    }
+
+    // PROFILE
+    async function loadProfile(){
+      try{ const s=await getDoc(prRef()); profile=s.exists()?s.data():{}; } catch{ profile={}; }
+      updateRole();
+    }
+    function updateRole(){
+      const r=profile.role||'student';
+      document.getElementById('topbarLabel').textContent = r==='teacher'?'👨\u200d🏫 Teacher Mode':'📚 Personal Tracker';
+      const pill=document.getElementById('menuRolePill');
+      pill.textContent=r==='teacher'?'👨\u200d🏫 Teacher':'🎓 Student';
+      pill.className='menu-role-pill '+(r==='teacher'?'teacher':'student');
+    }
+
+    let pSubjects=[];
+    function renderSubjTags(){
+      document.getElementById('subjectTagsDisplay').innerHTML=
+        pSubjects.map((s,i)=>`<div class="subject-tag">${s}<button class="subj-rm" onclick="rmSubj(${i})">✕</button></div>`).join('');
+    }
+    window.addSubjectTag=function(){
+      const inp=document.getElementById('subjectTagInput'), v=inp.value.trim();
+      if(!v) return; if(!pSubjects.includes(v)) pSubjects.push(v); inp.value=''; renderSubjTags();
+    };
+    window.rmSubj=function(i){ pSubjects.splice(i,1); renderSubjTags(); };
+    window.selectRole=function(r){
+      document.getElementById('roleStudent').className='role-opt'+(r==='student'?' sel-student':'');
+      document.getElementById('roleTeacher').className='role-opt'+(r==='teacher'?' sel-teacher':'');
+      document.getElementById('studentFields').classList.toggle('hidden',r!=='student');
+      document.getElementById('teacherFields').classList.toggle('hidden',r!=='teacher');
+    };
+    window.selectChip=function(el){
+      document.querySelectorAll('#profileModal .chip').forEach(c=>c.classList.remove('selected'));
+      el.classList.add('selected');
+      document.getElementById('profileClass').value=el.dataset.val;
+    };
+
+    function openProfileModal(){
+      closeMenu();
+      const r=profile.role||'student';
+      selectRole(r);
+      document.getElementById('profileName').value=profile.displayName||cu?.displayName||'';
+      if(r==='student'){
+        const cls=profile.className||'';
+        document.getElementById('profileClass').value=cls;
+        document.querySelectorAll('#profileModal .chip').forEach(c=>c.classList.toggle('selected',c.dataset.val===cls));
+      } else {
+        pSubjects=[...(profile.subjects||[])]; renderSubjTags();
+        document.getElementById('profileSession').value=profile.session||'';
+      }
+      const av=document.getElementById('profileAvatar');
+      if(cu?.photoURL) av.innerHTML=`<img src="${cu.photoURL}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+      else av.textContent=(profile.displayName||cu?.displayName||'U')[0].toUpperCase();
+      document.getElementById('profileModal').classList.remove('hidden');
+    }
+    function closeProfileModal(){ document.getElementById('profileModal').classList.add('hidden'); }
+
+    async function saveProfile(){
+      const btn=document.getElementById('saveProfileBtn'); btn.textContent='Saving…'; btn.disabled=true;
+      const r=document.getElementById('roleTeacher').classList.contains('sel-teacher')?'teacher':'student';
+      const d={role:r, displayName:document.getElementById('profileName').value.trim(), updatedAt:Date.now()};
+      if(r==='student') d.className=document.getElementById('profileClass').value.trim();
+      else { d.subjects=pSubjects; d.session=document.getElementById('profileSession').value.trim(); }
+      try{
+        await setDoc(prRef(),d); profile=d; updateRole();
+        closeProfileModal(); toast('Profile saved ✓','success');
+      } catch(e){ console.error(e); toast('Failed: '+e.message,'error'); }
+      btn.textContent='Save Profile'; btn.disabled=false;
+    }
+
+    // LOAD
+    async function loadAll(){
+      if(isT()){
+        const bs=await getDocs(btCol()); batches={};
+        bs.forEach(d=>{ batches[d.id]=d.data(); });
+      } else {
+        const [ts,ps]=await Promise.all([getDocs(tcCol()),getDocs(pyCol())]);
+        teachers={}; ts.forEach(d=>{ teachers[d.id]=d.data(); });
+        payments=ps.docs.map(d=>({id:d.id,...d.data()}));
+      }
+      render();
+    }
+
+    // PAY
+    window.switchPayTab=function(id,type){
+      const tb=document.getElementById(`ptab-${type}-${id}`); if(tb?.disabled) return;
+      ['full','partial','advance'].forEach(t=>{
+        document.getElementById(`prow-${t}-${id}`)?.classList.toggle('hidden',t!==type);
+        const el=document.getElementById(`ptab-${t}-${id}`);
+        if(el){ el.classList.remove('active','active-partial','active-advance'); if(t===type) el.classList.add(t==='partial'?'active-partial':t==='advance'?'active-advance':'active'); }
+      });
+    };
+
+    window.payMonths=async function(id,type='full'){
+      const t=teachers[id], n=new Date(), po={day:n.getDate(),month:n.getMonth()+1,year:n.getFullYear()};
+      if(type==='full'){
+        const max=monthsDue(id); if(!max) return toast('No dues pending ✓','success');
+        const v=parseInt(document.getElementById('pay-'+id).value);
+        if(!v||v<1||v>max) return toast(`Enter 1\u2013${max}`,'error');
+        const amt=v*t.fee;
+        if(!await confirm2('Confirm Payment',`Pay <strong style="color:#f0f0f8">₹${amt.toLocaleString('en-IN')}</strong> for <strong style="color:#f0f0f8">${v} month${v>1?'s':''}</strong> to ${t.name}?`,'Pay','💸')) return;
+        await addDoc(pyCol(),{teacherId:id,teacherName:t.name,subject:t.subject,monthsPaid:v,amount:amt,type:'full',paidOn:po,timestamp:Date.now()});
+        toast(`Paid ₹${amt.toLocaleString('en-IN')} ✓`,'success');
+      } else if(type==='partial'){
+        const amt=parseInt(document.getElementById('pay-partial-'+id).value);
+        if(!amt||amt<1) return toast('Enter an amount','error');
+        if(amt>=t.fee) return toast(`Use Full tab for ₹${t.fee}+`,'error');
+        const ex=partialBal(id), tot=ex+amt;
+        if(tot>=t.fee) return toast(`Total ₹${tot} covers full month — use Full tab`,'error');
+        const rem=t.fee-tot;
+        if(!await confirm2('Partial Payment',`Record <strong style="color:#f0f0f8">₹${amt.toLocaleString('en-IN')}</strong> partial to ${t.name}?<br><small style="color:var(--muted)">Still owed: ₹${rem.toLocaleString('en-IN')}</small>`,'Record','🧾')) return;
+        await addDoc(pyCol(),{teacherId:id,teacherName:t.name,subject:t.subject,amount:amt,type:'partial',paidOn:po,timestamp:Date.now()});
+        toast(`Partial ₹${amt.toLocaleString('en-IN')} recorded`,'success');
+      } else if(type==='advance'){
+        if(monthsDue(id)>0) return toast('Clear dues first','error');
+        const v=parseInt(document.getElementById('pay-advance-'+id).value);
+        if(!v||v<1||v>12) return toast('Enter 1\u201312 months','error');
+        const amt=v*t.fee;
+        if(!await confirm2('Advance Payment',`Pay <strong style="color:#f0f0f8">₹${amt.toLocaleString('en-IN')}</strong> advance for <strong style="color:#f0f0f8">${v} month${v>1?'s':''}</strong> to ${t.name}?<br><small style="color:var(--muted)">No dues for next ${v} month${v>1?'s':''}</small>`,'Pay','🚀')) return;
+        await addDoc(pyCol(),{teacherId:id,teacherName:t.name,subject:t.subject,monthsPaid:v,advanceMonths:v,amount:amt,type:'advance',paidOn:po,timestamp:Date.now()});
+        toast(`Advance ₹${amt.toLocaleString('en-IN')} paid ✓`,'success');
+      }
+      await loadAll();
+    };
+
+    window.deletePayment=async function(id){
+      if(!await confirm2('Delete Payment','This cannot be undone.','Delete','🗑️')) return;
+      await deleteDoc(pyDoc(id)); toast('Deleted',''); await loadAll();
+    };
+    window.deleteTeacher=async function(id){
+      const t=teachers[id];
+      if(!await confirm2('Remove Teacher',`Remove <strong style="color:#f0f0f8">${t.name}</strong> and all history?`,'Remove','🗑️')) return;
+      await Promise.all(payments.filter(p=>p.teacherId===id).map(p=>deleteDoc(pyDoc(p.id))));
+      await deleteDoc(tcDoc(id)); toast(`${t.name} removed`,''); await loadAll();
+    };
+    window.deleteBatch=async function(id){
+      const b=batches[id];
+      if(!await confirm2('Remove Batch',`Remove <strong style="color:#f0f0f8">${b.name}</strong>?`,'Remove','🗑️')) return;
+      await deleteDoc(btDoc(id)); toast(`${b.name} removed`,''); await loadAll();
+    };
+
+    // ADD
+    function openAddModal(){
+      const t=isT();
+      document.getElementById('addModalTitle').textContent=t?'Add Batch':'Add Teacher';
+      document.getElementById('addStudentFields').classList.toggle('hidden',t);
+      document.getElementById('addTeacherFields').classList.toggle('hidden',!t);
+      document.getElementById('addModal').classList.remove('hidden');
+    }
+    function closeAddModal(){
+      document.getElementById('addModal').classList.add('hidden');
+      ['f-name','f-subject','f-fee','f-month','f-year','b-name','b-subject','b-class','b-session','b-fee','b-timing']
+        .forEach(i=>{ const e=document.getElementById(i); if(e) e.value=''; });
+    }
+    async function confirmAdd(){
+      if(isT()){
+        const nm=document.getElementById('b-name').value.trim();
+        const sb=document.getElementById('b-subject').value.trim();
+        const cl=document.getElementById('b-class').value.trim();
+        const ss=document.getElementById('b-session').value.trim();
+        const fe=parseInt(document.getElementById('b-fee').value);
+        const ti=document.getElementById('b-timing').value.trim();
+        if(!nm||!sb||!fe) return toast('Batch name, subject & fee required','error');
+        await addDoc(btCol(),{name:nm,subject:sb,class:cl,session:ss,fee:fe,timing:ti,createdAt:Date.now()});
+        closeAddModal(); toast(`${nm} added ✓`,'success');
+      } else {
+        const nm=document.getElementById('f-name').value.trim();
+        const sb=document.getElementById('f-subject').value.trim();
+        const fe=parseInt(document.getElementById('f-fee').value);
+        const mo=parseInt(document.getElementById('f-month').value);
+        const yr=parseInt(document.getElementById('f-year').value);
+        if(!nm||!sb||!fe||!mo||!yr) return toast('Fill all fields','error');
+        if(mo<1||mo>12) return toast('Month must be 1\u201312','error');
+        await addDoc(tcCol(),{name:nm,subject:sb,fee:fe,baselineMonth:mo,baselineYear:yr});
+        closeAddModal(); toast(`${nm} added ✓`,'success');
+      }
+      await loadAll();
+    }
+
+    window.toggleHistory=function(id){
+      document.getElementById('hist-'+id).classList.toggle('open');
+      document.getElementById('tog-'+id).classList.toggle('open');
+    };
+
+    // SWIPE
+    let sx=0;
+    window.startSwipe=(e,el)=>{ sx=e.touches[0].clientX; el.style.transition='none'; };
+    window.moveSwipe=(e,el)=>{ const d=e.touches[0].clientX-sx; if(d<0){el.style.transform=`translateX(${d}px)`;el.style.background='rgba(255,77,109,.18)';} };
+    window.endSwipe=(el,id)=>{ const m=Math.abs(el.getBoundingClientRect().left-el.parentElement.getBoundingClientRect().left); if(m>80) window.deletePayment(id); else{el.style.transition='transform .2s';el.style.transform='translateX(0)';el.style.background='';} };
+
+    // PULL
+    let py=0,pu=false;
+    const pi=document.getElementById('pull-indicator');
+    document.addEventListener('touchstart',e=>{ if(!window.scrollY){py=e.touches[0].clientY;pu=true;} },{passive:true});
+    document.addEventListener('touchmove',e=>{ if(!pu) return; const d=e.touches[0].clientY-py; if(d>10){pi.style.transform=`translateY(${Math.min(d-10,60)}px)`;pi.textContent=d>70?'\u2191 Release to refresh':'\u2193 Pull to refresh';} },{passive:true});
+    document.addEventListener('touchend',async e=>{ if(!pu) return; pu=false; const d=e.changedTouches[0].clientY-py; pi.style.transform='translateY(-100%)'; if(d>70){pi.textContent='\u27f3 Refreshing\u2026';pi.style.transform='translateY(0)';await loadAll();toast('Refreshed \u2713','success');setTimeout(()=>{pi.style.transform='translateY(-100%)';},600);} },{passive:true});
+
+    window.onSearch=v=>{ searchQ=v; render(); const i=document.querySelector('.search-input'); if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length);} };
+
+    // MENU
+    function toggleMenu(e){ e?.stopPropagation(); const m=document.getElementById('userMenu'),b=document.getElementById('menuBackdrop'),h=!m.classList.contains('hidden'); m.classList.toggle('hidden',h); b.classList.toggle('hidden',h); }
+    function closeMenu(){ document.getElementById('userMenu').classList.add('hidden'); document.getElementById('menuBackdrop').classList.add('hidden'); }
+
+    // RENDER
+    function render(){ isT()?renderTeacher():renderStudent(); }
+
+    function renderStudent(){
+      const root=document.getElementById('appInner');
+      const td=totalDue(), n=new Date();
+      const ds=n.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+      const ov=Object.keys(teachers).filter(id=>monthsDue(id)>0).length;
+      const cl=Object.keys(teachers).filter(id=>monthsDue(id)===0).length;
+      const name=profile.displayName||cu?.displayName||'Student';
+      const sub=profile.className||'Tap to set up profile';
+
+      let h=`
+        <div class="profile-strip" onclick="openProfileModal()">
+          <div class="ps-avatar">${cu?.photoURL?`<img src="${cu.photoURL}">`:(name[0]||'S').toUpperCase()}</div>
+          <div class="ps-info">
+            <div class="ps-name">${name}</div>
+            <div class="ps-sub">${sub}</div>
+          </div>
+          <span class="ps-role-badge ps-role-student">\uD83C\uDF93 Student</span>
+          <span class="ps-arrow">\u203a</span>
+        </div>
+        ${!profile.className?`<div class="setup-banner" onclick="openProfileModal()"><span class="setup-banner-icon">👤</span><div class="setup-banner-text"><div class="setup-banner-title">Complete your profile</div><div class="setup-banner-sub">Add your name and class</div></div><button class="setup-banner-btn">Set up</button></div>`:''}
+        <div class="total-card">
+          <div class="total-label">Total Outstanding</div>
+          <div class="total-amount"><span class="cur">₹</span>${td.toLocaleString('en-IN')}</div>
+          <div class="total-sub">As of ${ds}</div>
+          <div class="total-meta">
+            <div class="total-meta-item"><div class="total-meta-val">${ov}</div><div class="total-meta-lbl">Pending</div></div>
+            <div class="total-meta-item"><div class="total-meta-val">${cl}</div><div class="total-meta-lbl">Clear</div></div>
+            <div class="total-meta-item"><div class="total-meta-val">${Object.keys(teachers).length}</div><div class="total-meta-lbl">Teachers</div></div>
+          </div>
+        </div>
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input class="search-input" type="text" placeholder="Search teacher or subject\u2026" value="${searchQ}" oninput="onSearch(this.value)"/>
+          ${searchQ?`<span class="search-clear" onclick="onSearch('')">\u2715</span>`:''}
+        </div>
+        <div class="section-label"><span class="section-label-txt">Teachers</span><span class="section-label-count">${Object.keys(teachers).length}</span></div>`;
+
+      if(!Object.keys(teachers).length){
+        h+=`<div class="empty-state"><div class="empty-icon">📚</div><div class="empty-title">No teachers yet</div><div class="empty-sub">Tap <strong>+</strong> to add your first teacher and start tracking.</div></div>`;
+        root.innerHTML=h; return;
+      }
+      const sorted=Object.keys(teachers).sort((a,b)=>calcDue(b)-calcDue(a)).filter(id=>{ const q=searchQ.toLowerCase(); return !q||teachers[id].name.toLowerCase().includes(q)||teachers[id].subject.toLowerCase().includes(q); });
+      if(!sorted.length){ h+=`<div class="no-results">No results for "<strong>${searchQ}</strong>"</div>`; root.innerHTML=h; return; }
+
+      let dl=0;
+      for(const id of sorted){
+        const t=teachers[id], dm=monthsDue(id), da=calcDue(id), lps=lastPaidStr(id), ov2=dm>=3, cr=dm>=6, pb=partialBal(id);
+        const tpy=payments.filter(p=>p.teacherId===id).sort((a,b)=>b.timestamp-a.timestamp);
+        const bdg=cr?`<span class="overdue-badge critical">🚨 ${dm}mo</span>`:ov2?`<span class="overdue-badge">⚠️ ${dm}mo</span>`:'';
+        h+=`
+          <div class="teacher-card ${cr?'card-critical':ov2?'card-overdue':''}" style="animation-delay:${dl}s">
+            <div class="card-top">
+              <div class="card-header">
+                <div class="card-left">
+                  <div class="teacher-name-row"><div class="teacher-name">${t.name}</div>${bdg}</div>
+                  <div class="teacher-subject">${t.subject} · ₹${t.fee}/mo</div>
+                  ${lps?`<div class="last-paid">Last paid: ${lps}</div>`:`<div class="last-paid never">Never paid</div>`}
+                </div>
+                <div class="due-badge">
+                  <div class="due-amount ${da===0?'zero':cr?'critical':''}">₹${da.toLocaleString('en-IN')}</div>
+                  <div class="due-months">${dm===0?'All clear ✓':`${dm} month${dm>1?'s':''} due`}</div>
+                  ${pb>0?`<div class="partial-chip">+₹${pb.toLocaleString('en-IN')} partial</div>`:''}
+                </div>
+              </div>
+              <div class="pay-tabs">
+                <button class="pay-tab ${dm>0?'active':''}" id="ptab-full-${id}" onclick="switchPayTab('${id}','full')" ${dm===0?'disabled':''}>Full</button>
+                <button class="pay-tab" id="ptab-partial-${id}" onclick="switchPayTab('${id}','partial')" ${dm===0?'disabled':''}>Partial</button>
+                <button class="pay-tab ${dm===0?'active-advance':''}" id="ptab-advance-${id}" onclick="switchPayTab('${id}','advance')" ${dm>0?'disabled':''}>Advance</button>
+              </div>
+              <div class="pay-row ${dm===0?'hidden':''}" id="prow-full-${id}">
+                <input id="pay-${id}" class="pay-input" type="number" min="1" max="${dm}" placeholder="${dm>1?'Months (1\u2013'+dm+')':dm===1?'1 month due':'No dues'}">
+                <button class="pay-btn" onclick="payMonths('${id}','full')" ${dm===0?'disabled':''}>Pay</button>
+              </div>
+              <div class="pay-row hidden" id="prow-partial-${id}">
+                <input id="pay-partial-${id}" class="pay-input" type="number" min="1" max="${t.fee-1}" placeholder="₹1 \u2013 ₹${t.fee-1}">
+                <button class="pay-btn pay-btn-partial" onclick="payMonths('${id}','partial')">Pay</button>
+              </div>
+              <div class="pay-row ${dm===0?'':'hidden'}" id="prow-advance-${id}">
+                <input id="pay-advance-${id}" class="pay-input" type="number" min="1" max="12" placeholder="Months ahead (1\u201312)">
+                <button class="pay-btn pay-btn-advance" onclick="payMonths('${id}','advance')">Pay</button>
+              </div>
+            </div>
+            <div class="card-actions">
+              <div class="history-toggle" id="tog-${id}" onclick="toggleHistory('${id}')">
+                <span class="toggle-dot"></span>History (${tpy.length})<span class="h-arrow">▾</span>
+              </div>
+              <button class="del-teacher-btn" onclick="deleteTeacher('${id}')">🗑</button>
+            </div>
+            <div class="history-panel" id="hist-${id}">
+              ${tpy.length===0?'<div class="hist-empty">No payments yet</div>':
+                '<div class="swipe-hint">\u2190 swipe to delete</div>'+tpy.map(p=>{
+                  const hb=p.type==='partial'?`<span class="hist-badge hist-partial">Partial</span>`:p.type==='advance'?`<span class="hist-badge hist-advance">Advance</span>`:'';
+                  const lb=p.type==='partial'?`₹${p.amount.toLocaleString('en-IN')} partial`:`${p.monthsPaid} month${p.monthsPaid>1?'s':''}`;
+                  return `<div class="payment-item" ontouchstart="startSwipe(event,this)" ontouchmove="moveSwipe(event,this)" ontouchend="endSwipe(this,'${p.id}')">
+                    <div><div class="pay-months-txt">${lb}${hb}</div><div class="pay-date-txt">${p.paidOn?`${p.paidOn.day} ${MONTHS[p.paidOn.month-1]} ${p.paidOn.year}`:'—'}</div></div>
+                    <div class="pay-amt-tag">₹${p.amount.toLocaleString('en-IN')}</div></div>`;
+                }).join('')}
+            </div>
+          </div>`;
+        dl+=0.05;
+      }
+      root.innerHTML=h;
+    }
+
+    function renderTeacher(){
+      const root=document.getElementById('appInner');
+      const name=profile.displayName||cu?.displayName||'Teacher';
+      const subjs=profile.subjects||[], sess=profile.session||'';
+      const bList=Object.keys(batches);
+      let h=`
+        <div class="profile-strip" onclick="openProfileModal()">
+          <div class="ps-avatar">${cu?.photoURL?`<img src="${cu.photoURL}">`:(name[0]||'T').toUpperCase()}</div>
+          <div class="ps-info">
+            <div class="ps-name">${name}</div>
+            <div class="ps-sub">${subjs.length?subjs.join(' · '):'Tap to set up profile'}</div>
+          </div>
+          <span class="ps-role-badge ps-role-teacher">👨\u200d🏫 Teacher</span>
+          <span class="ps-arrow">\u203a</span>
+        </div>
+        ${!profile.displayName?`<div class="setup-banner" onclick="openProfileModal()"><span class="setup-banner-icon">👨\u200d🏫</span><div class="setup-banner-text"><div class="setup-banner-title">Set up your teacher profile</div><div class="setup-banner-sub">Add your subjects and session</div></div><button class="setup-banner-btn">Set up</button></div>`:''}
+        <div class="teacher-mode-header">
+          <div class="tmh-icon">👨\u200d🏫</div>
+          <div class="tmh-info">
+            <div class="tmh-title">Teacher Dashboard</div>
+            <div class="tmh-sub">${subjs.length?subjs.join(', '):'No subjects set'} ${sess?'· '+sess:''}</div>
+          </div>
+        </div>
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input class="search-input" type="text" placeholder="Search batch or subject\u2026" value="${searchQ}" oninput="onSearch(this.value)"/>
+          ${searchQ?`<span class="search-clear" onclick="onSearch('')">\u2715</span>`:''}
+        </div>
+        <div class="section-label"><span class="section-label-txt">My Batches</span><span class="section-label-count">${bList.length}</span></div>`;
+
+      if(!bList.length){
+        h+=`<div class="empty-state"><div class="empty-icon">👨\u200d🏫</div><div class="empty-title">No batches yet</div><div class="empty-sub">Tap <strong>+</strong> to add your first batch. Set subjects, class, session, and timings.</div></div>`;
+        root.innerHTML=h; return;
+      }
+      const fil=bList.filter(id=>{ const q=searchQ.toLowerCase(); return !q||batches[id].name.toLowerCase().includes(q)||batches[id].subject?.toLowerCase().includes(q); });
+      let dl=0;
+      for(const id of fil){
+        const b=batches[id];
+        h+=`
+          <div class="batch-card" style="animation-delay:${dl}s">
+            <div class="batch-header">
+              <div>
+                <div class="batch-name">${b.name}</div>
+                <div class="batch-meta">${b.class?b.class+' · ':''}₹${b.fee}/mo per student${b.timing?' · '+b.timing:''}</div>
+              </div>
+              ${b.session?`<span class="batch-session-badge">${b.session}</span>`:''}
+            </div>
+            <div class="batch-subject-list">
+              ${b.subject.split(',').map(s=>`<span class="batch-subj-chip">${s.trim()}</span>`).join('')}
+            </div>
+            <div class="batch-actions">
+              <button class="batch-info-btn">📋 Batch details</button>
+              <button class="batch-del-btn" onclick="deleteBatch('${id}')">🗑</button>
+            </div>
+          </div>`;
+        dl+=0.05;
+      }
+      root.innerHTML=h;
+    }
+
+    // AUTH
+    let loaded=false;
+    function showApp(user){
+      if(loaded) return; loaded=true; cu=user;
+      // update menu
+      const ma=document.getElementById('menuAvatar');
+      if(user.photoURL) ma.innerHTML=`<img src="${user.photoURL}">`;
+      else ma.textContent=(user.displayName||'U')[0].toUpperCase();
+      document.getElementById('menuName').textContent=user.displayName||'User';
+      document.getElementById('menuEmail').textContent=user.email||'';
+      // update topbar avatar
+      const av=document.getElementById('avatarEl');
+      if(user.photoURL) av.innerHTML=`<img src="${user.photoURL}">`;
+      else av.textContent=(user.displayName||'U')[0].toUpperCase();
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('appScreen').classList.remove('hidden');
+    }
+
+    getRedirectResult(auth).then(async r=>{ if(r?.user){ showApp(r.user); await Promise.all([loadProfile(),loadAll()]); } }).catch(e=>{ if(e.code&&e.code!=='auth/no-current-user') toast('Login error: '+e.code,'error'); });
+    onAuthStateChanged(auth,async user=>{ if(user){ if(!loaded){showApp(user);await Promise.all([loadProfile(),loadAll()]);} } else { cu=null;loaded=false; document.getElementById('loginScreen').classList.remove('hidden'); document.getElementById('appScreen').classList.add('hidden'); } });
+
+    document.getElementById('googleSignInBtn').addEventListener('click',async()=>{
+      const btn=document.getElementById('googleSignInBtn'); btn.textContent='Signing in\u2026'; btn.disabled=true;
+      try{ await signInWithPopup(auth,provider); }
+      catch(e){ if(['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request'].includes(e.code)){ await signInWithRedirect(auth,provider); } else { toast('Login failed: '+e.code,'error'); btn.innerHTML='<svg class="google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Continue with Google'; btn.disabled=false; } }
+    });
+
+    document.getElementById('avatarEl').addEventListener('click',toggleMenu);
+    document.getElementById('menuBackdrop').addEventListener('click',closeMenu);
+    document.getElementById('userMenu').addEventListener('click',e=>e.stopPropagation());
+    document.getElementById('signOutBtn').addEventListener('click',async()=>{ closeMenu(); await signOut(auth); });
+    document.getElementById('editProfileBtn').addEventListener('click',()=>openProfileModal());
+    document.getElementById('addBtn').addEventListener('click',openAddModal);
+    document.getElementById('cancelAddXBtn').addEventListener('click',closeAddModal);
+    document.getElementById('cancelAddBtn').addEventListener('click',closeAddModal);
+    document.getElementById('confirmAddBtn').addEventListener('click',confirmAdd);
+    document.getElementById('addModal').addEventListener('click',e=>{ if(e.target===document.getElementById('addModal')) closeAddModal(); });
+    document.getElementById('closeProfileBtn').addEventListener('click',closeProfileModal);
+    document.getElementById('saveProfileBtn').addEventListener('click',saveProfile);
+    document.getElementById('profileModal').addEventListener('click',e=>{ if(e.target===document.getElementById('profileModal')) closeProfileModal(); });
+    document.getElementById('subjectTagInput').addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();window.addSubjectTag();} });
+
+    window.openProfileModal=openProfileModal;
+  </script>
+
+  <script>
+    if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+  </script>
+</body>
+</html>
