@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fee Tracker — Migration Tool</title>
+<style>
+  :root{
+    --bg:#080812;--surface:#10101e;--surface2:#181830;--border:rgba(255,255,255,.07);
+    --accent:#7c6bff;--accent3:#00d4aa;--red:#ff4d6d;--yellow:#ffd166;
+    --text:#f0f0f8;--text2:#a0a0c8;--muted:#5a5a88;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;
+       min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 16px 60px;}
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap');
+
+  h1{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.4px;
+     background:linear-gradient(135deg,#7c6bff,#ff6b9d);-webkit-background-clip:text;
+     -webkit-text-fill-color:transparent;margin-bottom:4px;}
+  .subtitle{font-size:12px;color:var(--muted);margin-bottom:28px;text-align:center;}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:20px;
+        padding:20px;width:100%;max-width:500px;margin-bottom:14px;}
+  .card-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--text2);
+              letter-spacing:.5px;text-transform:uppercase;margin-bottom:14px;}
+
+  label{display:block;font-size:11px;font-weight:600;color:var(--muted);
+        letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px;}
+  input{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;
+        padding:11px 14px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);
+        outline:none;margin-bottom:12px;}
+  input:focus{border-color:rgba(124,107,255,.5);}
+
+  .step{display:flex;align-items:flex-start;gap:12px;padding:14px 0;
+        border-bottom:1px solid var(--border);}
+  .step:last-child{border-bottom:none;}
+  .step-num{width:28px;height:28px;border-radius:50%;background:rgba(124,107,255,.15);
+            border:1.5px solid rgba(124,107,255,.3);color:var(--accent);font-family:'Syne',sans-serif;
+            font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .step-body{flex:1;}
+  .step-title{font-weight:700;font-size:14px;color:var(--text);margin-bottom:3px;}
+  .step-desc{font-size:12px;color:var(--text2);line-height:1.6;}
+  .step-desc a{color:var(--accent);text-decoration:none;}
+  .step-desc code{background:var(--surface2);padding:2px 6px;border-radius:5px;font-size:11px;}
+
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;max-width:500px;
+       padding:16px;border:none;border-radius:16px;font-family:'Syne',sans-serif;font-size:15px;
+       font-weight:800;cursor:pointer;transition:opacity .15s,transform .1s;margin-bottom:10px;}
+  .btn:active{transform:scale(.97);opacity:.85;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),#5a4de6);color:#fff;
+               box-shadow:0 6px 24px rgba(124,107,255,.35);}
+  .btn-success{background:linear-gradient(135deg,var(--accent3),#00a884);color:#fff;
+               box-shadow:0 6px 24px rgba(0,212,170,.3);}
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+
+  #log{width:100%;max-width:500px;background:var(--surface);border:1px solid var(--border);
+       border-radius:16px;padding:16px;font-size:12px;font-family:monospace;
+       color:var(--text2);line-height:1.8;max-height:340px;overflow-y:auto;display:none;}
+  .log-ok{color:var(--accent3);}
+  .log-err{color:var(--red);}
+  .log-info{color:var(--accent);}
+  .log-warn{color:var(--yellow);}
+
+  .progress-wrap{width:100%;max-width:500px;margin-bottom:14px;display:none;}
+  .progress-label{font-size:12px;color:var(--muted);margin-bottom:6px;}
+  .progress-bar{height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+  .progress-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent3));
+                 transition:width .3s ease;width:0%;}
+
+  .result-card{width:100%;max-width:500px;background:linear-gradient(135deg,rgba(0,212,170,.08),rgba(0,212,170,.04));
+               border:1px solid rgba(0,212,170,.25);border-radius:20px;padding:20px;
+               text-align:center;display:none;}
+  .result-icon{font-size:40px;margin-bottom:10px;}
+  .result-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--accent3);margin-bottom:6px;}
+  .result-sub{font-size:13px;color:var(--text2);line-height:1.6;}
+  .result-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px;}
+  .rs{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px;}
+  .rs-val{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--text);}
+  .rs-lbl{font-size:10px;color:var(--muted);margin-top:2px;}
+
+  .warn-box{background:rgba(255,214,102,.07);border:1px solid rgba(255,214,102,.2);border-radius:14px;
+            padding:14px;font-size:12px;color:var(--yellow);line-height:1.7;width:100%;max-width:500px;margin-bottom:14px;}
+</style>
+</head>
+<body>
+
+<h1 style="margin-top:8px;">⚡ Migration Tool</h1>
+<p class="subtitle">Transfer your data from the old app to Fee Tracker</p>
+
+<!-- HOW TO USE -->
+<div class="card">
+  <div class="card-title">Before You Start</div>
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <div class="step-title">Sign in to both apps first</div>
+      <div class="step-desc">Open <a href="https://debguin1-alt.github.io/tuition-fee-management-/" target="_blank">old app</a> and <a href="https://debguin1-alt.github.io/fee-tracker/" target="_blank">new app</a> in separate tabs and sign in with the <strong>same Google account</strong> in both.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <div class="step-title">Complete onboarding in the new app</div>
+      <div class="step-desc">If you haven't already, finish the onboarding in the new app and set your role to <strong>Student</strong>.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <div class="step-title">Run the migration below</div>
+      <div class="step-desc">Click <strong>Start Migration</strong>. This reads all teachers and payments from the old app and writes them to the new app. It won't duplicate data if you run it twice.</div>
+    </div>
+  </div>
+</div>
+
+<div class="warn-box">
+  ⚠️ <strong>This is read-only for the old app</strong> — your old data will not be deleted or changed. Migration only <em>writes</em> to the new app.
+</div>
+
+<!-- START BUTTON -->
+<button class="btn btn-primary" id="startBtn" onclick="runMigration()">
+  ▶ Start Migration
+</button>
+
+<!-- PROGRESS -->
+<div class="progress-wrap" id="progressWrap">
+  <div class="progress-label" id="progressLabel">Reading old data…</div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<!-- LOG -->
+<div id="log"></div>
+
+<!-- RESULT -->
+<div class="result-card" id="resultCard">
+  <div class="result-icon">✅</div>
+  <div class="result-title">Migration Complete!</div>
+  <div class="result-sub">Your data has been transferred to Fee Tracker.<br>Open the new app and pull-to-refresh to see everything.</div>
+  <div class="result-stats">
+    <div class="rs"><div class="rs-val" id="rTeachers">0</div><div class="rs-lbl">Teachers</div></div>
+    <div class="rs"><div class="rs-val" id="rPayments">0</div><div class="rs-lbl">Payments</div></div>
+    <div class="rs"><div class="rs-val" id="rSkipped">0</div><div class="rs-lbl">Skipped</div></div>
+  </div>
+</div>
+
+<script type="module">
+// ── Firebase SDKs ──────────────────────────────────────────────────────────
+import { initializeApp }                        from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getAuth, onAuthStateChanged }          from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { getFirestore, collection, getDocs,
+         setDoc, doc, query, where, getDoc }    from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+// ── OLD app (tuition-fee-management) ─────────────────────────────────────
+const OLD_CFG = {
+  apiKey:    "AIzaSyBvf1TzspmSqfMCryKooTxAmbKRETX0xpg",
+  projectId: "tuition-fee-management-4e15e",
+  authDomain:"tuition-fee-management-4e15e.firebaseapp.com",
+};
+
+// ── NEW app (fee-tracker) ─────────────────────────────────────────────────
+const NEW_CFG = {
+  apiKey:        "AIzaSyDlpLbd5g78eHv_elhiiLRlOdhPMvn9ijA",
+  authDomain:    "fee-tracker-f32f8.firebaseapp.com",
+  projectId:     "fee-tracker-f32f8",
+  storageBucket: "fee-tracker-f32f8.firebasestorage.app",
+  messagingSenderId: "1061066310105",
+  appId:         "1:1061066310105:web:4ca8c0feaa9d6614cd19c8",
+};
+
+const oldApp  = initializeApp(OLD_CFG,  'old');
+const newApp  = initializeApp(NEW_CFG,  'new');
+const oldAuth = getAuth(oldApp);
+const newAuth = getAuth(newApp);
+const oldDb   = getFirestore(oldApp);
+const newDb   = getFirestore(newApp);
+
+// ── Logging helpers ────────────────────────────────────────────────────────
+const logEl = document.getElementById('log');
+function log(msg, cls=''){
+  logEl.style.display='block';
+  const line = document.createElement('div');
+  if(cls) line.className = 'log-' + cls;
+  line.textContent = msg;
+  logEl.appendChild(line);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+function setProgress(pct, label){
+  document.getElementById('progressWrap').style.display='block';
+  document.getElementById('progressFill').style.width = pct+'%';
+  if(label) document.getElementById('progressLabel').textContent = label;
+}
+
+// ── Wait for auth in both apps ─────────────────────────────────────────────
+function waitForUser(auth){
+  return new Promise((resolve, reject) => {
+    const unsub = onAuthStateChanged(auth, user => {
+      unsub();
+      resolve(user);
+    }, reject);
+  });
+}
+
+// ── MAIN MIGRATION ─────────────────────────────────────────────────────────
+window.runMigration = async function(){
+  const btn = document.getElementById('startBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Migrating…';
+  logEl.innerHTML = '';
+  document.getElementById('resultCard').style.display = 'none';
+
+  try {
+    // 1. Check auth in old app
+    log('Checking sign-in status…', 'info');
+    setProgress(5, 'Checking authentication…');
+    const [oldUser, newUser] = await Promise.all([
+      waitForUser(oldAuth),
+      waitForUser(newAuth),
+    ]);
+
+    if(!oldUser){
+      log('❌ Not signed in to old app. Open https://debguin1-alt.github.io/tuition-fee-management-/ in another tab and sign in first.', 'err');
+      btn.disabled=false; btn.textContent='▶ Start Migration'; return;
+    }
+    if(!newUser){
+      log('❌ Not signed in to new app. Open https://debguin1-alt.github.io/fee-tracker/ in another tab and sign in first.', 'err');
+      btn.disabled=false; btn.textContent='▶ Start Migration'; return;
+    }
+    if(oldUser.uid !== newUser.uid){
+      log('❌ Different Google accounts! You must be signed in with the SAME account in both apps.', 'err');
+      log(`   Old app UID: ${oldUser.uid}`, 'warn');
+      log(`   New app UID: ${newUser.uid}`, 'warn');
+      btn.disabled=false; btn.textContent='▶ Start Migration'; return;
+    }
+
+    const uid = oldUser.uid;
+    log(`✓ Signed in as: ${oldUser.email}`, 'ok');
+    log(`  UID: ${uid}`, 'info');
+
+    // 2. Read teachers from old app
+    setProgress(15, 'Reading teachers from old app…');
+    log('\nReading teachers from old app…', 'info');
+
+    const oldTeachersCol = collection(oldDb, 'users', uid, 'teachers');
+    const oldTeachersSnap = await getDocs(oldTeachersCol);
+    const oldTeachers = {};
+    oldTeachersSnap.forEach(d => { oldTeachers[d.id] = d.data(); });
+
+    const teacherCount = Object.keys(oldTeachers).length;
+    log(`Found ${teacherCount} teacher(s) in old app`, teacherCount > 0 ? 'ok' : 'warn');
+    Object.values(oldTeachers).forEach(t => log(`  · ${t.name} — ${t.subject} ₹${t.fee}/mo`));
+
+    // 3. Read payments from old app
+    setProgress(30, 'Reading payments from old app…');
+    log('\nReading payments from old app…', 'info');
+
+    const oldPaymentsCol = collection(oldDb, 'users', uid, 'payments');
+    const oldPaymentsSnap = await getDocs(oldPaymentsCol);
+    const oldPayments = [];
+    oldPaymentsSnap.forEach(d => { oldPayments.push({ id: d.id, ...d.data() }); });
+
+    log(`Found ${oldPayments.length} payment record(s)`, oldPayments.length > 0 ? 'ok' : 'warn');
+
+    // 4. Read existing teachers in new app (to avoid duplicates by name+subject)
+    setProgress(45, 'Checking existing data in new app…');
+    log('\nChecking new app for existing data…', 'info');
+
+    const newTeachersCol = collection(newDb, 'users', uid, 'teachers');
+    const newTeachersSnap = await getDocs(newTeachersCol);
+    const existingTeachers = {}; // key = "name|subject" → new doc id
+    const existingTeacherIds = {}; // old id → new id
+    newTeachersSnap.forEach(d => {
+      const t = d.data();
+      existingTeachers[`${t.name}|${t.subject}`] = d.id;
+    });
+
+    const newPaymentsCol = collection(newDb, 'users', uid, 'payments');
+    const newPaymentsSnap = await getDocs(newPaymentsCol);
+    const existingPaymentKeys = new Set();
+    newPaymentsSnap.forEach(d => {
+      const p = d.data();
+      // Unique key: teacherId(old)+timestamp
+      if(p._migratedFrom) existingPaymentKeys.add(p._migratedFrom);
+    });
+
+    // 5. Write teachers
+    setProgress(55, 'Writing teachers to new app…');
+    log('\nWriting teachers to new app…', 'info');
+
+    let teachersWritten = 0, teachersSkipped = 0;
+    const oldToNewTeacherId = {}; // old Firestore id → new Firestore id
+
+    for(const [oldId, t] of Object.entries(oldTeachers)){
+      const key = `${t.name}|${t.subject}`;
+      if(existingTeachers[key]){
+        log(`  ⏭  Skipped (already exists): ${t.name}`, 'warn');
+        oldToNewTeacherId[oldId] = existingTeachers[key];
+        teachersSkipped++;
+      } else {
+        // Use same doc ID so payments can reference it
+        const newDocRef = doc(newDb, 'users', uid, 'teachers', oldId);
+        await setDoc(newDocRef, {
+          name:          t.name,
+          subject:       t.subject,
+          fee:           t.fee,
+          baselineMonth: t.baselineMonth,
+          baselineYear:  t.baselineYear,
+          createdAt:     t.createdAt || Date.now(),
+          _migratedFrom: oldId,
+        });
+        oldToNewTeacherId[oldId] = oldId;
+        log(`  ✓ ${t.name} (${t.subject}, ₹${t.fee}/mo)`, 'ok');
+        teachersWritten++;
+      }
+    }
+
+    // 6. Write payments
+    setProgress(70, 'Writing payments to new app…');
+    log('\nWriting payments to new app…', 'info');
+
+    let paymentsWritten = 0, paymentsSkipped = 0;
+    const total = oldPayments.length;
+
+    for(let i = 0; i < total; i++){
+      const p = oldPayments[i];
+      const migKey = `${p.teacherId}:${p.timestamp || p.id}`;
+
+      if(existingPaymentKeys.has(migKey)){
+        log(`  ⏭  Skipped payment (already migrated): ${migKey}`, 'warn');
+        paymentsSkipped++;
+        continue;
+      }
+
+      const newTeacherId = oldToNewTeacherId[p.teacherId] || p.teacherId;
+      const newPayRef = doc(newDb, 'users', uid, 'payments', p.id);
+
+      await setDoc(newPayRef, {
+        teacherId:     newTeacherId,
+        type:          p.type || 'full',
+        monthsPaid:    p.monthsPaid || 0,
+        amount:        p.amount || 0,
+        paidOn:        p.paidOn || null,
+        timestamp:     p.timestamp || Date.now(),
+        _migratedFrom: migKey,
+      });
+
+      paymentsWritten++;
+      if(i % 5 === 0 || i === total-1){
+        setProgress(70 + Math.round(25 * (i+1) / total),
+          `Writing payments… ${i+1}/${total}`);
+        log(`  ✓ Payment ${i+1}/${total} — ₹${p.amount} (${p.type||'full'})`, 'ok');
+      }
+    }
+
+    // 7. Done
+    setProgress(100, 'Done!');
+    log('\n─────────────────────────────────', 'info');
+    log(`✅ Migration complete!`, 'ok');
+    log(`   Teachers:  ${teachersWritten} written, ${teachersSkipped} skipped`, 'ok');
+    log(`   Payments:  ${paymentsWritten} written, ${paymentsSkipped} skipped`, 'ok');
+    log('\n👉 Open the new app and pull down to refresh.', 'info');
+
+    document.getElementById('rTeachers').textContent = teachersWritten;
+    document.getElementById('rPayments').textContent = paymentsWritten;
+    document.getElementById('rSkipped').textContent  = teachersSkipped + paymentsSkipped;
+    document.getElementById('resultCard').style.display = 'block';
+
+    btn.textContent = '✓ Done';
+    btn.className = 'btn btn-success';
+
+  } catch(err){
+    log('\n❌ Error: ' + err.message, 'err');
+    console.error(err);
+    btn.disabled=false;
+    btn.textContent='▶ Retry Migration';
+  }
+};
+</script>
+</body>
+</html>
