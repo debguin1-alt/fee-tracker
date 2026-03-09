@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fee Tracker — Migration</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080812;--surface:#10101e;--surface2:#181830;--border:rgba(255,255,255,.07);
+  --accent:#7c6bff;--accent3:#00d4aa;--red:#ff4d6d;--yellow:#ffd166;
+  --text:#f0f0f8;--text2:#a0a0c8;--muted:#5a5a88;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'DM Sans',system-ui,sans-serif;
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;padding:28px 16px 60px;
+}
+h1{
+  font-family:'Syne',sans-serif;font-size:22px;font-weight:800;
+  background:linear-gradient(135deg,#7c6bff,#ff6b9d);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:4px;margin-top:4px;
+}
+.subtitle{font-size:12px;color:var(--muted);margin-bottom:24px;text-align:center;}
+
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:20px;
+  padding:20px;width:100%;max-width:480px;margin-bottom:14px;
+}
+.card-title{
+  font-family:'Syne',sans-serif;font-size:11px;font-weight:800;color:var(--muted);
+  letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;
+}
+
+/* auth card */
+.auth-card{text-align:center;}
+.auth-icon{font-size:40px;margin-bottom:10px;}
+.auth-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;margin-bottom:6px;}
+.auth-sub{font-size:13px;color:var(--text2);margin-bottom:18px;line-height:1.6;}
+
+.google-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  background:#fff;color:#1f1f1f;border:none;border-radius:12px;
+  padding:13px 22px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;
+  cursor:pointer;width:100%;max-width:280px;
+  box-shadow:0 2px 12px rgba(0,0,0,.35);transition:opacity .15s,transform .1s;
+}
+.google-btn:active{transform:scale(.97);opacity:.85;}
+.google-btn:disabled{opacity:.4;cursor:not-allowed;}
+.google-icon{width:18px;height:18px;flex-shrink:0;}
+
+/* user info row */
+.user-row{
+  display:flex;align-items:center;gap:12px;
+  background:rgba(0,212,170,.06);border:1px solid rgba(0,212,170,.15);
+  border-radius:14px;padding:12px 16px;
+  width:100%;max-width:480px;margin-bottom:14px;
+}
+.user-avatar{
+  width:38px;height:38px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),#ff6b9d);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:15px;
+  flex-shrink:0;overflow:hidden;
+}
+.user-avatar img{width:100%;height:100%;object-fit:cover;}
+.user-name{font-weight:700;font-size:14px;}
+.user-email{font-size:11px;color:var(--text2);}
+.user-badge{
+  margin-left:auto;background:rgba(0,212,170,.12);
+  border:1px solid rgba(0,212,170,.25);border-radius:8px;
+  padding:4px 10px;font-size:11px;font-weight:700;color:var(--accent3);
+  white-space:nowrap;
+}
+
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;max-width:480px;padding:15px;border:none;border-radius:16px;
+  font-family:'Syne',sans-serif;font-size:15px;font-weight:800;
+  cursor:pointer;transition:opacity .15s,transform .1s;margin-bottom:10px;
+}
+.btn:active{transform:scale(.97);opacity:.85;}
+.btn-primary{
+  background:linear-gradient(135deg,var(--accent),#5a4de6);color:#fff;
+  box-shadow:0 6px 24px rgba(124,107,255,.35);
+}
+.btn-success{background:linear-gradient(135deg,var(--accent3),#00a884);color:#fff;}
+.btn:disabled{opacity:.35;cursor:not-allowed;}
+
+#log{
+  width:100%;max-width:480px;background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;padding:14px 16px;font-size:12px;font-family:monospace;
+  color:var(--text2);line-height:2;max-height:300px;overflow-y:auto;
+  display:none;margin-bottom:12px;
+}
+.ok{color:var(--accent3);} .err{color:var(--red);} .info{color:var(--accent);} .warn{color:var(--yellow);}
+
+.progress-wrap{width:100%;max-width:480px;margin-bottom:14px;display:none;}
+.progress-label{font-size:12px;color:var(--muted);margin-bottom:6px;}
+.progress-bar{height:5px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent3));transition:width .3s;}
+
+.result-card{
+  width:100%;max-width:480px;
+  background:rgba(0,212,170,.06);border:1px solid rgba(0,212,170,.2);
+  border-radius:20px;padding:22px;text-align:center;display:none;margin-bottom:12px;
+}
+.result-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;}
+.rs{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px;}
+.rs-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--text);}
+.rs-lbl{font-size:10px;color:var(--muted);margin-top:2px;}
+
+.note{
+  width:100%;max-width:480px;background:rgba(255,214,102,.05);
+  border:1px solid rgba(255,214,102,.15);border-radius:12px;
+  padding:12px 14px;font-size:12px;color:var(--yellow);line-height:1.7;margin-bottom:14px;
+}
+</style>
+</head>
+<body>
+
+<h1>⚡ Migration Tool</h1>
+<p class="subtitle">Copy your old payment history into Fee Tracker</p>
+
+<!-- STEP 1: sign in -->
+<div class="card auth-card" id="signInCard">
+  <div class="auth-icon">🔐</div>
+  <div class="auth-title">Sign in to Fee Tracker</div>
+  <div class="auth-sub">Use the same Google account you use in Fee Tracker.</div>
+  <button class="google-btn" id="googleBtn" onclick="doSignIn()">
+    <svg class="google-icon" viewBox="0 0 24 24">
+      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+    </svg>
+    Sign in with Google
+  </button>
+</div>
+
+<!-- STEP 2: signed in → migrate -->
+<div class="user-row" id="userRow" style="display:none">
+  <div class="user-avatar" id="siAvatar">?</div>
+  <div>
+    <div class="user-name" id="siName"></div>
+    <div class="user-email" id="siEmail"></div>
+  </div>
+  <div class="user-badge">✓ Signed In</div>
+</div>
+
+<div class="note" id="migrateNote" style="display:none">
+  ⚠️ The old app data is <strong>never modified</strong>. Safe to run multiple times — duplicates are skipped.
+</div>
+
+<button class="btn btn-primary" id="startBtn" style="display:none" onclick="runMigration()">
+  ▶ Start Migration
+</button>
+
+<div class="progress-wrap" id="progressWrap">
+  <div class="progress-label" id="progressLabel">Starting…</div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<div id="log"></div>
+
+<div class="result-card" id="resultCard">
+  <div style="font-size:36px;margin-bottom:8px">✅</div>
+  <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:var(--accent3);margin-bottom:6px">Migration Complete!</div>
+  <div style="font-size:13px;color:var(--text2)">Open Fee Tracker → pull to refresh to see your data.</div>
+  <div class="result-stats">
+    <div class="rs"><div class="rs-val" id="rPayments">0</div><div class="rs-lbl">Payments copied</div></div>
+    <div class="rs"><div class="rs-val" id="rSkipped">0</div><div class="rs-lbl">Already existed</div></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import {
+  getAuth, onAuthStateChanged,
+  signInWithPopup, GoogleAuthProvider, browserLocalPersistence, setPersistence
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import {
+  getFirestore, collection, getDocs, setDoc, doc
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+/* ── Firebase projects ──────────────────────────────────────────────────── */
+const OLD_CFG = {
+  apiKey:    "AIzaSyBvf1TzspmSqfMCryKooTxAmbKRETX0xpg",
+  authDomain:"tuition-fee-management-4e15e.firebaseapp.com",
+  projectId: "tuition-fee-management-4e15e",
+};
+const NEW_CFG = {
+  apiKey:           "AIzaSyDlpLbd5g78eHv_elhiiLRlOdhPMvn9ijA",
+  authDomain:       "fee-tracker-f32f8.firebaseapp.com",
+  projectId:        "fee-tracker-f32f8",
+  storageBucket:    "fee-tracker-f32f8.firebasestorage.app",
+  messagingSenderId:"1061066310105",
+  appId:            "1:1061066310105:web:4ca8c0feaa9d6614cd19c8",
+};
+
+const TEACHERS = {
+  "Snigdhadeep sir":  { subject:"Mathematics", fee:500, baselineMonth:7,  baselineYear:2025 },
+  "Prasun sir":       { subject:"Chemistry",   fee:500, baselineMonth:7,  baselineYear:2025 },
+  "Sumit sir":        { subject:"English",     fee:400, baselineMonth:7,  baselineYear:2025 },
+  "Debabrata sir":    { subject:"Bengali",     fee:350, baselineMonth:10, baselineYear:2025 },
+  "Yuvo Comp. Centre":{ subject:"DDTA",        fee:700, baselineMonth:1,  baselineYear:2026 },
+  "Mridul sir":       { subject:"COMA",        fee:400, baselineMonth:8,  baselineYear:2025 },
+  "Arpan sir":        { subject:"Physics",     fee:500, baselineMonth:8,  baselineYear:2025 },
+  "Chandan sir":      { subject:"Drawing",     fee:300, baselineMonth:7,  baselineYear:2025 },
+};
+
+/* ── Init ─────────────────────────────────────────────────────────────────── */
+const oldApp = initializeApp(OLD_CFG, 'old');
+const newApp = initializeApp(NEW_CFG, 'new');
+const oldDb  = getFirestore(oldApp);
+const newDb  = getFirestore(newApp);
+const newAuth= getAuth(newApp);
+const provider = new GoogleAuthProvider();
+
+/* ── Auth state listener ─────────────────────────────────────────────────── */
+onAuthStateChanged(newAuth, user => {
+  if(user){
+    // hide sign-in card, show user row + migrate button
+    document.getElementById('signInCard').style.display   = 'none';
+    document.getElementById('userRow').style.display      = 'flex';
+    document.getElementById('migrateNote').style.display  = 'block';
+    document.getElementById('startBtn').style.display     = 'flex';
+
+    document.getElementById('siName').textContent  = user.displayName || 'User';
+    document.getElementById('siEmail').textContent = user.email || '';
+    const av = document.getElementById('siAvatar');
+    if(user.photoURL) av.innerHTML = `<img src="${user.photoURL}" referrerpolicy="no-referrer">`;
+    else              av.textContent = (user.displayName||'U')[0].toUpperCase();
+  } else {
+    document.getElementById('signInCard').style.display   = 'block';
+    document.getElementById('userRow').style.display      = 'none';
+    document.getElementById('migrateNote').style.display  = 'none';
+    document.getElementById('startBtn').style.display     = 'none';
+  }
+});
+
+/* ── Sign In ──────────────────────────────────────────────────────────────── */
+window.doSignIn = async function(){
+  const btn = document.getElementById('googleBtn');
+  btn.textContent = 'Signing in…'; btn.disabled = true;
+  try {
+    await setPersistence(newAuth, browserLocalPersistence);
+    await signInWithPopup(newAuth, provider);
+    // onAuthStateChanged will update the UI
+  } catch(e) {
+    btn.disabled = false;
+    btn.innerHTML = `<svg class="google-icon" viewBox="0 0 24 24">
+      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+    </svg>Sign in with Google`;
+    alert('Sign-in failed: ' + e.message);
+  }
+};
+
+/* ── UI helpers ───────────────────────────────────────────────────────────── */
+const logEl = document.getElementById('log');
+function log(msg, cls=''){
+  logEl.style.display='block';
+  const d=document.createElement('div');
+  if(cls) d.className=cls;
+  d.textContent=msg;
+  logEl.appendChild(d);
+  logEl.scrollTop=logEl.scrollHeight;
+}
+function setProgress(pct, label){
+  document.getElementById('progressWrap').style.display='block';
+  document.getElementById('progressFill').style.width=pct+'%';
+  if(label) document.getElementById('progressLabel').textContent=label;
+}
+
+/* ── Migration ────────────────────────────────────────────────────────────── */
+window.runMigration = async function(){
+  const startBtn = document.getElementById('startBtn');
+  const user = newAuth.currentUser;
+  if(!user){ alert('Not signed in.'); return; }
+
+  startBtn.disabled=true; startBtn.textContent='⏳ Migrating…';
+  logEl.innerHTML='';
+  document.getElementById('resultCard').style.display='none';
+
+  try{
+    const uid = user.uid;
+    log(`Signed in as: ${user.email}`, 'info');
+
+    // 1. Read old payments (no auth needed — old app has open rules)
+    setProgress(15,'Reading old payments…');
+    log('\nReading payments from old app…','info');
+    const oldSnap = await getDocs(collection(oldDb,'payments'));
+    const oldPayments = oldSnap.docs.map(d=>({id:d.id,...d.data()}));
+    log(`Found ${oldPayments.length} payment(s) in old app`, oldPayments.length?'ok':'warn');
+
+    if(!oldPayments.length){
+      log('Nothing to migrate.','warn');
+      startBtn.disabled=false; startBtn.textContent='▶ Start Migration'; return;
+    }
+
+    // 2. Check existing in new app
+    setProgress(30,'Checking new app…');
+    log('\nChecking existing data in new app…','info');
+    const newPaySnap   = await getDocs(collection(newDb,'users',uid,'payments'));
+    const migratedKeys = new Set();
+    newPaySnap.forEach(d=>{ if(d.data()._migKey) migratedKeys.add(d.data()._migKey); });
+
+    const newTeachSnap = await getDocs(collection(newDb,'users',uid,'teachers'));
+    const existingTeachers = new Set();
+    newTeachSnap.forEach(d=>existingTeachers.add(d.data().name));
+
+    // 3. Write teachers
+    setProgress(45,'Writing teachers…');
+    log('\nWriting teachers…','info');
+    for(const [name,t] of Object.entries(TEACHERS)){
+      if(existingTeachers.has(name)){
+        log(`  ⏭  ${name} — already exists`,'warn');
+      } else {
+        const tId = name.replace(/[^a-z0-9]/gi,'_').toLowerCase();
+        await setDoc(doc(newDb,'users',uid,'teachers',tId),{
+          name, subject:t.subject, fee:t.fee,
+          baselineMonth:t.baselineMonth, baselineYear:t.baselineYear,
+          createdAt:Date.now(), _migratedFrom:'old-app',
+        });
+        log(`  ✓ ${name} (${t.subject}, ₹${t.fee}/mo)`,'ok');
+      }
+    }
+
+    // 4. Write payments
+    setProgress(60,'Writing payments…');
+    log('\nWriting payments…','info');
+    let written=0, skipped=0;
+    const total=oldPayments.length;
+
+    for(let i=0;i<total;i++){
+      const p=oldPayments[i];
+      const migKey=p.id;
+
+      if(migratedKeys.has(migKey)){
+        log(`  ⏭  Skipped (exists): ${p.teacherName}`,'warn');
+        skipped++; continue;
+      }
+
+      const tId=(p.teacherName||'').replace(/[^a-z0-9]/gi,'_').toLowerCase();
+      await setDoc(doc(newDb,'users',uid,'payments',p.id),{
+        teacherId:   tId,
+        teacherName: p.teacherName  || '',
+        subject:     p.subject      || '',
+        type:        'full',
+        monthsPaid:  p.monthsPaid   || 0,
+        amount:      p.amount       || 0,
+        paidOn:      p.paidOn       || null,
+        timestamp:   p.timestamp    || Date.now(),
+        _migKey:     migKey,
+      });
+      written++;
+      setProgress(60+Math.round(35*(i+1)/total),`Writing payments… ${i+1}/${total}`);
+      log(`  ✓ ${p.teacherName} — ${p.monthsPaid} month(s), ₹${p.amount}`,'ok');
+    }
+
+    // Done
+    setProgress(100,'Done!');
+    log('\n─────────────────────────','info');
+    log(`✅ Done! Written: ${written}  Skipped: ${skipped}`,'ok');
+    log('👉 Open Fee Tracker and refresh.','info');
+
+    document.getElementById('rPayments').textContent=written;
+    document.getElementById('rSkipped').textContent=skipped;
+    document.getElementById('resultCard').style.display='block';
+    startBtn.textContent='✓ Done';
+    startBtn.className='btn btn-success';
+
+  } catch(err){
+    log('\n❌ Error: '+err.message,'err');
+    console.error(err);
+    startBtn.disabled=false; startBtn.textContent='▶ Retry';
+  }
+};
+</script>
+</body>
+</html>
