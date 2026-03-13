@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>Fee Tracker</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#080812">
+  <meta name="theme-color" content="#080812" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f2f2fa" media="(prefers-color-scheme: light)">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Fee Tracker">
@@ -103,11 +104,26 @@
 
     /* ── Light-mode overrides for hardcoded colours ── */
     :root.light #loginScreen       { background: var(--bg); }
+    :root.light #loginScreen::before { opacity: 0.4; }
+    :root.light #loginScreen .login-name { color: var(--text); }
+    :root.light #loginScreen .login-sub  { color: var(--muted); }
+    :root.light #loginScreen .login-note { color: var(--muted); }
+    :root.light #loginScreen .login-glyph { filter: none; }
     :root.light #appScreen         { background: var(--bg); }
     :root.light #splashSkeleton    { background: var(--bg); }
     :root.light #authOverlay       { background: var(--bg); }
     :root.light #onboardScreen     { background: var(--bg); }
-    :root.light .user-menu         { background: var(--surface2); }
+    :root.light .topbar            { background: linear-gradient(180deg, var(--bg) 72%, transparent); }
+    :root.light .user-menu         { background: var(--surface); border: 1px solid var(--border2); }
+    /* total-card hardcoded rgba(255,255,255,x) text — override for light */
+    :root.light .total-label   { color: rgba(255,255,255,.9); }
+    :root.light .total-sub     { color: rgba(255,255,255,.8); }
+    :root.light .total-meta-lbl { color: rgba(255,255,255,.75); }
+    :root.light .total-meta-item { background: rgba(255,255,255,.22); }
+    /* confirm dialog — use dark surface so it's always readable */
+    :root.light .confirm-box   { background: #1c1c38; border-color: rgba(255,255,255,.12); }
+    :root.light .confirm-title { color: #ebebf5; }
+    :root.light .confirm-msg   { color: #8e8eb8; }
 
     :root.light .teacher-card,
     :root.light .batch-card,
@@ -125,10 +141,6 @@
       background-size: 300% 100%;
     }
     :root.light .sk-hero        { background: linear-gradient(140deg, rgba(98,85,232,.12) 0%, rgba(208,63,160,.07) 100%); }
-    :root.light .sk-hero-label  { background: rgba(80,80,140,.18); }
-    :root.light .sk-hero-amount { background: rgba(80,80,140,.14); }
-    :root.light .sk-hero-sub    { background: rgba(80,80,140,.10); }
-    :root.light .sk-hero-token  { background: rgba(80,80,140,.10); }
     :root.light .sk-tc          { box-shadow: 0 2px 10px var(--shadow-color); }
     :root.light .sk-login-glyph { background: linear-gradient(135deg, rgba(98,85,232,.16), rgba(232,82,122,.1)); }
     :root.light .sk-login-btn   { background: rgba(80,80,140,.07); }
@@ -156,97 +168,83 @@
     /* ═══════════════════════════════════════════════════
        LOGIN SCREEN
     ═══════════════════════════════════════════════════ */
-    #loginScreen { background: var(--bg); justify-content: center; min-height: 100vh; position: relative; overflow: hidden; }
-    /* ambient blobs */
+    #loginScreen {
+      background: #050510;
+      justify-content: center; min-height: 100vh; overflow: hidden;
+      position: relative;
+    }
+    /* Ambient gradient blobs on login */
     #loginScreen::before {
-      content: ''; position: absolute; width: 320px; height: 320px;
-      background: radial-gradient(circle, rgba(124,107,255,.18) 0%, transparent 70%);
-      top: -80px; left: -80px; pointer-events: none; border-radius: 50%;
+      content: ''; position: absolute; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 20% 20%, rgba(124,107,255,.18) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 45% at 80% 75%, rgba(255,107,157,.12) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(0,212,170,.06) 0%, transparent 70%);
+      pointer-events: none;
     }
-    #loginScreen::after {
-      content: ''; position: absolute; width: 260px; height: 260px;
-      background: radial-gradient(circle, rgba(255,107,157,.13) 0%, transparent 70%);
-      bottom: 60px; right: -60px; pointer-events: none; border-radius: 50%;
-    }
-    .login-card {
-      position: relative; z-index: 1;
-      display: flex; flex-direction: column; align-items: center;
-      background: rgba(255,255,255,.032); border: 1px solid rgba(255,255,255,.07);
-      border-radius: 28px; padding: 40px 32px 36px;
-      width: calc(100% - 48px); max-width: 320px;
-      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-      box-shadow: 0 24px 80px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.04) inset;
-    }
-    :root.light .login-card { background: rgba(255,255,255,.7); border-color: rgba(80,80,140,.1); box-shadow: 0 16px 60px rgba(80,80,140,.12); }
     .login-glyph {
       font-family: 'Syne', sans-serif;
-      font-size: 68px; font-weight: 800; line-height: 1; margin-bottom: 14px;
+      font-size: 72px; font-weight: 800; line-height: 1; margin-bottom: 14px;
       background: linear-gradient(135deg, #7c6bff 0%, #ff6b9d 55%, #ff9a3c 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 4px 16px rgba(124,107,255,.35));
+      filter: drop-shadow(0 0 32px rgba(124,107,255,.35));
     }
-    .login-name  { font-family: 'Syne', sans-serif; font-size: 23px; font-weight: 800; color: var(--text); letter-spacing: -.5px; margin-bottom: 6px; }
-    .login-sub   { font-size: 11px; color: var(--muted); letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 36px; }
+    .login-name {
+      font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800;
+      color: #fff; letter-spacing: -1px; margin-bottom: 10px; line-height: 1;
+    }
+    .login-sub   { font-size: 10px; color: rgba(255,255,255,.35); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 56px; }
     .google-btn  {
       display: flex; align-items: center; gap: 12px; justify-content: center;
       background: #fff; color: #1a1a2e; border: none; border-radius: 16px;
-      padding: 15px 28px; width: 100%;
-      font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer;
-      box-shadow: 0 6px 28px rgba(0,0,0,.35); transition: transform .15s, box-shadow .15s;
-      position: relative; overflow: hidden;
+      padding: 16px 32px; width: 100%; max-width: 300px;
+      font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer;
+      box-shadow: 0 8px 40px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.08);
+      transition: transform .15s, box-shadow .15s;
     }
-    .google-btn:active { transform: scale(.97); box-shadow: 0 3px 14px rgba(0,0,0,.25); }
-    .google-icon { width: 20px; height: 20px; flex-shrink: 0; }
-    .login-note  { margin-top: 16px; font-size: 10px; color: var(--muted); text-align: center; max-width: 240px; line-height: 1.8; opacity: .8; }
+    .google-btn:active { transform: scale(.97); box-shadow: 0 4px 20px rgba(0,0,0,.3); }
+    .google-icon { width: 22px; height: 22px; flex-shrink: 0; }
+    .login-note  { margin-top: 20px; font-size: 11px; color: rgba(255,255,255,.28); text-align: center; max-width: 260px; line-height: 1.8; }
 
     /* ═══════════════════════════════════════════════════
        APP SHELL
     ═══════════════════════════════════════════════════ */
     #appScreen   { background: var(--bg); justify-content: flex-start; padding: 0; overflow-y: auto; }
-    /* ═══════════════════════════════════════════════════
-       TOPBAR
-    ═══════════════════════════════════════════════════ */
+    .app-inner   { width: 100%; max-width: 480px; margin: 0 auto; padding: 0 16px 80px; }
+
+    /* TOPBAR */
     .topbar {
       display: flex; align-items: center; justify-content: space-between;
       padding: 18px 18px 14px;
       position: sticky; top: 0; z-index: 5;
-      background: rgba(8,8,16,.82);
-      backdrop-filter: blur(18px) saturate(1.4);
-      -webkit-backdrop-filter: blur(18px) saturate(1.4);
-      border-bottom: 1px solid rgba(255,255,255,.045);
+      background: linear-gradient(180deg, var(--bg) 72%, transparent);
       gap: 12px;
       max-width: 480px; margin: 0 auto; width: 100%;
     }
-    :root.light .topbar {
-      background: rgba(242,242,250,.82);
-      border-bottom: 1px solid rgba(80,80,140,.08);
-    }
     .topbar-left  { flex: 1; min-width: 0; }
-    .topbar-label { font-size: 10px; font-weight: 600; color: var(--muted); letter-spacing: .5px; margin-bottom: 1px; }
-    .topbar-title { font-family: 'Syne', sans-serif; font-size: 21px; font-weight: 800; color: var(--text); letter-spacing: -.5px; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .topbar-label { display: none; }
+    .topbar-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -.5px; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .topbar-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 
     .add-btn {
       width: 40px; height: 40px; border-radius: var(--r-lg);
-      background: linear-gradient(135deg, var(--accent), #5a4de6); border: none; color: #fff; font-size: 22px;
+      background: var(--accent); border: none; color: #fff; font-size: 22px;
       cursor: pointer; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 16px rgba(124,107,255,.45); transition: transform .15s, box-shadow .15s;
-      position: relative; overflow: hidden;
+      box-shadow: 0 4px 16px rgba(124,107,255,.4); transition: transform .15s;
     }
-    .add-btn:active { transform: scale(.86); box-shadow: 0 2px 8px rgba(124,107,255,.25); }
+    .add-btn:active { transform: scale(.88); }
 
     .avatar-btn {
       width: 40px; height: 40px; border-radius: 50%;
-      border: 2px solid rgba(124,107,255,.45);
+      border: 2px solid rgba(124,107,255,.3);
       background: linear-gradient(135deg, var(--accent), var(--accent2));
       display: flex; align-items: center; justify-content: center;
       font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; color: #fff;
       cursor: pointer; flex-shrink: 0; overflow: hidden;
-      box-shadow: 0 2px 12px rgba(124,107,255,.28), 0 0 0 4px rgba(124,107,255,.08);
-      transition: transform .12s, box-shadow .15s;
+      box-shadow: 0 2px 10px rgba(124,107,255,.2); transition: transform .12s;
     }
     .avatar-btn img   { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-    .avatar-btn:active { opacity: .75; transform: scale(.9); box-shadow: 0 1px 6px rgba(124,107,255,.2); }
+    .avatar-btn:active { opacity: .75; transform: scale(.92); }
 
     /* SETUP BANNER */
     .setup-banner {
@@ -272,17 +270,14 @@
     }
     .total-card::before { content: ''; position: absolute; top: -50px; right: -50px; width: 190px; height: 190px; background: rgba(255,255,255,.07); border-radius: 50%; }
     .total-card::after  { content: ''; position: absolute; bottom: -55px; left: -10px; width: 200px; height: 200px; background: rgba(255,255,255,.04); border-radius: 50%; }
-    /* Animated top shimmer line */
-    .total-card-shine { position: absolute; top: 0; left: -100%; width: 60%; height: 2px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.6), transparent); animation: cardShine 4s ease-in-out infinite 1s; z-index: 2; border-radius: 0 0 2px 2px; }
-    @keyframes cardShine { 0%,100%{ left:-60% } 50%{ left:120% } }
     .total-label    { font-size: 9px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.75); margin-bottom: 8px; position: relative; z-index: 1; }
-    .total-amount   { font-family: 'Syne', sans-serif; font-size: 44px; font-weight: 800; line-height: 1; letter-spacing: -2.5px; color: #fff; position: relative; z-index: 1; }
+    .total-amount   { font-family: 'Syne', sans-serif; font-size: 42px; font-weight: 800; line-height: 1; letter-spacing: -2px; color: #fff; position: relative; z-index: 1; }
     .total-amount .cur { font-size: 20px; opacity: .7; vertical-align: top; margin-top: 9px; display: inline-block; letter-spacing: 0; }
     .total-sub      { margin-top: 4px; font-size: 11px; color: rgba(255,255,255,.6); position: relative; z-index: 1; }
     .total-meta     { display: flex; gap: 8px; margin-top: 16px; position: relative; z-index: 1; }
-    .total-meta-item { background: rgba(255,255,255,.13); border-radius: 10px; padding: 8px 14px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,.1); flex: 1; text-align: center; }
-    .total-meta-val  { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; color: #fff; }
-    .total-meta-lbl  { font-size: 9px; color: rgba(255,255,255,.6); margin-top: 2px; letter-spacing: .5px; text-transform: uppercase; }
+    .total-meta-item { background: rgba(255,255,255,.13); border-radius: 10px; padding: 7px 14px; backdrop-filter: blur(10px); }
+    .total-meta-val  { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 800; color: #fff; }
+    .total-meta-lbl  { font-size: 9px; color: rgba(255,255,255,.65); margin-top: 2px; letter-spacing: .5px; text-transform: uppercase; }
 
     /* ═══════════════════════════════════════════════════
        SEARCH
@@ -291,48 +286,38 @@
     .search-icon  { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 14px; pointer-events: none; color: var(--muted); }
     .search-input {
       width: 100%; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r-lg);
-      padding: 12px 36px 12px 42px; font-size: 13px; font-family: 'DM Sans', sans-serif;
-      color: var(--text); outline: none; transition: border-color .2s, background .2s, box-shadow .2s;
+      padding: 11px 36px 11px 42px; font-size: 13px; font-family: 'DM Sans', sans-serif;
+      color: var(--text); outline: none; transition: border-color .2s, background .2s;
     }
-    .search-input:focus       { border-color: rgba(124,107,255,.4); background: var(--surface2); box-shadow: 0 0 0 3px rgba(124,107,255,.07); }
+    .search-input:focus       { border-color: rgba(124,107,255,.35); background: var(--surface2); }
     .search-input::placeholder { color: var(--muted); }
     .search-clear {
       position: absolute; right: 11px; top: 50%; transform: translateY(-50%);
       color: var(--muted); font-size: 11px; cursor: pointer;
       background: var(--surface2); border-radius: 50%; width: 22px; height: 22px;
-      display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); transition: background .15s;
+      display: flex; align-items: center; justify-content: center;
     }
-    .search-clear:active { background: var(--surface3); }
 
     /* SECTION LABEL */
-    .section-label       { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding: 0 2px; }
+    .section-label       { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
     .section-label-txt   { font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--muted); }
-    .section-label-count { font-size: 10px; font-weight: 700; color: var(--text2); background: var(--surface2); padding: 2px 9px; border-radius: 20px; border: 1px solid var(--border); font-family: 'Syne', sans-serif; }
+    .section-label-count { font-size: 10px; color: var(--muted); background: var(--surface2); padding: 2px 8px; border-radius: 20px; border: 1px solid var(--border); }
 
     /* ═══════════════════════════════════════════════════
        TEACHER CARD
     ═══════════════════════════════════════════════════ */
     @keyframes fadeUp { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: translateY(0) } }
 
-    .teacher-card   { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); margin-bottom: 10px; overflow: hidden; animation: fadeUp .28s ease both; transition: border-color .2s, box-shadow .2s; }
-    .teacher-card:active { transform: scale(.995); }
+    .teacher-card   { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); margin-bottom: 10px; overflow: hidden; animation: fadeUp .28s ease both; }
     .card-overdue   { border-color: rgba(255,154,60,.2); }
     .card-critical  { border-color: rgba(255,77,109,.25); box-shadow: 0 2px 16px rgba(255,77,109,.06); }
-
-    /* Payment progress bar */
-    .card-progress-bar { height: 3px; width: 100%; background: var(--surface2); }
-    .card-progress-fill { height: 100%; border-radius: 0 2px 2px 0; transition: width .5s cubic-bezier(.34,1.2,.64,1); }
-    .card-progress-fill.good     { background: linear-gradient(90deg, var(--accent3), #00f5c4); }
-    .card-progress-fill.warn     { background: linear-gradient(90deg, var(--accent4), #ffb347); }
-    .card-progress-fill.critical { background: linear-gradient(90deg, var(--red), #ff8fa3); }
 
     .card-top    { padding: 15px 15px 13px; }
     .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
     .card-left   { flex: 1; min-width: 0; padding-right: 12px; }
 
-    .teacher-name-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 3px; }
-    .teacher-initials { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-dim), rgba(255,107,157,.12)); border: 1.5px solid rgba(124,107,255,.22); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 800; color: var(--accent); flex-shrink: 0; }
-    .teacher-name     { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; color: var(--text); letter-spacing: -.3px; }
+    .teacher-name-row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-bottom: 3px; }
+    .teacher-name     { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -.2px; }
     .teacher-subject  { font-size: 12px; color: var(--text2); margin-top: 2px; }
     .last-paid        { font-size: 11px; color: var(--accent3); margin-top: 4px; font-weight: 500; }
     .last-paid.never  { color: var(--red); opacity: .7; }
@@ -342,10 +327,10 @@
     @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .4 } }
 
     .due-badge              { text-align: right; flex-shrink: 0; }
-    .due-amount             { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; color: var(--yellow); letter-spacing: -.6px; line-height: 1; }
+    .due-amount             { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--yellow); letter-spacing: -.5px; }
     .due-amount.zero        { color: var(--accent3); }
     .due-amount.critical    { color: var(--red); }
-    .due-months             { font-size: 10px; color: var(--muted); margin-top: 4px; }
+    .due-months             { font-size: 10px; color: var(--muted); margin-top: 3px; }
     .partial-chip           { font-size: 9px; color: var(--accent4); margin-top: 4px; background: rgba(255,154,60,.08); padding: 2px 7px; border-radius: var(--r-sm); display: inline-block; border: 1px solid rgba(255,154,60,.18); }
 
     /* PAY TABS */
@@ -362,11 +347,11 @@
     .pay-tab.active-advance { background: linear-gradient(135deg, var(--accent3), #00a07a); color: #fff; border-color: transparent; box-shadow: 0 3px 12px rgba(0,212,170,.35); }
     .pay-tab:disabled       { opacity: .2; cursor: not-allowed; }
 
-    .pay-row        { display: flex; flex-direction: row; gap: 8px; align-items: stretch; }
+    .pay-row        { display: flex; flex-direction: column; gap: 9px; }
     .pay-row.hidden { display: none; }
 
     .pay-input {
-      flex: 1; height: 48px;
+      width: 100%; height: 48px;
       background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--r-lg);
       padding: 0 15px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--text);
       outline: none; transition: border-color .2s, box-shadow .2s; -moz-appearance: textfield;
@@ -381,50 +366,40 @@
       background: linear-gradient(135deg, var(--accent), #5a4de6); color: #fff;
       font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase;
       cursor: pointer; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 18px rgba(124,107,255,.38); transition: opacity .15s, transform .1s, box-shadow .15s;
-      position: relative; overflow: hidden;
+      box-shadow: 0 4px 18px rgba(124,107,255,.38); transition: opacity .15s, transform .1s;
     }
-    .pay-btn:active          { transform: scale(.97); opacity: .88; box-shadow: 0 2px 8px rgba(124,107,255,.2); }
+    .pay-btn:active          { transform: scale(.97); opacity: .88; }
     .pay-btn:disabled        { background: var(--surface2); color: var(--muted); box-shadow: none; cursor: not-allowed; }
     .pay-btn-partial         { background: linear-gradient(135deg, #ff9a3c, #d96000) !important; box-shadow: 0 4px 18px rgba(255,154,60,.38) !important; }
     .pay-btn-advance         { background: linear-gradient(135deg, var(--accent3), #00a07a) !important; box-shadow: 0 4px 18px rgba(0,212,170,.38) !important; }
 
-    /* Ripple effect */
-    .ripple { position: absolute; border-radius: 50%; transform: scale(0); animation: rippleAnim .55s linear; background: rgba(255,255,255,.28); pointer-events: none; }
-    @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
-
     /* CARD BOTTOM BAR */
-    .card-actions    { display: flex; border-top: 1px solid var(--border); background: rgba(255,255,255,.012); }
+    .card-actions    { display: flex; border-top: 1px solid var(--border); }
     .history-toggle  {
       flex: 1; display: flex; align-items: center; gap: 6px; padding: 10px 14px;
-      cursor: pointer; font-size: 11px; font-weight: 600; color: var(--text2);
-      transition: color .15s, background .12s; user-select: none; border-radius: 0 0 0 var(--r-xl);
+      cursor: pointer; font-size: 11px; font-weight: 500; color: var(--muted);
+      transition: color .15s; user-select: none;
     }
-    .history-toggle:active { color: var(--accent); background: rgba(124,107,255,.04); }
-    .toggle-dot              { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); opacity: .5; flex-shrink: 0; }
-    .h-arrow                 { margin-left: auto; font-size: 9px; transition: transform .2s; color: var(--muted); }
+    .history-toggle:active { color: var(--accent); }
+    .toggle-dot              { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); opacity: .5; }
+    .h-arrow                 { margin-left: auto; font-size: 9px; transition: transform .2s; }
     .history-toggle.open .h-arrow { transform: rotate(180deg); }
-    .history-toggle.open .toggle-dot { opacity: 1; background: var(--accent); box-shadow: 0 0 4px rgba(124,107,255,.5); }
-    .del-teacher-btn         { padding: 10px 14px; border: none; border-left: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: 14px; transition: color .15s, background .12s; border-radius: 0 0 var(--r-xl) 0; }
-    .del-teacher-btn:active  { color: var(--red); background: rgba(255,77,109,.06); }
+    .del-teacher-btn         { padding: 10px 14px; border: none; border-left: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: 14px; transition: color .15s; }
+    .del-teacher-btn:active  { color: var(--red); }
 
     /* PAYMENT HISTORY */
     .history-panel          { display: none; padding: 0 10px 12px; }
-    .history-panel.open     { display: block; animation: fadeSlideUp .2s ease both; }
-    .hist-empty             { font-size: 12px; color: var(--muted); padding: 12px 4px 4px; text-align: center; }
-    .hist-header            { display: flex; align-items: center; justify-content: space-between; padding: 4px 4px 6px; }
-    .hist-header-lbl        { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
-    .swipe-hint             { font-size: 10px; color: var(--muted); text-align: center; padding: 4px 0 6px; letter-spacing: .3px; opacity: .7; }
+    .history-panel.open     { display: block; }
+    .hist-empty             { font-size: 12px; color: var(--muted); padding: 10px 0 2px; text-align: center; }
+    .swipe-hint             { font-size: 10px; color: var(--muted); text-align: center; padding: 6px 0 4px; letter-spacing: .3px; }
     .payment-item           {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 10px 12px; background: var(--surface2); border-radius: var(--r-md); margin-top: 5px;
+      padding: 9px 12px; background: var(--surface2); border-radius: var(--r-md); margin-top: 5px;
       touch-action: pan-y; will-change: transform; transition: transform .15s, background .15s;
-      border: 1px solid var(--border);
     }
-    .payment-item:active { background: var(--surface3); }
-    .pay-months-txt { font-weight: 600; color: var(--text); font-size: 12px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+    .pay-months-txt { font-weight: 500; color: var(--text); font-size: 12px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
     .pay-date-txt   { font-size: 10px; color: var(--muted); margin-top: 2px; }
-    .pay-amt-tag    { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 800; color: var(--accent3); background: rgba(0,212,170,.08); border: 1px solid rgba(0,212,170,.16); padding: 3px 9px; border-radius: var(--r-sm); }
+    .pay-amt-tag    { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--accent3); }
     .hist-badge     { font-size: 9px; font-weight: 700; letter-spacing: .4px; padding: 2px 6px; border-radius: 5px; text-transform: uppercase; }
     .hist-partial   { background: rgba(255,154,60,.12); color: var(--accent4); }
     .hist-advance   { background: rgba(0,212,170,.12); color: var(--accent3); }
@@ -432,11 +407,8 @@
     /* EMPTY STATE */
     .empty-state { text-align: center; padding: 52px 24px; }
     .empty-icon  { font-size: 48px; margin-bottom: 14px; }
-    .empty-illus { display: block; margin: 0 auto 20px; opacity: .55; }
     .empty-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
-    .empty-sub   { font-size: 13px; color: var(--muted); line-height: 1.7; max-width: 240px; margin: 0 auto; }
-    .empty-cta   { display: inline-flex; align-items: center; gap: 7px; margin-top: 22px; padding: 11px 22px; border-radius: var(--r-lg); background: linear-gradient(135deg, var(--accent), #5a4de6); color: #fff; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; border: none; box-shadow: 0 4px 16px rgba(124,107,255,.32); transition: opacity .15s, transform .1s; }
-    .empty-cta:active { opacity: .85; transform: scale(.97); }
+    .empty-sub   { font-size: 13px; color: var(--muted); line-height: 1.7; }
     .no-results  { text-align: center; color: var(--muted); font-size: 13px; padding: 32px 0; }
 
     /* ═══════════════════════════════════════════════════
@@ -445,14 +417,14 @@
     @keyframes fadeIn  { from { opacity: 0 } to { opacity: 1 } }
     @keyframes slideUp { from { opacity: 0; transform: translateY(24px) } to { opacity: 1; transform: translateY(0) } }
 
-    .modal-overlay        { position: fixed; inset: 0; background: rgba(0,0,0,.7); backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2); z-index: 200; display: flex; align-items: flex-end; justify-content: center; animation: fadeIn .15s ease; }
-    .modal-overlay.hidden { display: none; }
-    .modal-sheet          { background: var(--surface); border: 1px solid var(--border2); border-radius: 24px 24px 0 0; padding: 16px 18px calc(48px + env(safe-area-inset-bottom, 0px)); width: 100%; max-width: 480px; animation: slideUp .24s cubic-bezier(.34,1.3,.64,1); max-height: 92vh; overflow-y: auto; }
-    .modal-handle         { width: 36px; height: 4px; background: var(--border2); border-radius: 2px; margin: 0 auto 18px; }
-    .modal-header         { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-    .modal-title          { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -.4px; color: var(--text); }
-    .modal-close          { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface2); color: var(--text2); font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s, transform .12s; }
-    .modal-close:active   { background: var(--surface3); transform: scale(.9); }
+    .modal-overlay        { position: fixed; inset: 0; background: rgba(0,0,0,.75); backdrop-filter: blur(12px); z-index: 200; display: flex; align-items: flex-end; justify-content: center; animation: fadeIn .15s ease; }
+    .modal-overlay.hidden { display: none !important; animation: none; }
+    .modal-sheet          { background: var(--surface); border: 1px solid var(--border2); border-radius: 22px 22px 0 0; padding: 16px 18px 48px; width: 100%; max-width: 480px; animation: slideUp .24s cubic-bezier(.34,1.3,.64,1); max-height: 92vh; overflow-y: auto; }
+    .modal-handle         { width: 32px; height: 3px; background: var(--border2); border-radius: 2px; margin: 0 auto 16px; }
+    .modal-header         { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+    .modal-title          { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; letter-spacing: -.3px; color: var(--text); }
+    .modal-close          { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface2); color: var(--text2); font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .modal-close:active   { background: var(--surface3); }
 
     /* FORM FIELDS */
     .field-group          { margin-bottom: 14px; }
@@ -496,56 +468,53 @@
 
     /* ACTION BUTTONS */
     .btn-row            { display: flex; gap: 9px; margin-top: 20px; }
-    .btn-cancel         { flex: 1; padding: 13px; border-radius: var(--r-lg); border: 1.5px solid var(--border); background: transparent; color: var(--text2); font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: background .15s; }
-    .btn-cancel:active  { background: var(--surface2); }
+    .btn-cancel         { flex: 1; padding: 13px; border-radius: var(--r-lg); border: 1.5px solid rgba(255,255,255,.1); background: rgba(255,255,255,.05); color: #8e8eb8; font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: background .15s; }
+    .btn-cancel:active  { background: rgba(255,255,255,.12); }
     .btn-primary        { flex: 2; padding: 13px; border-radius: var(--r-lg); border: none; background: linear-gradient(135deg, var(--accent), #5a4de6); color: #fff; font-size: 13px; font-weight: 700; font-family: 'Syne', sans-serif; cursor: pointer; box-shadow: 0 4px 16px rgba(124,107,255,.28); transition: opacity .15s, transform .1s; }
     .btn-primary:active { opacity: .88; transform: scale(.98); }
 
     /* CONFIRM DIALOG */
-    .confirm-overlay        { position: fixed; inset: 0; background: rgba(0,0,0,.72); backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 24px; animation: fadeIn .15s ease; }
-    .confirm-overlay.hidden { display: none; }
-    .confirm-box            { background: var(--surface2); border: 1px solid var(--border2); border-radius: 24px; padding: 24px; width: 100%; max-width: 300px; box-shadow: 0 24px 80px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.04); animation: scalePop .22s cubic-bezier(.34,1.4,.64,1); }
-    .confirm-icon           { font-size: 34px; margin-bottom: 12px; text-align: center; }
-    .confirm-title          { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; color: var(--text); margin-bottom: 8px; text-align: center; }
-    .confirm-msg            { font-size: 13px; color: var(--text2); line-height: 1.65; margin-bottom: 22px; text-align: center; }
+    .confirm-overlay        { position: fixed; inset: 0; background: rgba(0,0,0,.75); backdrop-filter: blur(12px); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 24px; animation: fadeIn .15s ease; }
+    .confirm-overlay.hidden { display: none !important; animation: none; }
+    .confirm-box            { background: #1a1a30; border: 1px solid rgba(255,255,255,.12); border-radius: 20px; padding: 24px; width: 100%; max-width: 300px; box-shadow: 0 20px 70px rgba(0,0,0,.7); animation: slideUp .2s ease; }
+    .confirm-icon           { font-size: 30px; margin-bottom: 10px; text-align: center; }
+    .confirm-title          { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; color: #ebebf5; margin-bottom: 7px; text-align: center; }
+    .confirm-msg            { font-size: 13px; color: #8e8eb8; line-height: 1.6; margin-bottom: 20px; text-align: center; }
     .confirm-actions        { display: flex; gap: 9px; }
 
     /* USER MENU */
-    .menu-backdrop         { position: fixed; inset: 0; z-index: 99; background: rgba(0,0,0,.3); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); animation: fadeIn .15s ease; }
+    .menu-backdrop         { position: fixed; inset: 0; z-index: 99; background: rgba(0,0,0,.35); backdrop-filter: blur(4px); animation: fadeIn .15s ease; }
     .menu-backdrop.hidden  { display: none; }
     .user-menu             {
-      position: fixed; top: 68px; left: 14px; z-index: 100;
-      background: rgba(21,21,42,.92);
-      backdrop-filter: blur(24px) saturate(1.5);
-      -webkit-backdrop-filter: blur(24px) saturate(1.5);
-      border: 1px solid var(--border2);
-      border-radius: 20px; min-width: 252px; max-width: calc(100vw - 28px);
-      box-shadow: 0 20px 70px rgba(0,0,0,.75), 0 0 0 1px rgba(255,255,255,.04);
-      animation: menuPop .22s cubic-bezier(.34,1.5,.64,1); overflow: hidden;
+      position: fixed; top: 64px; left: 14px; z-index: 100;
+      background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: 18px; min-width: 244px; max-width: calc(100vw - 28px);
+      box-shadow: 0 16px 60px rgba(0,0,0,.7);
+      animation: menuPop .2s cubic-bezier(.34,1.5,.64,1); overflow: hidden;
     }
-    :root.light .user-menu { background: rgba(255,255,255,.92); }
-    @keyframes menuPop { from { opacity: 0; transform: translateY(-10px) scale(.94) } to { opacity: 1; transform: translateY(0) scale(1) } }
+    @keyframes menuPop { from { opacity: 0; transform: translateY(-8px) scale(.96) } to { opacity: 1; transform: translateY(0) scale(1) } }
     .user-menu.hidden      { display: none; }
-    .menu-user-section     { padding: 16px 14px 12px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
-    .menu-avatar           { width: 46px; height: 46px; border-radius: 50%; border: 2px solid var(--accent); background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; flex-shrink: 0; overflow: hidden; box-shadow: 0 2px 10px rgba(124,107,255,.25); }
+    .menu-user-section     { padding: 14px 14px 10px; display: flex; align-items: center; gap: 12px; }
+    .menu-avatar           { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--accent); background: var(--accent); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; flex-shrink: 0; overflow: hidden; }
     .menu-avatar img       { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
     .menu-user-info        { min-width: 0; flex: 1; }
-    .menu-user-name        { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 800; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .menu-user-name        { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .menu-user-email       { font-size: 10px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .menu-role-pill        { display: inline-flex; align-items: center; gap: 4px; font-size: 9px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; margin-top: 5px; padding: 3px 9px; border-radius: 20px; }
-    .menu-role-pill.student { background: rgba(124,107,255,.16); color: var(--accent); border: 1px solid rgba(124,107,255,.2); }
-    .menu-role-pill.teacher { background: rgba(0,212,170,.14); color: var(--accent3); border: 1px solid rgba(0,212,170,.2); }
-    .menu-hr               { height: 1px; background: var(--border); margin: 0; }
+    .menu-role-pill        { display: inline-flex; align-items: center; gap: 4px; font-size: 9px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; margin-top: 4px; padding: 3px 8px; border-radius: 20px; }
+    .menu-role-pill.student { background: rgba(124,107,255,.14); color: var(--accent); }
+    .menu-role-pill.teacher { background: rgba(0,212,170,.14); color: var(--accent3); }
+    .menu-hr               { height: 1px; background: var(--border); margin: 0 10px; }
     .menu-list             { padding: 6px 6px 8px; }
     .menu-item             { display: flex; align-items: center; gap: 11px; padding: 11px 12px; border-radius: 12px; cursor: pointer; font-size: 13px; color: var(--text); font-weight: 500; transition: background .12s; }
-    .menu-item:active      { background: rgba(255,255,255,.06); }
+    .menu-item:active      { background: rgba(255,255,255,.05); }
     .menu-item-icon        { font-size: 17px; width: 22px; text-align: center; flex-shrink: 0; }
     .menu-item-label       { flex: 1; }
     .menu-item-arrow       { color: var(--muted); font-size: 11px; }
-    .menu-item.danger      { color: var(--red); background: rgba(255,77,109,.05); border: 1px solid rgba(255,77,109,.1); margin: 0 4px 4px; border-radius: 12px; }
+    .menu-item.danger      { color: var(--red); background: rgba(255,77,109,.05); border: 1px solid rgba(255,77,109,.1); }
     .menu-item.danger:active { background: rgba(255,77,109,.12); }
     .menu-item-install     { color: var(--accent3); }
     .menu-item-install:active { background: rgba(0,212,170,.07) !important; }
+    .menu-item.danger:active { background: rgba(255,77,109,.12); }
 
     /* ═══════════════════════════════════════════════════
        TEACHER MODE — BATCH LIST
@@ -575,41 +544,38 @@
     #batchDetailScreen        { position: fixed; inset: 0; z-index: 20; background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
     #batchDetailScreen.hidden { display: none !important; }
 
-    .bd-topbar     { display: flex; align-items: center; gap: 12px; padding: 52px 16px 13px; background: rgba(8,8,16,.85); backdrop-filter: blur(18px) saturate(1.4); -webkit-backdrop-filter: blur(18px) saturate(1.4); border-bottom: 1px solid rgba(255,255,255,.045); flex-shrink: 0; }
-    :root.light .bd-topbar { background: rgba(242,242,250,.85); border-bottom: 1px solid rgba(80,80,140,.08); }
-    .bd-back       { width: 38px; height: 38px; border-radius: var(--r-md); background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background .15s, transform .12s; }
-    .bd-back:active { background: var(--surface3); transform: scale(.92); }
+    .bd-topbar     { display: flex; align-items: center; gap: 12px; padding: 52px 16px 12px; background: linear-gradient(180deg, var(--bg) 80%, transparent); flex-shrink: 0; }
+    .bd-back       { width: 38px; height: 38px; border-radius: var(--r-md); background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background .15s; }
+    .bd-back:active { background: var(--surface3); }
     .bd-title-wrap { flex: 1; min-width: 0; }
     .bd-title      { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -.3px; }
     .bd-sub        { font-size: 11px; color: var(--muted); margin-top: 2px; }
-    .bd-add-btn    { width: 38px; height: 38px; border-radius: var(--r-md); background: linear-gradient(135deg, var(--accent3), #009e7a); border: none; color: #fff; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 3px 14px rgba(0,212,170,.32); transition: transform .15s, box-shadow .15s; position: relative; overflow: hidden; }
-    .bd-add-btn:active { transform: scale(.88); box-shadow: 0 1px 6px rgba(0,212,170,.18); }
-    .bd-body       { flex: 1; overflow-y: auto; padding: 14px 14px 80px; }
+    .bd-add-btn    { width: 38px; height: 38px; border-radius: var(--r-md); background: var(--accent3); border: none; color: #fff; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 3px 12px rgba(0,212,170,.28); transition: transform .15s; }
+    .bd-add-btn:active { transform: scale(.9); }
+    .bd-body       { flex: 1; overflow-y: auto; padding: 0 14px 72px; }
 
-    .bd-summary-card        { background: linear-gradient(135deg, #00c49a, #009e7a); border-radius: var(--r-xl); padding: 18px 18px; margin-bottom: 16px; position: relative; overflow: hidden; box-shadow: 0 10px 40px rgba(0,196,154,.28), 0 3px 12px rgba(0,196,154,.14); }
-    .bd-summary-card::before { content: ''; position: absolute; top: -50px; right: -50px; width: 170px; height: 170px; background: rgba(255,255,255,.08); border-radius: 50%; pointer-events: none; }
-    .bd-summary-card::after  { content: ''; position: absolute; bottom: -30px; left: -20px; width: 110px; height: 110px; background: rgba(255,255,255,.04); border-radius: 50%; pointer-events: none; }
-    .bd-sum-label   { font-size: 9px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.75); margin-bottom: 8px; position: relative; z-index: 1; }
-    .bd-sum-amount  { font-family: 'Syne', sans-serif; font-size: 38px; font-weight: 800; letter-spacing: -2px; color: #fff; position: relative; z-index: 1; line-height: 1; }
-    .bd-sum-amount .cur { font-size: 18px; opacity: .75; vertical-align: top; margin-top: 7px; display: inline-block; }
-    .bd-sum-meta    { display: flex; gap: 7px; margin-top: 14px; position: relative; z-index: 1; }
-    .bd-sum-pill    { background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.22); border-radius: 10px; padding: 6px 12px; backdrop-filter: blur(8px); flex: 1; transition: background .15s; }
-    .bd-sum-pill-val { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 800; color: #fff; }
-    .bd-sum-pill-lbl { font-size: 9px; color: rgba(255,255,255,.7); text-transform: uppercase; letter-spacing: .4px; margin-top: 1px; }
+    .bd-summary-card        { background: linear-gradient(135deg, #00c49a, #009e7a); border-radius: var(--r-xl); padding: 18px 18px; margin-bottom: 16px; position: relative; overflow: hidden; box-shadow: 0 8px 32px rgba(0,196,154,.2); }
+    .bd-summary-card::before { content: ''; position: absolute; top: -40px; right: -40px; width: 150px; height: 150px; background: rgba(255,255,255,.07); border-radius: 50%; }
+    .bd-sum-label   { font-size: 9px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.7); margin-bottom: 8px; position: relative; z-index: 1; }
+    .bd-sum-amount  { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; letter-spacing: -1.5px; color: #fff; position: relative; z-index: 1; }
+    .bd-sum-amount .cur { font-size: 18px; opacity: .7; vertical-align: top; margin-top: 7px; display: inline-block; }
+    .bd-sum-meta    { display: flex; gap: 7px; margin-top: 12px; position: relative; z-index: 1; }
+    .bd-sum-pill    { background: rgba(255,255,255,.14); border-radius: 9px; padding: 6px 11px; backdrop-filter: blur(8px); }
+    .bd-sum-pill-val { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 800; color: #fff; }
+    .bd-sum-pill-lbl { font-size: 9px; color: rgba(255,255,255,.65); text-transform: uppercase; letter-spacing: .4px; margin-top: 1px; }
 
     /* STUDENT CARDS */
-    .student-card           { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; margin-bottom: 9px; overflow: hidden; animation: fadeUp .28s ease both; transition: border-color .2s, box-shadow .2s; }
-    .student-card:active    { transform: scale(.998); }
-    .student-card.sc-overdue  { border-color: rgba(255,154,60,.22); }
-    .student-card.sc-critical { border-color: rgba(255,77,109,.28); box-shadow: 0 2px 14px rgba(255,77,109,.07); }
+    .student-card           { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; margin-bottom: 9px; overflow: hidden; animation: fadeUp .28s ease both; }
+    .student-card.sc-overdue  { border-color: rgba(255,154,60,.2); }
+    .student-card.sc-critical { border-color: rgba(255,77,109,.25); box-shadow: 0 2px 14px rgba(255,77,109,.06); }
 
     .sc-top    { padding: 13px 13px 11px; }
     .sc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
     .sc-left   { flex: 1; min-width: 0; padding-right: 10px; }
 
-    .sc-name-row    { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
-    .sc-avatar      { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, var(--accent3), #009e7a); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 800; color: #fff; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,196,154,.28); }
-    .sc-name        { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 800; color: var(--text); letter-spacing: -.2px; }
+    .sc-name-row    { display: flex; align-items: center; gap: 7px; margin-bottom: 2px; }
+    .sc-avatar      { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, var(--accent3), #009e7a); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0; }
+    .sc-name        { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--text); }
     .sc-overdue-badge { font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 20px; background: rgba(255,154,60,.1); color: var(--accent4); border: 1px solid rgba(255,154,60,.2); letter-spacing: .3px; }
     .sc-overdue-badge.crit { background: rgba(255,77,109,.1); color: var(--red); border-color: rgba(255,77,109,.25); animation: pulse 2.5s infinite; }
     .sc-meta        { font-size: 10px; color: var(--text2); margin-top: 2px; }
@@ -617,25 +583,23 @@
     .sc-last-paid.never { color: var(--red); opacity: .65; }
 
     .sc-due-badge   { text-align: right; flex-shrink: 0; }
-    .sc-due-amt     { font-family: 'Syne', sans-serif; font-size: 21px; font-weight: 800; color: var(--yellow); letter-spacing: -.6px; line-height: 1; }
+    .sc-due-amt     { font-family: 'Syne', sans-serif; font-size: 19px; font-weight: 800; color: var(--yellow); letter-spacing: -.5px; }
     .sc-due-amt.zero { color: var(--accent3); }
     .sc-due-amt.crit { color: var(--red); }
-    .sc-due-mo      { font-size: 10px; color: var(--muted); margin-top: 3px; }
+    .sc-due-mo      { font-size: 10px; color: var(--muted); margin-top: 2px; }
     .sc-partial-chip { font-size: 9px; color: var(--accent4); margin-top: 3px; background: rgba(255,154,60,.08); padding: 2px 6px; border-radius: var(--r-sm); display: inline-block; border: 1px solid rgba(255,154,60,.16); }
 
-    .sc-actions        { display: flex; border-top: 1px solid var(--border); background: rgba(255,255,255,.01); }
-    .sc-hist-toggle    { flex: 1; display: flex; align-items: center; gap: 6px; padding: 9px 13px; cursor: pointer; font-size: 11px; font-weight: 600; color: var(--text2); user-select: none; transition: color .15s; border-radius: 0 0 0 18px; }
-    .sc-hist-toggle:active { color: var(--accent3); background: rgba(0,212,170,.04); }
-    .sc-h-arrow        { margin-left: auto; font-size: 9px; transition: transform .2s; color: var(--muted); }
+    .sc-actions        { display: flex; border-top: 1px solid var(--border); }
+    .sc-hist-toggle    { flex: 1; display: flex; align-items: center; gap: 5px; padding: 9px 13px; cursor: pointer; font-size: 11px; font-weight: 500; color: var(--muted); user-select: none; transition: color .15s; }
+    .sc-hist-toggle:active { color: var(--accent3); }
+    .sc-h-arrow        { margin-left: auto; font-size: 9px; transition: transform .2s; }
     .sc-hist-toggle.open .sc-h-arrow { transform: rotate(180deg); }
-    .sc-hist-toggle.open .sc-dot { background: var(--accent3); opacity: 1; box-shadow: 0 0 4px rgba(0,212,170,.5); }
-    .sc-dot            { width: 5px; height: 5px; border-radius: 50%; background: var(--accent3); opacity: .5; flex-shrink: 0; }
-    .sc-edit-btn       { padding: 9px 13px; border: none; border-left: 1px solid var(--border); border-right: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: 14px; transition: color .15s, background .12s; }
-    .sc-edit-btn:active { color: var(--accent); background: rgba(124,107,255,.05); }
-    .sc-del-btn        { padding: 9px 13px; border: none; border-left: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: 14px; transition: color .15s, background .12s; border-radius: 0 0 18px 0; }
-    .sc-del-btn:active { color: var(--red); background: rgba(255,77,109,.06); }
+    .sc-edit-btn       { padding: 9px 13px; border: none; border-left: 1px solid var(--border); border-right: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: 14px; transition: color .15s; }
+    .sc-edit-btn:active { color: var(--accent); }
+    .sc-del-btn        { padding: 9px 13px; border: none; border-left: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: 14px; transition: color .15s; }
+    .sc-del-btn:active { color: var(--red); }
     .sc-hist-panel     { display: none; padding: 0 10px 10px; }
-    .sc-hist-panel.open { display: block; animation: fadeSlideUp .2s ease both; }
+    .sc-hist-panel.open { display: block; }
 
     /* ADD/EDIT STUDENT MODALS */
     .student-list-preview      { max-height: 200px; overflow-y: auto; margin-bottom: 8px; }
@@ -746,10 +710,10 @@
     /* ═══════════════════════════════════════════════════
        TOAST
     ═══════════════════════════════════════════════════ */
-    .toast         { position: fixed; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface3); border: 1px solid var(--border2); color: var(--text); padding: 11px 22px; border-radius: 50px; font-size: 13px; font-weight: 600; font-family: 'Syne', sans-serif; z-index: 500; transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .3s; box-shadow: 0 8px 32px rgba(0,0,0,.55); white-space: nowrap; pointer-events: none; backdrop-filter: blur(12px); letter-spacing: .2px; }
+    .toast         { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface3); border: 1px solid var(--border2); color: var(--text); padding: 10px 20px; border-radius: var(--r-lg); font-size: 12px; font-weight: 500; z-index: 500; transition: transform .3s cubic-bezier(.34,1.56,.64,1); box-shadow: 0 6px 28px rgba(0,0,0,.5); white-space: nowrap; pointer-events: none; }
     .toast.show    { transform: translateX(-50%) translateY(0); }
-    .toast.success { border-color: rgba(0,212,170,.35); color: var(--accent3); background: rgba(0,42,34,.9); }
-    .toast.error   { border-color: rgba(255,77,109,.35); color: var(--red); background: rgba(42,0,14,.9); }
+    .toast.success { border-color: rgba(0,212,170,.3); color: var(--accent3); }
+    .toast.error   { border-color: rgba(255,77,109,.3); color: var(--red); }
 
     /* ═══════════════════════════════════════════════════
        LOADING STATES
@@ -796,13 +760,12 @@
 
     /* Hero card block — matches total-card: ~130px, r-xl, gradient bg */
     .sk-hero {
-      width: 100%; border-radius: 20px; margin-bottom: 18px;
+      width: 100%; height: 130px; border-radius: 20px; margin-bottom: 18px;
       background: linear-gradient(140deg,
         rgba(91,77,230,.35) 0%,
         rgba(139,49,212,.25) 50%,
         rgba(208,63,160,.2) 100%);
       position: relative; overflow: hidden;
-      padding: 20px 20px 22px;
     }
     .sk-hero::after {
       content: '';
@@ -811,12 +774,6 @@
       background-size: 300% 100%;
       animation: shimmer 2s ease-in-out infinite;
     }
-    /* inner content of sk-hero to mimic total-card layout */
-    .sk-hero-label  { width: 90px; height: 8px; border-radius: 4px; background: rgba(255,255,255,.18); margin-bottom: 10px; position: relative; z-index: 1; }
-    .sk-hero-amount { width: 150px; height: 40px; border-radius: 8px; background: rgba(255,255,255,.22); margin-bottom: 6px; position: relative; z-index: 1; }
-    .sk-hero-sub    { width: 110px; height: 8px; border-radius: 4px; background: rgba(255,255,255,.12); margin-bottom: 18px; position: relative; z-index: 1; }
-    .sk-hero-tokens { display: flex; gap: 8px; position: relative; z-index: 1; }
-    .sk-hero-token  { height: 46px; border-radius: 10px; background: rgba(255,255,255,.13); flex: 1; }
 
     /* Teacher-card skeleton wrapper — matches .teacher-card exactly */
     .sk-tc {
@@ -868,7 +825,7 @@
 
     /* ₹ glyph placeholder — purple-tinted to hint at gradient text */
     .sk-login-glyph {
-      width: 46px; height: 60px; border-radius: 12px;
+      width: 56px; height: 72px; border-radius: 14px;
       background: linear-gradient(135deg, rgba(124,107,255,.25), rgba(255,107,157,.15));
       position: relative; overflow: hidden;
     }
@@ -882,7 +839,7 @@
 
     /* Google button placeholder — white-tinted to hint at white button */
     .sk-login-btn {
-      width: 100%; max-width: 288px; height: 48px; border-radius: 14px;
+      width: 100%; max-width: 300px; height: 52px; border-radius: 16px;
       background: rgba(255,255,255,.07);
       position: relative; overflow: hidden;
     }
@@ -916,15 +873,6 @@
     /* Pull-to-refresh */
     #pull-indicator { position: fixed; top: 0; left: 0; right: 0; text-align: center; padding: 11px; font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 700; color: var(--accent); background: rgba(8,8,16,.96); transform: translateY(-100%); transition: transform .2s; z-index: 50; letter-spacing: 2.5px; text-transform: uppercase; }
     :root.light #pull-indicator { background: rgba(242,242,250,.96); }
-
-    /* Offline banner */
-    .offline-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 9999; background: linear-gradient(90deg, #e07020, #ff9a3c); color: #fff; text-align: center; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; padding: 8px 16px; letter-spacing: .5px; transform: translateY(-100%); transition: transform .35s cubic-bezier(.34,1.2,.64,1); box-shadow: 0 2px 12px rgba(224,112,32,.35); display: flex; align-items: center; justify-content: center; gap: 6px; }
-    .offline-banner.visible { transform: translateY(0); }
-
-    /* Safe-area bottom padding for iPhone home bar */
-    .app-inner { width: 100%; max-width: 480px; margin: 0 auto; padding: 0 16px calc(80px + env(safe-area-inset-bottom, 0px)); }
-    #appScreen  { background: var(--bg); justify-content: flex-start; padding: 0; overflow-y: auto; }
-
     .hidden { display: none !important; }
 
     /* ═══════════════════════════════════════════════════
@@ -948,6 +896,10 @@
       from { opacity: 0; transform: translateY(-10px) scale(.97); }
       to   { opacity: 1; transform: translateY(0) scale(1); }
     }
+      40%  { transform: rotate(200deg) scale(1.18); }
+      to   { transform: rotate(360deg) scale(1); }
+    }
+
     /* Hero card slides in from above */
     .total-card  { animation: heroEntrance .5s cubic-bezier(.34,1.2,.64,1) both; }
 
@@ -961,12 +913,11 @@
     .student-card { animation: fadeUp .32s ease both; }
 
     /* Login screen elements animate in sequence via .visible class */
-    #loginContent.visible .login-card   { animation: scalePop    .42s .02s cubic-bezier(.34,1.2,.64,1) both; }
-    #loginContent.visible .login-glyph  { animation: scalePop    .52s .08s cubic-bezier(.34,1.35,.64,1) both; }
-    #loginContent.visible .login-name   { animation: fadeSlideUp .4s  .18s ease both; }
-    #loginContent.visible .login-sub    { animation: fadeSlideUp .38s .26s ease both; }
-    #loginContent.visible .google-btn   { animation: fadeSlideUp .46s .34s cubic-bezier(.34,1.2,.64,1) both; }
-    #loginContent.visible .login-note   { animation: fadeSlideUp .34s .46s ease both; }
+    #loginContent.visible .login-glyph { animation: scalePop    .52s .04s cubic-bezier(.34,1.35,.64,1) both; }
+    #loginContent.visible .login-name  { animation: fadeSlideUp .4s  .16s ease both; }
+    #loginContent.visible .login-sub   { animation: fadeSlideUp .38s .24s ease both; }
+    #loginContent.visible .google-btn  { animation: fadeSlideUp .46s .32s cubic-bezier(.34,1.2,.64,1) both; }
+    #loginContent.visible .login-note  { animation: fadeSlideUp .34s .44s ease both; }
 
     /* Onboarding step enter animation */
     .ob-step-enter { animation: fadeSlideUp .32s cubic-bezier(.34,1.2,.64,1) both; }
@@ -982,272 +933,6 @@
     .anim-d3 { animation-delay: .15s !important; }
     .anim-d4 { animation-delay: .20s !important; }
     .anim-d5 { animation-delay: .25s !important; }
-
-    /* ── FIELD INPUT UPGRADES ── */
-    .field-input:focus { border-color: rgba(124,107,255,.5); background: var(--surface3); box-shadow: 0 0 0 3px rgba(124,107,255,.07); }
-
-    /* ── BATCH CARD UPGRADE ── */
-    .batch-card { transition: border-color .2s, box-shadow .2s, transform .12s; }
-    .batch-card:active { transform: scale(.99); background: var(--surface2); }
-    .batch-open-btn:active { color: var(--accent3); }
-
-    /* ── BD SUMMARY CARD UPGRADE ── */
-    .bd-summary-card { box-shadow: 0 10px 40px rgba(0,196,154,.22), 0 3px 12px rgba(0,196,154,.12); }
-    .bd-sum-pill { transition: background .15s; }
-
-    /* ── STUDENT CARD UPGRADE ── */
-    .sc-avatar { box-shadow: 0 2px 8px rgba(0,196,154,.25); }
-
-    /* ── SCROLLBAR HIDE ── */
-    #appScreen::-webkit-scrollbar, #batchDetailScreen .bd-body::-webkit-scrollbar { display: none; }
-    #appScreen, #batchDetailScreen .bd-body { -ms-overflow-style: none; scrollbar-width: none; }
-
-    /* ── SETUP BANNER UPGRADE ── */
-    .setup-banner { transition: transform .15s, box-shadow .15s; }
-    .setup-banner:active { transform: scale(.99); }
-    .setup-banner-btn { transition: opacity .15s, transform .1s; }
-    .setup-banner-btn:active { opacity: .85; transform: scale(.96); }
-
-    /* ── SCROLLED TOPBAR shadow ── */
-    .topbar.scrolled { box-shadow: 0 4px 24px rgba(0,0,0,.28); }
-
-    /* ═══════════════════════════════════════════════════
-       BOTTOM NAVIGATION BAR
-    ═══════════════════════════════════════════════════ */
-    .bottom-nav {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 60;
-      max-width: 480px; margin: 0 auto;
-      display: flex; align-items: stretch;
-      background: rgba(10,10,20,.88);
-      backdrop-filter: blur(22px) saturate(1.6);
-      -webkit-backdrop-filter: blur(22px) saturate(1.6);
-      border-top: 1px solid rgba(255,255,255,.06);
-      padding-bottom: env(safe-area-inset-bottom, 0px);
-      box-shadow: 0 -8px 32px rgba(0,0,0,.35);
-    }
-    :root.light .bottom-nav {
-      background: rgba(242,242,250,.9);
-      border-top: 1px solid rgba(80,80,140,.1);
-      box-shadow: 0 -4px 20px rgba(80,80,140,.1);
-    }
-    .bottom-nav-item {
-      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 10px 4px 11px; cursor: pointer; user-select: none;
-      position: relative; transition: opacity .15s;
-      border: none; background: none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .bottom-nav-item:active { opacity: .65; }
-    .bottom-nav-icon {
-      font-size: 20px; line-height: 1; margin-bottom: 3px;
-      transition: transform .2s cubic-bezier(.34,1.5,.64,1);
-      display: block;
-    }
-    .bottom-nav-item.active .bottom-nav-icon { transform: translateY(-2px) scale(1.12); }
-    .bottom-nav-label {
-      font-family: 'Syne', sans-serif; font-size: 9px; font-weight: 700;
-      letter-spacing: .4px; text-transform: uppercase;
-      color: var(--muted); transition: color .15s;
-    }
-    .bottom-nav-item.active .bottom-nav-label { color: var(--accent); }
-    /* Active indicator dot */
-    .bottom-nav-item::after {
-      content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-      width: 0; height: 2.5px; border-radius: 2px;
-      background: var(--accent); transition: width .25s cubic-bezier(.34,1.5,.64,1);
-    }
-    .bottom-nav-item.active::after { width: 28px; }
-
-    /* FAB — centered + button */
-    .bottom-nav-fab {
-      flex: 0 0 56px; display: flex; align-items: center; justify-content: center;
-      position: relative;
-    }
-    .bottom-nav-fab-btn {
-      width: 48px; height: 48px; border-radius: 16px;
-      background: linear-gradient(135deg, var(--accent), #5a4de6);
-      border: none; color: #fff; font-size: 24px;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 18px rgba(124,107,255,.48);
-      transition: transform .15s cubic-bezier(.34,1.5,.64,1), box-shadow .15s;
-      margin-bottom: 6px;
-      position: relative; overflow: hidden;
-    }
-    .bottom-nav-fab-btn:active { transform: scale(.88); box-shadow: 0 2px 8px rgba(124,107,255,.25); }
-
-    /* ═══════════════════════════════════════════════════
-       TEACHER NAME UPGRADE — initials avatar chip
-    ═══════════════════════════════════════════════════ */
-    .teacher-avatar {
-      width: 32px; height: 32px; border-radius: 10px;
-      background: linear-gradient(135deg, var(--accent), #5a4de6);
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 800;
-      color: #fff; flex-shrink: 0; letter-spacing: -.5px;
-    }
-    .teacher-name-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 3px; }
-
-    /* ═══════════════════════════════════════════════════
-       SEARCH UPGRADE — floating label style
-    ═══════════════════════════════════════════════════ */
-    .search-wrap  { position: relative; margin-bottom: 18px; }
-    .search-icon  { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 14px; pointer-events: none; color: var(--muted); }
-    .search-input {
-      width: 100%; background: var(--surface); border: 1.5px solid var(--border2);
-      border-radius: var(--r-lg); padding: 12px 36px 12px 42px;
-      font-size: 13px; font-family: 'DM Sans', sans-serif;
-      color: var(--text); outline: none;
-      transition: border-color .2s, background .2s, box-shadow .2s;
-    }
-    .search-input:focus {
-      border-color: rgba(124,107,255,.4); background: var(--surface2);
-      box-shadow: 0 0 0 3px rgba(124,107,255,.08);
-    }
-    .search-input::placeholder { color: var(--muted); }
-    .search-clear {
-      position: absolute; right: 11px; top: 50%; transform: translateY(-50%);
-      color: var(--muted); font-size: 11px; cursor: pointer;
-      background: var(--surface2); border-radius: 50%; width: 22px; height: 22px;
-      display: flex; align-items: center; justify-content: center;
-      border: 1px solid var(--border); transition: background .15s;
-    }
-    .search-clear:active { background: var(--surface3); }
-
-    /* ═══════════════════════════════════════════════════
-       TOAST UPGRADE — icon prefix + pill shape
-    ═══════════════════════════════════════════════════ */
-    .toast {
-      position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
-      left: 50%; transform: translateX(-50%) translateY(80px);
-      background: var(--surface3); border: 1px solid var(--border2);
-      color: var(--text); padding: 11px 20px; border-radius: 40px;
-      font-size: 12px; font-weight: 600; z-index: 5000;
-      transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .25s;
-      box-shadow: 0 8px 32px rgba(0,0,0,.45); white-space: nowrap; pointer-events: none;
-      letter-spacing: .1px;
-    }
-    .toast.show    { transform: translateX(-50%) translateY(0); }
-    .toast.success { border-color: rgba(0,212,170,.35); color: var(--accent3); background: rgba(0,212,170,.08); }
-    .toast.error   { border-color: rgba(255,77,109,.35); color: var(--red); background: rgba(255,77,109,.06); }
-
-    /* ═══════════════════════════════════════════════════
-       CARD ACTIONS UPGRADE — better history toggle
-    ═══════════════════════════════════════════════════ */
-    .history-toggle {
-      flex: 1; display: flex; align-items: center; gap: 6px; padding: 11px 14px;
-      cursor: pointer; font-size: 11px; font-weight: 600; color: var(--text2);
-      transition: color .15s, background .15s; user-select: none; border-radius: 0 0 0 var(--r-xl);
-    }
-    .history-toggle:active { color: var(--accent); background: rgba(124,107,255,.05); }
-    .toggle-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); opacity: .6; flex-shrink: 0; }
-    .h-arrow    { margin-left: auto; font-size: 10px; transition: transform .25s cubic-bezier(.34,1.2,.64,1); color: var(--muted); }
-    .history-toggle.open .h-arrow { transform: rotate(180deg); }
-    .del-teacher-btn { padding: 11px 14px; border: none; border-left: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: 15px; transition: color .15s, background .15s; border-radius: 0 0 var(--r-xl) 0; }
-    .del-teacher-btn:active { color: var(--red); background: rgba(255,77,109,.05); }
-
-    /* ═══════════════════════════════════════════════════
-       MODAL UPGRADE — larger handle, better header
-    ═══════════════════════════════════════════════════ */
-    .modal-handle { width: 36px; height: 4px; background: var(--border2); border-radius: 4px; margin: 0 auto 18px; }
-    .modal-sheet  {
-      background: var(--surface); border: 1px solid var(--border2);
-      border-radius: 26px 26px 0 0; padding: 16px 20px calc(env(safe-area-inset-bottom, 0px) + 48px);
-      width: 100%; max-width: 480px;
-      animation: slideUp .24s cubic-bezier(.34,1.3,.64,1);
-      max-height: 92vh; overflow-y: auto;
-    }
-
-    /* ═══════════════════════════════════════════════════
-       PAY TABS UPGRADE — pill-style active indicator
-    ═══════════════════════════════════════════════════ */
-    .pay-tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 12px; background: var(--surface2); border-radius: var(--r-md); padding: 3px; }
-    .pay-tab  {
-      padding: 0; height: 36px; border-radius: 8px; border: none;
-      background: transparent; color: var(--muted);
-      font-size: 12px; font-weight: 700; font-family: 'Syne', sans-serif;
-      cursor: pointer; transition: all .18s; letter-spacing: .2px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .pay-tab.active         { background: var(--surface3); color: var(--accent); box-shadow: 0 1px 4px rgba(0,0,0,.2); }
-    .pay-tab.active-partial { background: var(--surface3); color: var(--accent4); box-shadow: 0 1px 4px rgba(0,0,0,.2); }
-    .pay-tab.active-advance { background: var(--surface3); color: var(--accent3); box-shadow: 0 1px 4px rgba(0,0,0,.2); }
-    .pay-tab:disabled       { opacity: .25; cursor: not-allowed; }
-
-    /* ═══════════════════════════════════════════════════
-       TOPBAR AVATAR — pulse ring on loading
-    ═══════════════════════════════════════════════════ */
-    .avatar-btn {
-      width: 40px; height: 40px; border-radius: 50%;
-      border: 2px solid rgba(124,107,255,.35);
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; color: #fff;
-      cursor: pointer; flex-shrink: 0; overflow: hidden;
-      box-shadow: 0 2px 12px rgba(124,107,255,.25); transition: transform .12s, box-shadow .12s;
-    }
-    .avatar-btn img   { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-    .avatar-btn:active { opacity: .75; transform: scale(.9); }
-
-    /* Add button upgrade */
-    .add-btn {
-      width: 40px; height: 40px; border-radius: var(--r-lg);
-      background: var(--accent); border: none; color: #fff; font-size: 22px;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 16px rgba(124,107,255,.44); transition: transform .15s, box-shadow .15s;
-    }
-    .add-btn:active { transform: scale(.88); box-shadow: 0 2px 8px rgba(124,107,255,.2); }
-
-    /* ═══════════════════════════════════════════════════
-       STUDENT CARD UPGRADE
-    ═══════════════════════════════════════════════════ */
-    .student-card {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 18px;
-      margin-bottom: 9px; overflow: hidden; animation: fadeUp .28s ease both;
-      transition: border-color .2s;
-    }
-    .sc-due-amt { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--yellow); letter-spacing: -.5px; }
-    .sc-due-amt.zero { color: var(--accent3); }
-    .sc-due-amt.crit { color: var(--red); }
-
-    /* ═══════════════════════════════════════════════════
-       CONFIRM BOX UPGRADE
-    ═══════════════════════════════════════════════════ */
-    .confirm-box {
-      background: var(--surface2); border: 1px solid var(--border2);
-      border-radius: 24px; padding: 24px 22px; width: 100%; max-width: 310px;
-      box-shadow: 0 24px 80px rgba(0,0,0,.7); animation: slideUp .2s ease;
-    }
-    .confirm-title { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
-
-    /* ═══════════════════════════════════════════════════
-       TEACHER MODE HEADER UPGRADE
-    ═══════════════════════════════════════════════════ */
-    .teacher-mode-header {
-      background: linear-gradient(135deg, rgba(0,212,170,.08), rgba(124,107,255,.05));
-      border: 1px solid rgba(0,212,170,.16); border-radius: var(--r-xl);
-      padding: 16px 18px; margin-bottom: 18px; display: flex; align-items: center; gap: 14px;
-      position: relative; overflow: hidden;
-    }
-    .teacher-mode-header::after { content: ''; position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; background: rgba(0,212,170,.04); border-radius: 50%; }
-
-    /* ═══════════════════════════════════════════════════
-       SCROLL IMPROVEMENTS
-    ═══════════════════════════════════════════════════ */
-    #appScreen, #batchDetailScreen .bd-body { -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
-    /* Scrollbar styling for desktop */
-    #appScreen::-webkit-scrollbar { width: 0; }
-
-    /* ═══════════════════════════════════════════════════
-       FOCUS RING for accessibility
-    ═══════════════════════════════════════════════════ */
-    button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-
-    /* ═══════════════════════════════════════════════════
-       NUMBER INPUT SPIN REMOVAL
-    ═══════════════════════════════════════════════════ */
-    input[type=number]::-webkit-outer-spin-button,
-    input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
-    input[type=number] { -moz-appearance: textfield; }
   </style>
 </head>
 <body>
@@ -1363,16 +1048,7 @@
     <div class="splash-body">
 
       <!-- HERO CARD: mirrors total-card height + radius -->
-      <div class="sk-hero">
-        <div class="sk-hero-label"></div>
-        <div class="sk-hero-amount"></div>
-        <div class="sk-hero-sub"></div>
-        <div class="sk-hero-tokens">
-          <div class="sk-hero-token"></div>
-          <div class="sk-hero-token"></div>
-          <div class="sk-hero-token"></div>
-        </div>
-      </div>
+      <div class="sk-hero"></div>
 
       <!-- SEARCH BAR -->
       <div class="sk" style="width:100%;height:42px;border-radius:14px;margin-bottom:18px;opacity:.8;"></div>
@@ -1454,38 +1130,30 @@
   <div class="screen hidden" id="loginScreen">
     <!-- LOGIN SKELETON — shown while firebase initialises -->
     <div id="loginSkeleton">
-      <!-- ₹ glyph: .login-glyph is 64px Syne 800, gradient — represented as a tinted block -->
       <div class="sk-login-glyph"></div>
-      <!-- "Fee Tracker": Syne 22px/800 -->
-      <div class="sk" style="width:130px;height:17px;border-radius:7px;margin-top:10px;"></div>
-      <!-- "Smart · Simple · Personal": 11px uppercase spaced -->
-      <div class="sk" style="width:100px;height:7px;border-radius:4px;opacity:.35;margin-top:8px;"></div>
-      <!-- margin-bottom: 52px spacer before button -->
-      <div style="height:52px;"></div>
-      <!-- Google button: white rounded, full width, ~48px tall -->
+      <div class="sk" style="width:160px;height:28px;border-radius:8px;margin-top:14px;"></div>
+      <div class="sk" style="width:120px;height:8px;border-radius:4px;opacity:.25;margin-top:10px;"></div>
+      <div style="height:56px;"></div>
       <div class="sk-login-btn"></div>
-      <!-- Privacy note: 2 lines -->
-      <div class="sk" style="width:210px;height:7px;border-radius:4px;opacity:.25;margin-top:18px;"></div>
-      <div class="sk" style="width:150px;height:7px;border-radius:4px;opacity:.18;margin-top:5px;"></div>
+      <div class="sk" style="width:190px;height:7px;border-radius:4px;opacity:.2;margin-top:20px;"></div>
+      <div class="sk" style="width:140px;height:7px;border-radius:4px;opacity:.14;margin-top:5px;"></div>
     </div>
 
     <!-- REAL CONTENT — fades in after skeleton -->
-    <div id="loginContent" style="display:flex;flex-direction:column;align-items:center;text-align:center;width:100%;padding:0 24px;opacity:0;transition:opacity .5s ease;pointer-events:none;position:relative;z-index:1;">
-      <div class="login-card">
-        <div class="login-glyph">&#8377;</div>
-        <div class="login-name">Fee Tracker</div>
-        <div class="login-sub">Smart &middot; Simple &middot; Personal</div>
-        <button class="google-btn" id="googleSignInBtn">
-          <svg class="google-icon" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-          </svg>
-          Continue with Google
-        </button>
-        <p class="login-note">&#128274; Your data is private. Works for students tracking fees and teachers managing batches.</p>
-      </div>
+    <div id="loginContent" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 28px;width:100%;max-width:420px;opacity:0;transition:opacity .5s ease;pointer-events:none;position:relative;z-index:1;">
+      <div class="login-glyph">&#8377;</div>
+      <div class="login-name">Fee Tracker</div>
+      <div class="login-sub">Smart &middot; Simple &middot; Personal</div>
+      <button class="google-btn" id="googleSignInBtn">
+        <svg class="google-icon" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Continue with Google
+      </button>
+      <p class="login-note">&#128274; Your data is private. Works for students tracking fees and teachers managing batches.</p>
     </div>
   </div>
 
@@ -1505,31 +1173,72 @@
       </div>
     </div>
     <div class="app-inner" id="appInner">
+      <div class="sk sk-total-card"></div>
+      <div class="sk" style="width:100%;height:42px;border-radius:14px;margin-bottom:18px;opacity:.8;"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div class="sk" style="width:68px;height:8px;border-radius:5px;opacity:.4;"></div>
+        <div class="sk sk-pill" style="width:24px;height:15px;opacity:.3;"></div>
+      </div>
+      <div class="sk-tc">
+        <div class="sk-tc-body">
+          <div style="flex:1;min-width:0;padding-right:12px;">
+            <div class="sk" style="width:130px;height:15px;border-radius:6px;margin-bottom:7px;"></div>
+            <div class="sk" style="width:90px;height:10px;border-radius:5px;margin-bottom:6px;opacity:.6;"></div>
+            <div class="sk" style="width:70px;height:9px;border-radius:4px;opacity:.35;"></div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;">
+            <div class="sk" style="width:68px;height:22px;border-radius:7px;margin-bottom:6px;"></div>
+            <div class="sk" style="width:44px;height:9px;border-radius:4px;opacity:.45;"></div>
+          </div>
+        </div>
+        <div class="sk-tc-tabs">
+          <div class="sk" style="height:40px;border-radius:10px;"></div>
+          <div class="sk" style="height:40px;border-radius:10px;opacity:.6;"></div>
+          <div class="sk" style="height:40px;border-radius:10px;opacity:.4;"></div>
+        </div>
+        <div class="sk-tc-pay">
+          <div class="sk" style="flex:1;height:48px;border-radius:14px;"></div>
+          <div class="sk" style="width:80px;height:48px;border-radius:14px;opacity:.7;"></div>
+        </div>
+        <div class="sk-tc-bar">
+          <div class="sk" style="width:90px;height:9px;border-radius:4px;opacity:.35;"></div>
+          <div class="sk" style="width:24px;height:24px;border-radius:8px;opacity:.3;"></div>
+        </div>
+      </div>
+      <div class="sk-tc" style="opacity:.5;">
+        <div class="sk-tc-body">
+          <div style="flex:1;min-width:0;padding-right:12px;">
+            <div class="sk" style="width:110px;height:15px;border-radius:6px;margin-bottom:7px;"></div>
+            <div class="sk" style="width:75px;height:10px;border-radius:5px;opacity:.6;"></div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;">
+            <div class="sk" style="width:55px;height:22px;border-radius:7px;margin-bottom:6px;"></div>
+          </div>
+        </div>
+        <div class="sk-tc-tabs">
+          <div class="sk" style="height:40px;border-radius:10px;"></div>
+          <div class="sk" style="height:40px;border-radius:10px;opacity:.6;"></div>
+          <div class="sk" style="height:40px;border-radius:10px;opacity:.4;"></div>
+        </div>
+      </div>
+      <div class="sk-tc" style="opacity:.22;">
+        <div class="sk-tc-body">
+          <div style="flex:1;min-width:0;padding-right:12px;">
+            <div class="sk" style="width:95px;height:15px;border-radius:6px;margin-bottom:7px;"></div>
+            <div class="sk" style="width:65px;height:10px;border-radius:5px;opacity:.6;"></div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;">
+            <div class="sk" style="width:50px;height:22px;border-radius:7px;"></div>
+          </div>
+        </div>
+        <div class="sk-tc-tabs">
+          <div class="sk" style="height:40px;border-radius:10px;"></div>
+          <div class="sk" style="height:40px;border-radius:10px;opacity:.6;"></div>
+          <div class="sk" style="height:40px;border-radius:10px;opacity:.4;"></div>
+        </div>
+      </div>
     </div>
   </div>
-
-  <!-- BOTTOM NAV -->
-  <nav class="bottom-nav hidden" id="bottomNav">
-    <button class="bottom-nav-item active" id="bnHome" onclick="bnActivate('home')">
-      <span class="bottom-nav-icon">🏠</span>
-      <span class="bottom-nav-label">Home</span>
-    </button>
-    <button class="bottom-nav-item" id="bnSearch" onclick="bnActivate('search')">
-      <span class="bottom-nav-icon">🔍</span>
-      <span class="bottom-nav-label">Search</span>
-    </button>
-    <button class="bottom-nav-fab" id="bnAdd" onclick="document.getElementById('addBtn').click()">
-      <button class="bottom-nav-fab-btn" title="Add">＋</button>
-    </button>
-    <button class="bottom-nav-item" id="bnHistory" onclick="bnActivate('history')">
-      <span class="bottom-nav-icon">📋</span>
-      <span class="bottom-nav-label">History</span>
-    </button>
-    <button class="bottom-nav-item" id="bnProfile" onclick="document.getElementById('avatarEl').click()">
-      <span class="bottom-nav-icon">👤</span>
-      <span class="bottom-nav-label">Profile</span>
-    </button>
-  </nav>
 
   <!-- MENU BACKDROP -->
   <div class="menu-backdrop hidden" id="menuBackdrop"></div>
@@ -1952,13 +1661,10 @@
     }
     function showOfflineBanner(show){
       let b=document.getElementById('offlineBanner');
-      if(!b){
-        b=document.createElement('div'); b.id='offlineBanner';
-        b.className='offline-banner';
-        b.innerHTML='<span style="font-size:13px;">⚡</span> Offline — showing cached data';
-        document.body.appendChild(b);
-      }
-      b.classList.toggle('visible', show);
+      if(!b){ b=document.createElement('div'); b.id='offlineBanner';
+        b.style.cssText='position:fixed;top:0;left:0;right:0;z-index:9999;background:#ff9a3c;color:#1a1a1a;text-align:center;font-size:12px;font-weight:700;padding:7px 16px;letter-spacing:.3px;transition:transform .3s;transform:translateY(-100%);';
+        b.textContent='⚡ Offline — showing cached data'; document.body.appendChild(b); }
+      b.style.transform=show?'translateY(0)':'translateY(-100%)';
     }
     // ──────────────────────────────────────────────────────────────────────────
 
@@ -1966,80 +1672,8 @@
     function mBetween(a,b){ return (b.year-a.year)*12+(b.month-a.month); }
     function addM(b,n){ let m=b.month+n,y=b.year; while(m>12){m-=12;y++;} return {month:m,year:y}; }
 
-    // HAPTIC FEEDBACK
-    window.triggerHaptic = function(type='light'){
-      if(!navigator.vibrate) return;
-      if(type==='light') navigator.vibrate(8);
-      else if(type==='medium') navigator.vibrate(18);
-      else if(type==='success') navigator.vibrate([6,40,6]);
-      else if(type==='error') navigator.vibrate([10,30,10,30,10]);
-    };
-
-    // RIPPLE EFFECT
-    window.addRipple = function(e, btn){
-      const r=document.createElement('span');
-      const rect=btn.getBoundingClientRect();
-      const size=Math.max(rect.width,rect.height)*2;
-      r.classList.add('ripple');
-      r.style.width=r.style.height=size+'px';
-      r.style.left=(e.clientX-rect.left-size/2)+'px';
-      r.style.top=(e.clientY-rect.top-size/2)+'px';
-      btn.appendChild(r);
-      r.addEventListener('animationend',()=>r.remove());
-    };
-
-    // BOTTOM NAV
-    window.bnActivate = function(tab){
-      ['home','search','history','profile'].forEach(t=>{
-        document.getElementById('bn'+t.charAt(0).toUpperCase()+t.slice(1))?.classList.toggle('active',t===tab);
-      });
-      if(tab==='search'){
-        const inp=document.querySelector('.search-input');
-        if(inp){ inp.focus(); inp.scrollIntoView({behavior:'smooth',block:'center'}); }
-      }
-      if(tab==='history'){
-        // Open history of the first card if any
-        const first=document.querySelector('.history-toggle');
-        if(first && !first.classList.contains('open')) first.click();
-      }
-    };
-
-    function showBottomNav(show){
-      const n=document.getElementById('bottomNav');
-      if(n) n.classList.toggle('hidden',!show);
-    }
-
-    // HAPTIC FEEDBACK
-    function triggerHaptic(pattern=[10]){
-      try{ if(navigator.vibrate) navigator.vibrate(pattern); }catch(e){}
-    }
-    window.triggerHaptic = triggerHaptic;
-
-    // TOPBAR scroll shadow
-    const _appScr2 = document.getElementById('appScreen');
-    const _topbar  = document.querySelector('.topbar');
-    if(_appScr2 && _topbar){
-      _appScr2.addEventListener('scroll', () => {
-        _topbar.classList.toggle('scrolled', _appScr2.scrollTop > 4);
-      }, {passive:true});
-    }
-
-    // RIPPLE on buttons
-    document.addEventListener('click', e => {
-      const btn = e.target.closest('.pay-btn, .add-btn, .ob-continue-btn, .btn-primary, .empty-cta, .bd-add-btn');
-      if (!btn || btn.disabled) return;
-      const r = document.createElement('span');
-      r.className = 'ripple';
-      const rect = btn.getBoundingClientRect();
-      const size = Math.max(rect.width, rect.height);
-      r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
-      btn.appendChild(r);
-      setTimeout(() => r.remove(), 600);
-    });
-
     // TOAST
     function toast(msg,type=''){
-      triggerHaptic(type==='error'?[10,30,10]:type==='success'?[12]:[8]);
       const t=document.getElementById('toast');
       t.textContent=msg; t.className='toast '+type;
       void t.offsetWidth; t.classList.add('show');
@@ -2047,17 +1681,28 @@
     }
 
     // CONFIRM
+    let _confirmResolve = null;
+    function _confirmDone(v){
+      document.getElementById('confirmOverlay').classList.add('hidden');
+      if(_confirmResolve){ _confirmResolve(v); _confirmResolve=null; }
+    }
+    // Wire up confirm buttons once — they call _confirmDone
+    document.addEventListener('DOMContentLoaded', ()=>{
+      document.getElementById('confirmOkBtn').addEventListener('click', ()=>_confirmDone(true));
+      document.getElementById('confirmCancelBtn').addEventListener('click', ()=>_confirmDone(false));
+      document.getElementById('confirmOverlay').addEventListener('click', e=>{
+        if(e.target===document.getElementById('confirmOverlay')) _confirmDone(false);
+      });
+    });
     function confirm2(title,msg,ok='Confirm',icon='⚠️'){
       return new Promise(res=>{
+        if(_confirmResolve) _confirmResolve(false); // cancel any pending
+        _confirmResolve=res;
         document.getElementById('confirmIcon').textContent=icon;
         document.getElementById('confirmTitle').textContent=title;
         document.getElementById('confirmMsg').innerHTML=msg;
         document.getElementById('confirmOkBtn').textContent=ok;
         document.getElementById('confirmOverlay').classList.remove('hidden');
-        const okB=document.getElementById('confirmOkBtn'), canB=document.getElementById('confirmCancelBtn');
-        const done=v=>{ document.getElementById('confirmOverlay').classList.add('hidden'); okB.replaceWith(okB.cloneNode(true)); canB.replaceWith(canB.cloneNode(true)); res(v); };
-        document.getElementById('confirmOkBtn').onclick=()=>done(true);
-        document.getElementById('confirmCancelBtn').onclick=()=>done(false);
       });
     }
 
@@ -2281,16 +1926,7 @@
           </div>
         </div>`;
       root.innerHTML=`
-        <div class="sk-hero">
-          <div class="sk-hero-label"></div>
-          <div class="sk-hero-amount"></div>
-          <div class="sk-hero-sub"></div>
-          <div class="sk-hero-tokens">
-            <div class="sk-hero-token"></div>
-            <div class="sk-hero-token"></div>
-            <div class="sk-hero-token"></div>
-          </div>
-        </div>
+        <div class="sk-hero"></div>
         <div class="sk" style="width:100%;height:42px;border-radius:14px;margin-bottom:18px;opacity:.8;"></div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
           <div class="sk" style="width:68px;height:8px;border-radius:5px;opacity:.4;"></div>
@@ -2344,7 +1980,7 @@
         const v=parseInt(document.getElementById('pay-'+id).value);
         if(!v||v<1||v>max) return toast(`Enter 1\u2013${max}`,'error');
         const amt=v*t.fee;
-        if(!await confirm2('Confirm Payment',`Pay <strong style="color:#f0f0f8">₹${amt.toLocaleString('en-IN')}</strong> for <strong style="color:#f0f0f8">${v} month${v>1?'s':''}</strong> to ${t.name}?`,'Pay','💸')) return;
+        if(!await confirm2('Confirm Payment',`Mark <strong style="color:#f0f0f8">₹${amt.toLocaleString('en-IN')}</strong> for <strong style="color:#f0f0f8">${v} month${v>1?'s':''}</strong> to ${t.name}?`,'Mark','💸')) return;
         const newPay={teacherId:id,teacherName:t.name,subject:t.subject,monthsPaid:v,amount:amt,type:'full',paidOn:po,timestamp:Date.now()};
         const fref=await addDoc(pyCol(),newPay); newPay.id=fref.id; payments.push(newPay); saveToCache();
         toast(`Paid ₹${amt.toLocaleString('en-IN')} ✓`,'success');
@@ -2474,12 +2110,100 @@
       }
     },{passive:true});
 
+    window.onSearch=function(v){
+      searchQ=v;
+      // Only re-render the cards list — preserve search input focus
+      const inp=document.querySelector('.search-input');
+      const cursorPos=inp?inp.selectionStart:null;
+      renderCards(); // partial render — doesn't touch search input DOM
+      const inp2=document.querySelector('.search-input');
+      if(inp2){ inp2.focus(); if(cursorPos!==null) try{inp2.setSelectionRange(cursorPos,cursorPos);}catch(e){} }
+    };
+
     // MENU
     function toggleMenu(e){ e?.stopPropagation(); const m=document.getElementById('userMenu'),b=document.getElementById('menuBackdrop'),h=!m.classList.contains('hidden'); m.classList.toggle('hidden',h); b.classList.toggle('hidden',h); }
     function closeMenu(){ document.getElementById('userMenu').classList.add('hidden'); document.getElementById('menuBackdrop').classList.add('hidden'); }
 
     // RENDER
     function render(){ appRendered = true; isT()?renderTeacher():renderStudent(); }
+
+    // Partial render — only update the cards list (used by search to preserve input focus)
+    function renderCards(){
+      if(isT()) return; // teacher view doesn't have same structure
+      const container=document.getElementById('cards-list');
+      if(!container){ render(); return; } // fallback if not rendered yet
+
+      // Update section count
+      const countEl=document.getElementById('teachers-count');
+      if(countEl) countEl.textContent=Object.keys(teachers).length;
+
+      if(!Object.keys(teachers).length){
+        container.innerHTML=`<div class="empty-state"><div class="empty-icon">📚</div><div class="empty-title">No teachers yet</div><div class="empty-sub">Tap <strong>+</strong> to add your first teacher and start tracking.</div></div>`;
+        return;
+      }
+      const sorted=Object.keys(teachers).sort((a,b)=>calcDue(b)-calcDue(a)).filter(id=>{ const q=searchQ.toLowerCase(); return !q||teachers[id].name.toLowerCase().includes(q)||teachers[id].subject.toLowerCase().includes(q); });
+      if(!sorted.length){
+        container.innerHTML=`<div class="no-results">No results for "<strong>${searchQ}</strong>"</div>`;
+        return;
+      }
+      let h='', dl=0;
+      for(const id of sorted){
+        const t=teachers[id], dm=monthsDue(id), da=calcDue(id), lps=lastPaidStr(id), ov2=dm>=3, cr=dm>=6, pb=partialBal(id);
+        const tpy=payments.filter(p=>p.teacherId===id).sort((a,b)=>b.timestamp-a.timestamp);
+        const bdg=cr?`<span class="overdue-badge critical">🚨 ${dm}mo</span>`:ov2?`<span class="overdue-badge">⚠️ ${dm}mo</span>`:'';
+        h+=`<div class="teacher-card ${cr?'card-critical':ov2?'card-overdue':''}" style="animation-delay:${dl}s">
+          <div class="card-top"><div class="card-header">
+            <div class="card-left">
+              <div class="teacher-name-row"><div class="teacher-name">${t.name}</div>${bdg}</div>
+              <div class="teacher-subject">${t.subject} · ₹${t.fee}/mo</div>
+              ${lps?`<div class="last-paid">Last paid: ${lps}</div>`:`<div class="last-paid never">Never paid</div>`}
+            </div>
+            <div class="due-badge">
+              <div class="due-amount ${da===0?'zero':cr?'critical':''}">₹${da.toLocaleString('en-IN')}</div>
+              <div class="due-months">${dm===0?'All clear ✓':`${dm} month${dm>1?'s':''} due`}</div>
+              ${pb>0?`<div class="partial-chip">+₹${pb.toLocaleString('en-IN')} partial</div>`:''}
+            </div>
+          </div>
+          <div style="padding:0 0 1px;">
+          <div class="pay-tabs">
+            <button class="pay-tab ${dm>0?'active':''}" id="ptab-full-${id}" onclick="switchPayTab('${id}','full')" ${dm===0?'disabled':''}>Full</button>
+            <button class="pay-tab" id="ptab-partial-${id}" onclick="switchPayTab('${id}','partial')" ${dm===0?'disabled':''}>Partial</button>
+            <button class="pay-tab ${dm===0?'active-advance':''}" id="ptab-advance-${id}" onclick="switchPayTab('${id}','advance')" ${dm>0?'disabled':''}>Advance</button>
+          </div>
+          <div class="pay-row ${dm===0?'hidden':''}" id="prow-full-${id}">
+            <input id="pay-${id}" class="pay-input" type="number" min="1" max="${dm}" placeholder="${dm>1?'Months (1–'+dm+')':dm===1?'1 month due':'No dues'}">
+            <button class="pay-btn" onclick="payMonths('${id}','full')" ${dm===0?'disabled':''}>Mark</button>
+          </div>
+          <div class="pay-row hidden" id="prow-partial-${id}">
+            <input id="pay-partial-${id}" class="pay-input" type="number" min="1" max="${t.fee-1}" placeholder="₹1 – ₹${t.fee-1}">
+            <button class="pay-btn pay-btn-partial" onclick="payMonths('${id}','partial')">Mark</button>
+          </div>
+          <div class="pay-row ${dm===0?'':'hidden'}" id="prow-advance-${id}">
+            <input id="pay-advance-${id}" class="pay-input" type="number" min="1" max="12" placeholder="Months ahead (1–12)">
+            <button class="pay-btn pay-btn-advance" onclick="payMonths('${id}','advance')">Mark</button>
+          </div>
+          </div></div>
+          <div class="card-actions">
+            <div class="history-toggle" id="tog-${id}" onclick="toggleHistory('${id}')">
+              <span class="toggle-dot"></span>History (${tpy.length})<span class="h-arrow">▾</span>
+            </div>
+            <button class="del-teacher-btn" onclick="deleteTeacher('${id}')">🗑</button>
+          </div>
+          <div class="history-panel" id="hist-${id}">
+            ${tpy.length===0?'<div class="hist-empty">No payments yet</div>':
+              '<div class="swipe-hint">← swipe to delete</div>'+tpy.map(p=>{
+                const hb=p.type==='partial'?`<span class="hist-badge hist-partial">Partial</span>`:p.type==='advance'?`<span class="hist-badge hist-advance">Advance</span>`:'';
+                const lb=p.type==='partial'?`₹${p.amount.toLocaleString('en-IN')} partial`:`${p.monthsPaid} month${p.monthsPaid>1?'s':''}`;
+                return `<div class="payment-item" ontouchstart="startSwipe(event,this)" ontouchmove="moveSwipe(event,this)" ontouchend="endSwipe(this,'${p.id}')">
+                  <div><div class="pay-months-txt">${lb}${hb}</div><div class="pay-date-txt">${p.paidOn?`${p.paidOn.day} ${MONTHS[p.paidOn.month-1]} ${p.paidOn.year}`:'—'}</div></div>
+                  <div class="pay-amt-tag">₹${p.amount.toLocaleString('en-IN')}</div></div>`;
+              }).join('')}
+          </div>
+        </div>`;
+        dl+=0.05;
+      }
+      container.innerHTML=h;
+    }
 
     function renderStudent(){
       const root=document.getElementById('appInner');
@@ -2490,7 +2214,6 @@
       let h=`
         ${!profile.className?`<div class="setup-banner" onclick="openProfileModal()"><span class="setup-banner-icon">👤</span><div class="setup-banner-text"><div class="setup-banner-title">Complete your profile</div><div class="setup-banner-sub">Add your name and class</div></div><button class="setup-banner-btn">Set up</button></div>`:''}
         <div class="total-card">
-          <div class="total-card-shine"></div>
           <div class="total-label">Total Outstanding</div>
           <div class="total-amount"><span class="cur">₹</span>${td.toLocaleString('en-IN')}</div>
           <div class="total-sub">As of ${ds}</div>
@@ -2505,47 +2228,28 @@
           <input class="search-input" type="text" placeholder="Search teacher or subject\u2026" value="${searchQ}" oninput="onSearch(this.value)"/>
           ${searchQ?`<span class="search-clear" onclick="onSearch('')">\u2715</span>`:''}
         </div>
-        <div class="section-label"><span class="section-label-txt">Teachers</span><span class="section-label-count">${Object.keys(teachers).length}</span></div>`;
+        <div class="section-label"><span class="section-label-txt">Teachers</span><span class="section-label-count" id="teachers-count">${Object.keys(teachers).length}</span></div>
+        <div id="cards-list">`;
 
       if(!Object.keys(teachers).length){
-        h+=`<div class="empty-state">
-          <svg class="empty-illus" width="120" height="100" viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="10" y="20" width="100" height="65" rx="14" fill="currentColor" opacity=".06"/>
-            <rect x="22" y="32" width="55" height="8" rx="4" fill="currentColor" opacity=".18"/>
-            <rect x="22" y="46" width="38" height="6" rx="3" fill="currentColor" opacity=".12"/>
-            <rect x="22" y="58" width="45" height="6" rx="3" fill="currentColor" opacity=".09"/>
-            <circle cx="90" cy="52" r="14" fill="url(#eg)" opacity=".7"/>
-            <path d="M84 52h12M90 46v12" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
-            <defs><linearGradient id="eg" x1="76" y1="38" x2="104" y2="66" gradientUnits="userSpaceOnUse"><stop stop-color="#7c6bff"/><stop offset="1" stop-color="#ff6b9d"/></linearGradient></defs>
-          </svg>
-          <div class="empty-title">No teachers yet</div>
-          <div class="empty-sub">Add your first teacher to start tracking fees and payments.</div>
-          <button class="empty-cta" onclick="document.getElementById('addBtn').click()">+ Add Teacher</button>
-        </div>`;
+        h+=`<div class="empty-state"><div class="empty-icon">📚</div><div class="empty-title">No teachers yet</div><div class="empty-sub">Tap <strong>+</strong> to add your first teacher and start tracking.</div></div></div>`;
         root.innerHTML=h; return;
       }
       const sorted=Object.keys(teachers).sort((a,b)=>calcDue(b)-calcDue(a)).filter(id=>{ const q=searchQ.toLowerCase(); return !q||teachers[id].name.toLowerCase().includes(q)||teachers[id].subject.toLowerCase().includes(q); });
-      if(!sorted.length){ h+=`<div class="no-results">No results for "<strong>${searchQ}</strong>"</div>`; root.innerHTML=h; return; }
+      if(!sorted.length){ h+=`<div class="no-results">No results for "<strong>${searchQ}</strong>"</div></div>`; root.innerHTML=h; return; }
 
       let dl=0;
       for(const id of sorted){
         const t=teachers[id], dm=monthsDue(id), da=calcDue(id), lps=lastPaidStr(id), ov2=dm>=3, cr=dm>=6, pb=partialBal(id);
         const tpy=payments.filter(p=>p.teacherId===id).sort((a,b)=>b.timestamp-a.timestamp);
         const bdg=cr?`<span class="overdue-badge critical">🚨 ${dm}mo</span>`:ov2?`<span class="overdue-badge">⚠️ ${dm}mo</span>`:'';
-        // Progress bar: months paid this year vs baseline
-        const totalPaid=tpy.filter(p=>p.type!=='partial').reduce((s,p)=>s+(p.monthsPaid||0),0);
-        const progPct=dm===0?100:Math.max(0,Math.min(100,Math.round((totalPaid/(totalPaid+dm))*100)));
-        const progCls=cr?'critical':ov2?'warn':'good';
-        // Teacher initials avatar
-        const initials=t.name.trim().split(/\s+/).map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
         h+=`
           <div class="teacher-card ${cr?'card-critical':ov2?'card-overdue':''}" style="animation-delay:${dl}s">
-            <div class="card-progress-bar"><div class="card-progress-fill ${progCls}" style="width:${progPct}%"></div></div>
             <div class="card-top">
               <div class="card-header">
                 <div class="card-left">
-                  <div class="teacher-name-row"><div class="teacher-initials">${initials}</div><div class="teacher-name">${t.name}</div>${bdg}</div>
-                  <div class="teacher-subject">${t.subject} · ₹${t.fee.toLocaleString('en-IN')}/mo</div>
+                  <div class="teacher-name-row"><div class="teacher-name">${t.name}</div>${bdg}</div>
+                  <div class="teacher-subject">${t.subject} · ₹${t.fee}/mo</div>
                   ${lps?`<div class="last-paid">Last paid: ${lps}</div>`:`<div class="last-paid never">Never paid</div>`}
                 </div>
                 <div class="due-badge">
@@ -2562,15 +2266,15 @@
               </div>
               <div class="pay-row ${dm===0?'hidden':''}" id="prow-full-${id}">
                 <input id="pay-${id}" class="pay-input" type="number" min="1" max="${dm}" placeholder="${dm>1?'Months (1\u2013'+dm+')':dm===1?'1 month due':'No dues'}">
-                <button class="pay-btn" onclick="triggerHaptic();payMonths('${id}','full')" ${dm===0?'disabled':''}>Mark Paid</button>
+                <button class="pay-btn" onclick="payMonths('${id}','full')" ${dm===0?'disabled':''}>Mark</button>
               </div>
               <div class="pay-row hidden" id="prow-partial-${id}">
                 <input id="pay-partial-${id}" class="pay-input" type="number" min="1" max="${t.fee-1}" placeholder="₹1 \u2013 ₹${t.fee-1}">
-                <button class="pay-btn pay-btn-partial" onclick="triggerHaptic();payMonths('${id}','partial')">Record Partial</button>
+                <button class="pay-btn pay-btn-partial" onclick="payMonths('${id}','partial')">Mark</button>
               </div>
               <div class="pay-row ${dm===0?'':'hidden'}" id="prow-advance-${id}">
                 <input id="pay-advance-${id}" class="pay-input" type="number" min="1" max="12" placeholder="Months ahead (1\u201312)">
-                <button class="pay-btn pay-btn-advance" onclick="triggerHaptic();payMonths('${id}','advance')">Pay Advance</button>
+                <button class="pay-btn pay-btn-advance" onclick="payMonths('${id}','advance')">Mark</button>
               </div>
               </div>
             </div>
@@ -2593,6 +2297,7 @@
           </div>`;
         dl+=0.05;
       }
+      h+='</div>';
       root.innerHTML=h;
     }
 
@@ -2637,14 +2342,14 @@
         const v=parseInt(document.getElementById('spay-'+sid).value);
         if(!v||v<1||v>max)return toast('Enter 1\u2013'+max,'error');
         const amt=v*fee;
-        if(!await confirm2('Mark Payment',`<strong style="color:#f0f0f8">${st.name}</strong><br>\u20b9${amt.toLocaleString('en-IN')} \u00b7 ${v} month${v>1?'s':''}?`,'Mark','&#x1F4B8;'))return;
+        if(!await confirm2('Mark Payment',`<strong style="color:#f0f0f8">${st.name}</strong><br>\u20b9${amt.toLocaleString('en-IN')} \u00b7 ${v} month${v>1?'s':''}?`,'Mark','💸'))return;
         await addDoc(bpyCol(bid),{studentId:sid,studentName:st.name,monthsPaid:v,amount:amt,type:'full',paidOn:po,timestamp:Date.now()});
         document.getElementById('spay-'+sid).value='';toast('\u20b9'+amt.toLocaleString('en-IN')+' marked \u2713','success');
       }else if(type==='partial'){
         const amt=parseInt(document.getElementById('spay-partial-'+sid).value);
         if(!amt||amt<1)return toast('Enter amount','error');if(amt>=fee)return toast('Use Full tab','error');
         const tot=sPartialBal(bid,sid)+amt;if(tot>=fee)return toast('Use Full tab instead','error');
-        if(!await confirm2('Partial Payment',`<strong style="color:#f0f0f8">${st.name}</strong><br>\u20b9${amt.toLocaleString('en-IN')} partial<br><small style="color:var(--muted)">Still owed: \u20b9${(fee-tot).toLocaleString('en-IN')}</small>`,'Record','&#x1F9FE;'))return;
+        if(!await confirm2('Partial Payment',`<strong style="color:#f0f0f8">${st.name}</strong><br>\u20b9${amt.toLocaleString('en-IN')} partial<br><small style="color:var(--muted)">Still owed: \u20b9${(fee-tot).toLocaleString('en-IN')}</small>`,'Mark','&#x1F9FE;'))return;
         await addDoc(bpyCol(bid),{studentId:sid,studentName:st.name,amount:amt,type:'partial',paidOn:po,timestamp:Date.now()});
         document.getElementById('spay-partial-'+sid).value='';toast('Partial \u20b9'+amt.toLocaleString('en-IN')+' recorded','success');
       }else if(type==='advance'){
@@ -2737,7 +2442,8 @@
           </div>
           <div class="sc-actions">
             <div class="sc-hist-toggle" id="stog-${sid}" onclick="toggleStudentHist('${sid}')">
-              <span class="sc-dot"></span>History (${pays.length})<span class="sc-h-arrow">&#x25BE;</span>
+              <span class="toggle-dot" style="background:var(--accent3);width:5px;height:5px;border-radius:50%;display:inline-block;opacity:.6;margin-right:4px;"></span>
+              History (${pays.length})<span class="sc-h-arrow">&#x25BE;</span>
             </div>
             <button class="sc-edit-btn" onclick="openEditStudent('${bid}','${sid}')" title="Edit student">&#9998;</button>
             <button class="sc-del-btn" onclick="deleteStudent('${bid}','${sid}')">&#x1F5D1;</button>
@@ -2937,19 +2643,7 @@
         <div class="teacher-mode-header"><div class="tmh-icon">&#x1F468;&#x200D;&#x1F3EB;</div><div class="tmh-info"><div class="tmh-title">Teacher Dashboard</div><div class="tmh-sub">${subjLine}</div></div></div>
         <div class="search-wrap"><span class="search-icon">&#x1F50D;</span><input class="search-input" type="text" placeholder="Search batch\u2026" value="${searchQ}" oninput="onSearch(this.value)"/>${searchQ?`<span class="search-clear" onclick="onSearch('')">&#x2715;</span>`:''}</div>
         <div class="section-label"><span class="section-label-txt">My Batches</span><span class="section-label-count">${bList.length}</span></div>`;
-      if(!bList.length){h+=`<div class="empty-state">
-        <svg class="empty-illus" width="120" height="100" viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="8" y="18" width="104" height="68" rx="14" fill="currentColor" opacity=".05"/>
-          <rect x="20" y="30" width="42" height="8" rx="4" fill="currentColor" opacity=".18"/>
-          <rect x="20" y="44" width="30" height="6" rx="3" fill="currentColor" opacity=".12"/>
-          <circle cx="88" cy="54" r="18" fill="url(#teg)" opacity=".75"/>
-          <path d="M82 54h12M88 48v12" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
-          <defs><linearGradient id="teg" x1="70" y1="36" x2="106" y2="72" gradientUnits="userSpaceOnUse"><stop stop-color="#00d4aa"/><stop offset="1" stop-color="#7c6bff"/></linearGradient></defs>
-        </svg>
-        <div class="empty-title">No batches yet</div>
-        <div class="empty-sub">Create a batch, add students and start tracking fees easily.</div>
-        <button class="empty-cta" style="background:linear-gradient(135deg,var(--accent3),#009e7a);box-shadow:0 4px 16px rgba(0,212,170,.32);" onclick="document.getElementById('addBtn').click()">+ Create Batch</button>
-      </div>`;root.innerHTML=h;return;}
+      if(!bList.length){h+=`<div class="empty-state"><div class="empty-icon">&#x1F468;&#x200D;&#x1F3EB;</div><div class="empty-title">No batches yet</div><div class="empty-sub">Tap <strong>+</strong> to create a batch, then add students and track fees.</div></div>`;root.innerHTML=h;return;}
       const fil=bList.filter(id=>{const q=searchQ.toLowerCase();return !q||batches[id].name.toLowerCase().includes(q)||batches[id].subject?.toLowerCase().includes(q);});
       let dl=0;
       for(const bid of fil){const b=batches[bid];
@@ -3183,7 +2877,6 @@
         }
         hideSplash();
         document.getElementById('appScreen').classList.remove('hidden');
-        showBottomNav(true);
         await loadAll(); // Firestore sync — silent, no skeleton shown
       }
     }
@@ -3261,6 +2954,8 @@
     document.getElementById('cancelAddBtn').addEventListener('click',closeAddModal);
     document.getElementById('confirmAddBtn').addEventListener('click',confirmAdd);
     document.getElementById('addModal').addEventListener('click',e=>{ if(e.target===document.getElementById('addModal')) closeAddModal(); });
+    document.getElementById('addStudentModal')?.addEventListener('click',e=>{ if(e.target===document.getElementById('addStudentModal')){ document.getElementById('addStudentModal').classList.add('hidden'); } });
+    document.getElementById('editStudentModal')?.addEventListener('click',e=>{ if(e.target===document.getElementById('editStudentModal')){ document.getElementById('editStudentModal').classList.add('hidden'); } });
     document.getElementById('closeProfileBtn').addEventListener('click',closeProfileModal);
     document.getElementById('saveProfileBtn').addEventListener('click',saveProfile);
     document.getElementById('profileModal').addEventListener('click',e=>{ if(e.target===document.getElementById('profileModal')) closeProfileModal(); });
