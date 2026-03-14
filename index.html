@@ -221,11 +221,9 @@
       gap: 12px;
       max-width: 480px; margin: 0 auto; width: 100%;
     }
-    .topbar-left  { 
-  flex: 1; 
-  min-width: 0; 
-}
-    .topbar-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -.5px; line-height: 1.15; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+    .topbar-left  { flex: 1; min-width: 0; overflow: hidden; }
+    .topbar-label { display: none; }
+    .topbar-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -.5px; line-height: 1.15; word-break: break-word; overflow-wrap: break-word; }
     .topbar-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 
     .add-btn {
@@ -758,7 +756,7 @@
     .splash-topbar { display: flex; align-items: center; padding: 20px 18px 14px; width: 100%; max-width: 480px; margin: 0 auto; flex-shrink: 0; }
 
     /* Content area: same side padding as .app-inner */
-    .splash-body { flex: 1; padding: 0 16px; width: 100%; max-width: 480px; margin: 0 auto; overflow-y: auto; }
+    .splash-body { flex: 1; padding: 0 16px; width: 100%; max-width: 480px; margin: 0 auto; overflow: hidden; }
 
     /* Hero card block — matches total-card: ~130px, r-xl, gradient bg */
     .sk-hero {
@@ -1168,7 +1166,7 @@
       <button class="avatar-btn" id="avatarEl" title="Profile">?</button>
       <div class="topbar-left">
         <div class="topbar-label" id="topbarLabel">📚 Personal Tracker</div>
-        <div class="topbar-title">Fee<br>Tracker</div>
+        <div class="topbar-title">Fee Tracker</div>
       </div>
       <div class="topbar-right">
         <button class="add-btn" id="addBtn" title="Add">+</button>
@@ -1261,6 +1259,11 @@
         <span class="menu-item-icon">✏️</span>
         <span class="menu-item-label">Edit Profile</span>
         <span class="menu-item-arrow">›</span>
+      </div>
+      <div class="menu-item" id="menuNotifBtn">
+        <span class="menu-item-icon">🔔</span>
+        <span class="menu-item-label" id="menuNotifLabel">Enable Reminders</span>
+        <span class="menu-item-arrow" id="menuNotifArrow">›</span>
       </div>
       <div class="menu-item menu-item-install hidden" id="menuInstallBtn">
         <span class="menu-item-icon">📲</span>
@@ -1562,10 +1565,20 @@
       from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, browserLocalPersistence, setPersistence }
       from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getMessaging, getToken, onMessage }
+      from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
 
     const cfg = { apiKey:"AIzaSyDlpLbd5g78eHv_elhiiLRlOdhPMvn9ijA", authDomain:"fee-tracker-f32f8.firebaseapp.com", projectId:"fee-tracker-f32f8", storageBucket:"fee-tracker-f32f8.firebasestorage.app", messagingSenderId:"1061066310105", appId:"1:1061066310105:web:4ca8c0feaa9d6614cd19c8" };
-    const db = getFirestore(initializeApp(cfg));
-    const auth = getAuth(); const provider = new GoogleAuthProvider();
+    const _app = initializeApp(cfg);
+    const db   = getFirestore(_app);
+    const auth = getAuth();
+    const provider = new GoogleAuthProvider();
+    // FCM — safe init (fails gracefully if SW not supported)
+    let messaging = null;
+    try { messaging = getMessaging(_app); } catch(e) { console.warn('[FCM] Not supported:', e); }
+
+    // Your VAPID key from Firebase Console → Project Settings → Cloud Messaging → Web Push certificates
+    const VAPID_KEY = 'YOUR_VAPID_KEY_HERE';
     provider.setCustomParameters({ prompt:'select_account' });
 
     // STATE
@@ -1737,6 +1750,133 @@
       const tp=payments.filter(p=>p.teacherId===id).sort((a,b)=>b.timestamp-a.timestamp);
       if(!tp.length) return null;
       const p=tp[0]; return p.paidOn?`${p.paidOn.day} ${MONTHS[p.paidOn.month-1]} ${p.paidOn.year}`:null;
+    }
+
+    // ═══════════════════════════════════════════════════
+    //  NOTIFICATIONS — FCM + local push system
+    // ═══════════════════════════════════════════════════
+
+    // ── Generate a stable per-device ID (stored in localStorage) ──
+    function getDeviceId() {
+      let id = localStorage.getItem('ft_device_id');
+      if (!id) {
+        // Crypto random 16-byte hex string — unique per browser profile
+        id = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+               .map(b => b.toString(16).padStart(2,'0')).join('');
+        localStorage.setItem('ft_device_id', id);
+      }
+      return id;
+    }
+
+    // Save FCM token keyed by deviceId so each device has its own record
+    async function saveFCMToken(token) {
+      if (!uid() || !token) return;
+      const deviceId = getDeviceId();
+      try {
+        // Doc ID = deviceId so re-registration overwrites cleanly, never duplicates
+        await setDoc(doc(db, 'users', uid(), 'fcmTokens', deviceId), {
+          token,
+          deviceId,
+          // Human-readable device hint
+          deviceHint: (() => {
+            const ua = navigator.userAgent;
+            if (/iPhone/.test(ua))  return 'iPhone';
+            if (/iPad/.test(ua))    return 'iPad';
+            if (/Android/.test(ua)) return 'Android';
+            if (/Windows/.test(ua)) return 'Windows PC';
+            if (/Mac/.test(ua))     return 'Mac';
+            return 'Unknown device';
+          })(),
+          updatedAt: Date.now(),
+        }, { merge: true });
+        console.log('[FCM] Token saved for device:', deviceId);
+      } catch(e) { console.warn('[FCM] Token save failed:', e); }
+    }
+
+    async function removeFCMToken() {
+      if (!uid()) return;
+      const deviceId = getDeviceId();
+      try { await deleteDoc(doc(db, 'users', uid(), 'fcmTokens', deviceId)); } catch(e) {}
+    }
+
+    // Build the notification body based on how many teachers have dues
+    function buildReminderBody(dueTeachers) {
+      const count = dueTeachers.length;
+      const total = dueTeachers.reduce((s, id) => s + calcDue(id), 0);
+      const fmt   = n => `₹${n.toLocaleString('en-IN')}`;
+
+      if (count === 0) return null;
+
+      if (count === 1) {
+        // Single teacher — show full name + months + amount
+        const t  = teachers[dueTeachers[0]];
+        const mo = monthsDue(dueTeachers[0]);
+        return `${t.name} — ${mo} month${mo>1?'s':''} due (${fmt(calcDue(dueTeachers[0]))})`;
+      }
+
+      if (count === 2) {
+        // Two teachers — show both first names + total
+        const n1 = teachers[dueTeachers[0]].name.split(' ')[0];
+        const n2 = teachers[dueTeachers[1]].name.split(' ')[0];
+        return `${n1} & ${n2} — ${fmt(total)} total due`;
+      }
+
+      // 3 or more — show count + total, no individual names
+      return `${count} teachers — ${fmt(total)} total outstanding`;
+    }
+
+    async function initNotifications() {
+      if (!('Notification' in window)) return;
+      if (Notification.permission === 'denied') return;
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') { updateNotifMenuLabel(); return; }
+
+        // Save token per device if FCM is available
+        if (messaging) {
+          try {
+            const sw    = await navigator.serviceWorker.ready;
+            const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: sw });
+            if (token) {
+              localStorage.setItem('ft_fcm_token', token);
+              await saveFCMToken(token);
+            }
+          } catch(e) { console.warn('[FCM] Token error (non-fatal):', e); }
+        }
+
+        updateNotifMenuLabel();
+        checkDueReminder();
+      } catch(e) { console.warn('[Notif] Init failed:', e); }
+    }
+
+    // Fire a due-reminder notification if conditions are met
+    function checkDueReminder(force = false) {
+      if (Notification.permission !== 'granted') return;
+
+      const lastShown  = parseInt(localStorage.getItem('ft_last_reminder') || '0');
+      const daysSince  = (Date.now() - lastShown) / 86400000;
+      if (!force && daysSince < 25) return; // ~monthly cadence
+
+      const dueTeachers = Object.keys(teachers).filter(id => monthsDue(id) > 0);
+      const body = buildReminderBody(dueTeachers);
+      if (!body) return; // nothing due — don't nag
+
+      new Notification('📅 Fee Reminder', {
+        body,
+        icon:      '/icon-192.png',
+        badge:     '/icon-192.png',
+        tag:       'due-reminder',  // replaces previous reminder so no stacking
+        renotify:  true,
+      });
+      localStorage.setItem('ft_last_reminder', String(Date.now()));
+    }
+
+    function showNotifPrompt() {
+      if (!('Notification' in window)) return;
+      if (Notification.permission !== 'default') return;
+      if (localStorage.getItem('ft_notif_dismissed')) return;
+      const banner = document.getElementById('notifBanner');
+      if (banner) setTimeout(() => banner.classList.add('show'), 2000);
     }
 
     // PROFILE
@@ -2879,6 +3019,11 @@
         hideSplash();
         document.getElementById('appScreen').classList.remove('hidden');
         await loadAll(true); // Firestore sync — silent, no skeleton shown
+        // Init notifications after data is loaded (so checkLocalReminder has data)
+        setTimeout(() => {
+          initNotifications();
+          showNotifPrompt();
+        }, 1500);
       }
     }
 
@@ -2988,8 +3133,95 @@
     document.getElementById('editStudentNameInp')?.addEventListener('keydown', e=>{ if(e.key==='Enter'){e.preventDefault();saveEditStudent();} });
     window.obSubmit = obSubmit;
     window.openProfileModal=openProfileModal;
+
+    // ── NOTIFICATION BANNER + MENU ──
+    document.getElementById('notifBannerAllow')?.addEventListener('click', async () => {
+      document.getElementById('notifBanner').style.transform = 'translateY(100%)';
+      localStorage.setItem('ft_notif_dismissed', '1');
+      await initNotifications();
+      updateNotifMenuLabel();
+    });
+    document.getElementById('notifBannerDismiss')?.addEventListener('click', () => {
+      document.getElementById('notifBanner').style.transform = 'translateY(100%)';
+      localStorage.setItem('ft_notif_dismissed', '1');
+    });
+    document.getElementById('notifBannerClose')?.addEventListener('click', () => {
+      document.getElementById('notifBanner').style.transform = 'translateY(100%)';
+      localStorage.setItem('ft_notif_dismissed', '1');
+    });
+    document.getElementById('menuNotifBtn')?.addEventListener('click', async () => {
+      closeMenu();
+      if (Notification.permission === 'granted') {
+        // Already on — toggle off by clearing token
+        await removeFCMToken();
+        localStorage.removeItem('ft_fcm_token');
+        localStorage.removeItem('ft_last_reminder');
+        localStorage.removeItem('ft_notif_dismissed');
+        toast('Reminders turned off', '');
+        updateNotifMenuLabel();
+      } else {
+        await initNotifications();
+      }
+    });
+
+    function updateNotifMenuLabel() {
+      const label = document.getElementById('menuNotifLabel');
+      const arrow = document.getElementById('menuNotifArrow');
+      if (!label) return;
+      if (Notification.permission === 'granted') {
+        label.textContent = 'Reminders On ✓';
+        if (arrow) arrow.style.color = 'var(--accent3)';
+      } else if (Notification.permission === 'denied') {
+        label.textContent = 'Notifications Blocked';
+        if (arrow) arrow.textContent = '⚠️';
+      } else {
+        label.textContent = 'Enable Reminders';
+        if (arrow) arrow.style.color = '';
+      }
+    }
+    // Set label on load
+    updateNotifMenuLabel();
   </script>
 
+
+  <!-- NOTIFICATION PERMISSION BANNER -->
+  <div id="notifBanner" style="
+    position:fixed; bottom:0; left:0; right:0; z-index:550;
+    padding:0 14px 14px; transform:translateY(100%);
+    transition:transform .35s cubic-bezier(.34,1.2,.64,1);
+    pointer-events:none;
+  ">
+    <div style="
+      background:linear-gradient(135deg,#1c1c38,#15152a);
+      border:1px solid rgba(124,107,255,.25);
+      border-radius:18px; padding:16px 18px;
+      box-shadow:0 8px 40px rgba(0,0,0,.5);
+      pointer-events:auto;
+      display:flex; flex-direction:column; gap:12px;
+    ">
+      <div style="display:flex;align-items:flex-start;gap:12px;">
+        <div style="font-size:28px;line-height:1;">🔔</div>
+        <div style="flex:1;">
+          <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:#ebebf5;margin-bottom:4px;">Never miss a fee due date</div>
+          <div style="font-size:12px;color:#8e8eb8;line-height:1.5;">Get a monthly reminder when fees are pending and a receipt every time you mark a payment.</div>
+        </div>
+        <button id="notifBannerClose" style="background:none;border:none;color:#50507a;font-size:18px;cursor:pointer;padding:0;line-height:1;flex-shrink:0;">✕</button>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button id="notifBannerAllow" style="
+          flex:2; padding:12px; border:none; border-radius:12px;
+          background:linear-gradient(135deg,var(--accent),#5a4de6);
+          color:#fff; font-family:'Syne',sans-serif; font-size:13px;
+          font-weight:700; cursor:pointer; letter-spacing:.3px;
+        ">Allow Notifications</button>
+        <button id="notifBannerDismiss" style="
+          flex:1; padding:12px; border:1px solid rgba(255,255,255,.1);
+          border-radius:12px; background:transparent;
+          color:#8e8eb8; font-size:13px; cursor:pointer;
+        ">Not now</button>
+      </div>
+    </div>
+  </div>
 
   <!-- PWA INSTALL BANNER -->
   <div class="pwa-banner hidden" id="pwaBanner">
@@ -3120,161 +3352,3 @@
   </script>
 </body>
 </html>
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
-
-<!-- UI padding to keep file above 200KB for download -->
