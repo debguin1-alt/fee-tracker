@@ -1423,7 +1423,7 @@
         <span class="menu-item-label" id="menuNotifLabel">Enable Reminders</span>
         <span class="menu-item-arrow" id="menuNotifArrow">›</span>
       </div>
-      <div class="menu-item" id="menuThemeBtn" onclick="toggleTheme(); updateMenuThemeLabel(true);">
+      <div class="menu-item" id="menuThemeBtn">
         <span id="menuThemeIcon">🌙</span>
         <span class="menu-item-label" id="menuThemeLabel"><span class="lbl-inner">Dark Mode</span></span>
         <div id="menuThemeSwitch" class="menu-theme-switch">
@@ -3524,104 +3524,108 @@
       }
     });
 
-    function updateMenuThemeLabel(animate = false) {
-      const isDark = !document.documentElement.classList.contains('light');
+    // ─── Menu theme toggle — single source of truth ───────────────────
+    function _applyMenuToggle(goingDark) {
+      // goingDark = the NEW state we're going TO
       const icon   = document.getElementById('menuThemeIcon');
       const label  = document.getElementById('menuThemeLabel');
       const sw     = document.getElementById('menuThemeSwitch');
       const knob   = document.getElementById('menuThemeKnob');
       const btn    = document.getElementById('menuThemeBtn');
-      if (!icon) return;
+      if (!sw) return;
 
-      // Update pill class (CSS transitions handle knob left + bg)
-      if (sw) sw.classList.toggle('light-mode', !isDark);
+      // 1. Update pill (CSS handles knob slide + bg transition)
+      sw.classList.toggle('light-mode', !goingDark);
 
-      if (!animate) {
-        // Silent sync — just update text and icon, no animation
-        icon.textContent = isDark ? '🌙' : '☀️';
-        const inner = label && label.querySelector('.lbl-inner');
-        if (inner) inner.textContent = isDark ? 'Dark Mode' : 'Light Mode';
-        return;
-      }
-
-      // ── 1. Knob directional squish ──
-      // Going to light = knob moves LEFT → squish left
-      // Going to dark  = knob moves RIGHT → squish right
+      // 2. Directional knob squish — stretch in direction of travel
       if (knob) {
-        const dir = isDark ? 'going-right' : 'going-left';
-        const opp = isDark ? 'going-left'  : 'going-right';
-        knob.classList.remove('going-left', 'going-right');
+        const dir = goingDark ? 'going-right' : 'going-left';
         knob.classList.add(dir);
-        // Remove squish once knob arrives (matches .32s transition)
-        setTimeout(() => knob.classList.remove(dir, opp), 200);
+        setTimeout(() => knob.classList.remove(dir), 220);
       }
 
-      // ── 2. Shine sweep ──
+      // 3. Shine sweep
       if (sw) {
-        sw.classList.remove('sweep');
-        void sw.offsetWidth;
+        sw.classList.remove('sweep'); void sw.offsetWidth;
         sw.classList.add('sweep');
         setTimeout(() => sw.classList.remove('sweep'), 450);
       }
 
-      // ── 3. Button ripple ──
+      // 4. Ripple
       if (btn) {
-        btn.classList.remove('ripple');
-        void btn.offsetWidth;
+        btn.classList.remove('ripple'); void btn.offsetWidth;
         btn.classList.add('ripple');
         setTimeout(() => btn.classList.remove('ripple'), 450);
       }
 
-      // ── 4. Icon spin in ──
-      icon.className = '';
-      void icon.offsetWidth;
-      icon.textContent = isDark ? '🌙' : '☀️';
-      icon.className = isDark ? 'menu-theme-icon-to-dark' : 'menu-theme-icon-to-light';
+      // 5. Icon spin — spin OUT old, spin IN new
+      if (icon) {
+        icon.className = '';
+        void icon.offsetWidth;
+        icon.textContent = goingDark ? '🌙' : '☀️';
+        icon.className = goingDark ? 'menu-theme-icon-to-dark' : 'menu-theme-icon-to-light';
+      }
 
-      // ── 5. Label flip — old text slides out up, new text slides in from below ──
+      // 6. Text flip — old slides up out, new slides in from below
       const inner = label && label.querySelector('.lbl-inner');
       if (inner) {
-        // Flip out current text
         inner.classList.remove('lbl-flip-out', 'lbl-flip-in');
         void inner.offsetWidth;
         inner.classList.add('lbl-flip-out');
-        // After out-animation, swap text and flip in
         setTimeout(() => {
-          inner.textContent = isDark ? 'Dark Mode' : 'Light Mode';
+          inner.textContent = goingDark ? 'Dark Mode' : 'Light Mode';
           inner.classList.remove('lbl-flip-out');
           void inner.offsetWidth;
           inner.classList.add('lbl-flip-in');
-          setTimeout(() => inner.classList.remove('lbl-flip-in'), 400);
+          setTimeout(() => inner.classList.remove('lbl-flip-in'), 300);
         }, 160);
       }
 
-      // ── 6. Burst particles ──
+      // 7. Particles
       const particles = document.getElementById('themeParticles');
       if (particles) {
         particles.innerHTML = '';
-        const colors = isDark
+        const colors = goingDark
           ? ['#7c6bff','#a78bfa','#c4b5fd','#e0d9ff']
           : ['#00d4aa','#34d399','#ffd166','#ff9a3c'];
         for (let i = 0; i < 8; i++) {
-          const p   = document.createElement('div');
-          const ang = (i / 8) * 360;
-          const dst = 18 + Math.random() * 10;
-          const tx  = Math.cos(ang * Math.PI/180) * dst + 'px';
-          const ty  = Math.sin(ang * Math.PI/180) * dst + 'px';
-          const sz  = 3 + Math.random() * 3;
+          const p = document.createElement('div');
+          const ang = (i/8)*360, dst = 18+Math.random()*10;
+          const sz = 3+Math.random()*3;
           p.className = 'theme-particle';
-          p.style.cssText = `width:${sz}px;height:${sz}px;background:${colors[i%colors.length]};left:50%;top:50%;margin-left:-${sz/2}px;margin-top:-${sz/2}px;--tx:${tx};--ty:${ty};animation-delay:${i*0.02}s;`;
+          p.style.cssText = `width:${sz}px;height:${sz}px;background:${colors[i%4]};left:50%;top:50%;margin-left:-${sz/2}px;margin-top:-${sz/2}px;--tx:${Math.cos(ang*Math.PI/180)*dst}px;--ty:${Math.sin(ang*Math.PI/180)*dst}px;animation-delay:${i*0.02}s`;
           particles.appendChild(p);
         }
-        setTimeout(() => { if (particles) particles.innerHTML = ''; }, 600);
+        setTimeout(() => { if(particles) particles.innerHTML=''; }, 600);
       }
     }
-    // Keep in sync with the main _refreshThemeUI
+
+    function _syncMenuToggle() {
+      // Silent sync — no animation, just update state
+      const isDark = !document.documentElement.classList.contains('light');
+      const sw    = document.getElementById('menuThemeSwitch');
+      const icon  = document.getElementById('menuThemeIcon');
+      const inner = document.querySelector('#menuThemeLabel .lbl-inner');
+      if (sw)    sw.classList.toggle('light-mode', !isDark);
+      if (icon)  icon.textContent = isDark ? '🌙' : '☀️';
+      if (inner) inner.textContent = isDark ? 'Dark Mode' : 'Light Mode';
+    }
+
+    // Wire up menu theme button — reads state BEFORE toggle
+    document.getElementById('menuThemeBtn')?.addEventListener('click', () => {
+      const goingDark = document.documentElement.classList.contains('light'); // currently light → going dark
+      toggleTheme(); // flip the actual theme
+      _applyMenuToggle(goingDark); // animate to new state
+    });
+
+    // Keep in sync with _refreshThemeUI (called on profile modal open etc.)
     const _origRefreshUI = window._refreshThemeUI;
     window._refreshThemeUI = function() {
       if (typeof _origRefreshUI === 'function') _origRefreshUI();
-      updateMenuThemeLabel(false);
+      _syncMenuToggle();
     };
+
+    function updateMenuThemeLabel() { _syncMenuToggle(); } // legacy compat
 
     function updateNotifMenuLabel() {
       const label = document.getElementById('menuNotifLabel');
