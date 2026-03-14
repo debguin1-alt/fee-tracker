@@ -480,40 +480,103 @@
     .select-wrap select.field-input { padding-top: 14px; padding-bottom: 8px; height: 52px; font-size: 13px; font-weight: 600; }
     /* ── Theme toggle row ── */
     /* Menu theme toggle switch */
+    /* ── THEME TOGGLE — rich animation system ── */
+    #menuThemeBtn {
+      position: relative; overflow: hidden;
+      transition: background .2s;
+    }
+    /* Click ripple */
+    #menuThemeBtn::after {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at var(--rx,50%) var(--ry,50%), rgba(124,107,255,.18) 0%, transparent 70%);
+      opacity: 0; transition: opacity .4s;
+      pointer-events: none; border-radius: inherit;
+    }
+    #menuThemeBtn.ripple::after { opacity: 1; transition: opacity .05s; }
+
+    /* Switch pill */
     .menu-theme-switch {
-      width: 44px; height: 24px; border-radius: 12px;
+      width: 52px; height: 28px; border-radius: 14px;
       background: var(--accent);
       position: relative; flex-shrink: 0; pointer-events: none;
-      transition: background .3s ease;
+      transition: background .35s cubic-bezier(.4,0,.2,1);
+      overflow: hidden;
     }
-    .menu-theme-knob {
-      position: absolute; top: 3px; left: 22px;
-      width: 18px; height: 18px; border-radius: 50%;
-      background: #fff;
-      transition: left .28s cubic-bezier(.34,1.5,.64,1), transform .28s cubic-bezier(.34,1.5,.64,1);
-      box-shadow: 0 2px 6px rgba(0,0,0,.35);
+    /* Shine sweep on toggle */
+    .menu-theme-switch::before {
+      content: '';
+      position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
+      transition: none;
     }
-    /* light state — knob left + teal bg */
-    .menu-theme-switch.light-mode { background: var(--accent3); }
-    .menu-theme-switch.light-mode .menu-theme-knob { left: 3px; }
+    .menu-theme-switch.sweep::before {
+      animation: switchSweep .4s ease forwards;
+    }
+    @keyframes switchSweep {
+      from { left: -60%; }
+      to   { left: 120%; }
+    }
 
-    /* Icon animation class */
-    .menu-theme-icon-anim {
-      display: inline-block;
-      animation: themeIconPop .35s cubic-bezier(.34,1.5,.64,1);
+    /* Knob */
+    .menu-theme-knob {
+      position: absolute; top: 4px; left: 26px;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: #fff;
+      transition: left .3s cubic-bezier(.34,1.5,.64,1),
+                  transform .3s cubic-bezier(.34,1.5,.64,1),
+                  width .15s ease, border-radius .15s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,.4);
+      z-index: 1;
     }
-    @keyframes themeIconPop {
-      0%   { transform: scale(0.4) rotate(-30deg); opacity: 0; }
-      60%  { transform: scale(1.25) rotate(8deg); opacity: 1; }
+    /* Squish on press */
+    .menu-theme-knob.squish {
+      width: 26px; border-radius: 10px;
+    }
+    /* Light state */
+    .menu-theme-switch.light-mode { background: var(--accent3); }
+    .menu-theme-switch.light-mode .menu-theme-knob { left: 4px; }
+
+    /* Icon */
+    #menuThemeIcon {
+      display: inline-block; font-size: 20px;
+      width: 28px; text-align: center;
+      transition: transform .2s;
+      flex-shrink: 0;
+    }
+    @keyframes iconToDark {
+      0%   { transform: scale(0) rotate(180deg); opacity: 0; }
+      60%  { transform: scale(1.3) rotate(-15deg); opacity: 1; }
       100% { transform: scale(1) rotate(0deg); opacity: 1; }
     }
-    /* Label slide */
-    .menu-theme-label-anim {
-      animation: labelSlide .22s ease;
+    @keyframes iconToLight {
+      0%   { transform: scale(0) rotate(-180deg); opacity: 0; }
+      50%  { transform: scale(1.4) rotate(20deg); opacity: 1; }
+      75%  { transform: scale(.9) rotate(-5deg); }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
     }
-    @keyframes labelSlide {
-      from { opacity: 0; transform: translateY(4px); }
-      to   { opacity: 1; transform: translateY(0); }
+    .menu-theme-icon-to-dark  { animation: iconToDark  .4s cubic-bezier(.34,1.4,.64,1) both; }
+    .menu-theme-icon-to-light { animation: iconToLight .45s cubic-bezier(.34,1.4,.64,1) both; }
+
+    /* Label */
+    #menuThemeLabel { flex: 1; }
+    @keyframes labelIn {
+      from { opacity: 0; transform: translateX(-6px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .menu-theme-label-anim { animation: labelIn .25s ease both; }
+
+    /* Particles container */
+    .theme-particles {
+      position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+      border-radius: inherit;
+    }
+    .theme-particle {
+      position: absolute; border-radius: 50%;
+      animation: particleBurst .5s ease-out forwards;
+    }
+    @keyframes particleBurst {
+      0%   { transform: translate(0,0) scale(1); opacity: .9; }
+      100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
     }
 
     .theme-toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--r-lg); margin-bottom: 16px; cursor: pointer; transition: background .15s; user-select: none; }
@@ -1358,9 +1421,12 @@
         <span class="menu-item-arrow" id="menuNotifArrow">›</span>
       </div>
       <div class="menu-item" id="menuThemeBtn" onclick="toggleTheme(); updateMenuThemeLabel(true);">
-        <span class="menu-item-icon" id="menuThemeIcon">🌙</span>
+        <span id="menuThemeIcon">🌙</span>
         <span class="menu-item-label" id="menuThemeLabel">Dark Mode</span>
-        <div id="menuThemeSwitch" class="menu-theme-switch"><div id="menuThemeKnob" class="menu-theme-knob"></div></div>
+        <div id="menuThemeSwitch" class="menu-theme-switch">
+          <div id="menuThemeKnob" class="menu-theme-knob"></div>
+          <div class="theme-particles" id="themeParticles"></div>
+        </div>
       </div>
       <div class="menu-item menu-item-install hidden" id="menuInstallBtn">
         <span class="menu-item-icon">📲</span>
@@ -3460,26 +3526,80 @@
       const icon   = document.getElementById('menuThemeIcon');
       const label  = document.getElementById('menuThemeLabel');
       const sw     = document.getElementById('menuThemeSwitch');
+      const knob   = document.getElementById('menuThemeKnob');
+      const btn    = document.getElementById('menuThemeBtn');
       if (!icon) return;
 
-      // Update switch CSS class (drives knob position + bg via CSS)
+      // Always update switch pill class (CSS drives knob + bg)
       if (sw) sw.classList.toggle('light-mode', !isDark);
 
-      // Animate icon + label if this is a real toggle (not just a sync)
-      if (animate) {
-        // Icon: pop animation
-        icon.classList.remove('menu-theme-icon-anim');
-        void icon.offsetWidth; // force reflow to restart animation
-        icon.textContent = isDark ? '🌙' : '☀️';
-        icon.classList.add('menu-theme-icon-anim');
-        // Label: slide up animation
-        label.classList.remove('menu-theme-label-anim');
-        void label.offsetWidth;
-        label.textContent = isDark ? 'Dark Mode' : 'Light Mode';
-        label.classList.add('menu-theme-label-anim');
-      } else {
+      if (!animate) {
         icon.textContent  = isDark ? '🌙' : '☀️';
         label.textContent = isDark ? 'Dark Mode' : 'Light Mode';
+        return;
+      }
+
+      // ── 1. Knob squish on press ──
+      if (knob) {
+        knob.classList.add('squish');
+        setTimeout(() => knob.classList.remove('squish'), 150);
+      }
+
+      // ── 2. Shine sweep on pill ──
+      if (sw) {
+        sw.classList.remove('sweep');
+        void sw.offsetWidth;
+        sw.classList.add('sweep');
+        setTimeout(() => sw.classList.remove('sweep'), 450);
+      }
+
+      // ── 3. Ripple on button ──
+      if (btn) {
+        btn.classList.remove('ripple');
+        void btn.offsetWidth;
+        btn.classList.add('ripple');
+        setTimeout(() => btn.classList.remove('ripple'), 450);
+      }
+
+      // ── 4. Icon spin in ──
+      const newIcon = isDark ? '🌙' : '☀️';
+      icon.className = '';
+      void icon.offsetWidth;
+      icon.textContent = newIcon;
+      icon.className = isDark ? 'menu-theme-icon-to-dark' : 'menu-theme-icon-to-light';
+
+      // ── 5. Label slide in ──
+      label.classList.remove('menu-theme-label-anim');
+      void label.offsetWidth;
+      label.textContent = isDark ? 'Dark Mode' : 'Light Mode';
+      label.classList.add('menu-theme-label-anim');
+
+      // ── 6. Burst particles on pill ──
+      const particles = document.getElementById('themeParticles');
+      if (particles) {
+        particles.innerHTML = '';
+        const colors = isDark
+          ? ['#7c6bff','#a78bfa','#c4b5fd','#e0d9ff']   // purple for dark
+          : ['#00d4aa','#34d399','#ffd166','#ff9a3c'];   // teal/warm for light
+        for (let i = 0; i < 8; i++) {
+          const p = document.createElement('div');
+          const angle = (i / 8) * 360;
+          const dist  = 18 + Math.random() * 10;
+          const tx = Math.cos(angle * Math.PI/180) * dist + 'px';
+          const ty = Math.sin(angle * Math.PI/180) * dist + 'px';
+          const size = 3 + Math.random() * 3;
+          p.className = 'theme-particle';
+          p.style.cssText = `
+            width:${size}px; height:${size}px;
+            background:${colors[i % colors.length]};
+            left:50%; top:50%;
+            margin-left:-${size/2}px; margin-top:-${size/2}px;
+            --tx:${tx}; --ty:${ty};
+            animation-delay:${i * 0.02}s;
+          `;
+          particles.appendChild(p);
+        }
+        setTimeout(() => { if (particles) particles.innerHTML = ''; }, 600);
       }
     }
     // Keep in sync with the main _refreshThemeUI
