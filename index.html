@@ -100,7 +100,12 @@
       font-size: 14px;
       line-height: 1.5;
       -webkit-font-smoothing: antialiased;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
     }
+    /* Re-enable selection only for actual inputs */
+    input, textarea, select { user-select: text; -webkit-user-select: text; }
 
     /* ── Light-mode overrides for hardcoded colours ── */
     :root.light #loginScreen       { background: var(--bg); }
@@ -390,13 +395,29 @@
     /* PAYMENT HISTORY */
     .history-panel          { display: none; padding: 0 10px 12px; }
     .history-panel.open     { display: block; }
+    /* Alternate payment rows — odd: accent purple tint, even: accent pink tint */
+    .payment-item:nth-child(odd)  { background: var(--surface3); border-left: 3px solid rgba(124,107,255,.5); }
+    .payment-item:nth-child(even) { background: rgba(124,107,255,.07); border-left: 3px solid rgba(255,107,157,.5); }
     .hist-empty             { font-size: 12px; color: var(--muted); padding: 10px 0 2px; text-align: center; }
-    .swipe-hint             { font-size: 10px; color: var(--muted); text-align: center; padding: 6px 0 4px; letter-spacing: .3px; }
-    .payment-item           {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 9px 12px; background: var(--surface2); border-radius: var(--r-md); margin-top: 5px;
-      touch-action: pan-y; will-change: transform; transition: transform .15s, background .15s;
+    .swipe-hint             { font-size: 10px; color: var(--muted); text-align: right; padding: 4px 2px 6px; letter-spacing: .3px; display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+    .swipe-hint::before { content: '←'; font-size: 12px; }
+        .payment-item           {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 13px; border-radius: var(--r-md); margin-bottom: 5px;
+      background: var(--surface3);
+      border-left: 3px solid var(--border2);
+      transition: background .15s, transform .15s;
+      cursor: grab; touch-action: pan-y;
+      position: relative; overflow: hidden;
     }
+    /* Drag handle visual on left */
+    .payment-item::before {
+      content: '⋮⋮';
+      position: absolute; left: 4px; top: 50%; transform: translateY(-50%);
+      font-size: 10px; color: var(--muted); letter-spacing: -2px; opacity: .5;
+      pointer-events: none;
+    }
+    .payment-item:active { cursor: grabbing; }
     .pay-months-txt { font-weight: 500; color: var(--text); font-size: 12px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
     .pay-date-txt   { font-size: 10px; color: var(--muted); margin-top: 2px; }
     .pay-amt-tag    { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--accent3); }
@@ -420,7 +441,8 @@
     .modal-overlay        { position: fixed; inset: 0; background: rgba(0,0,0,.75); backdrop-filter: blur(12px); z-index: 200; display: flex; align-items: flex-end; justify-content: center; animation: fadeIn .15s ease; }
     .modal-overlay.hidden { display: none !important; animation: none; }
     .modal-sheet          { background: var(--surface); border: 1px solid var(--border2); border-radius: 22px 22px 0 0; padding: 16px 18px 48px; width: 100%; max-width: 480px; animation: slideUp .24s cubic-bezier(.34,1.3,.64,1); max-height: 92vh; overflow-y: auto; }
-    .modal-handle         { width: 32px; height: 3px; background: var(--border2); border-radius: 2px; margin: 0 auto 16px; }
+    .modal-handle         { width: 40px; height: 4px; background: var(--muted); border-radius: 4px; margin: 0 auto 16px; opacity: .5; cursor: grab; }
+    .modal-handle:active  { cursor: grabbing; opacity: .8; }
     .modal-header         { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
     .modal-title          { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; letter-spacing: -.3px; color: var(--text); }
     .modal-close          { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface2); color: var(--text2); font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
@@ -1276,7 +1298,7 @@
       </div>
       <div class="menu-item menu-item-install hidden" id="menuInstallBtn">
         <span class="menu-item-icon">📲</span>
-        <span class="menu-item-label">Install App</span>
+        <span class="menu-item-label">Add to Home Screen</span>
         <span class="menu-item-arrow">›</span>
       </div>
       <div class="menu-item danger" id="signOutBtn">
