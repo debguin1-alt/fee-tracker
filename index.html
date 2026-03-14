@@ -485,10 +485,9 @@
       position: relative; overflow: hidden;
       transition: background .2s;
     }
-    /* Click ripple */
     #menuThemeBtn::after {
       content: ''; position: absolute; inset: 0;
-      background: radial-gradient(circle at var(--rx,50%) var(--ry,50%), rgba(124,107,255,.18) 0%, transparent 70%);
+      background: radial-gradient(circle at 50% 50%, rgba(124,107,255,.18) 0%, transparent 70%);
       opacity: 0; transition: opacity .4s;
       pointer-events: none; border-radius: inherit;
     }
@@ -499,49 +498,42 @@
       width: 52px; height: 28px; border-radius: 14px;
       background: var(--accent);
       position: relative; flex-shrink: 0; pointer-events: none;
-      transition: background .35s cubic-bezier(.4,0,.2,1);
+      transition: background .4s cubic-bezier(.4,0,.2,1);
       overflow: hidden;
     }
-    /* Shine sweep on toggle */
     .menu-theme-switch::before {
       content: '';
       position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
       background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
-      transition: none;
     }
-    .menu-theme-switch.sweep::before {
-      animation: switchSweep .4s ease forwards;
-    }
-    @keyframes switchSweep {
-      from { left: -60%; }
-      to   { left: 120%; }
-    }
+    .menu-theme-switch.sweep::before { animation: switchSweep .4s ease forwards; }
+    @keyframes switchSweep { from{left:-60%} to{left:120%} }
 
-    /* Knob */
+    /* Knob — slides smoothly, squishes in direction of travel */
     .menu-theme-knob {
       position: absolute; top: 4px; left: 26px;
       width: 20px; height: 20px; border-radius: 50%;
       background: #fff;
-      transition: left .3s cubic-bezier(.34,1.5,.64,1),
-                  transform .3s cubic-bezier(.34,1.5,.64,1),
-                  width .15s ease, border-radius .15s ease;
+      /* left drives position, transform handles squish stretch */
+      transition: left .32s cubic-bezier(.34,1.4,.64,1),
+                  transform .18s ease;
       box-shadow: 0 2px 8px rgba(0,0,0,.4);
       z-index: 1;
+      transform-origin: center;
     }
-    /* Squish on press */
-    .menu-theme-knob.squish {
-      width: 26px; border-radius: 10px;
-    }
-    /* Light state */
+    /* Squish: stretch horizontally in direction of travel */
+    .menu-theme-knob.going-left  { transform: scaleX(1.5) translateX(-3px); }
+    .menu-theme-knob.going-right { transform: scaleX(1.5) translateX(3px); }
+
+    /* Light state — knob moves to left */
     .menu-theme-switch.light-mode { background: var(--accent3); }
     .menu-theme-switch.light-mode .menu-theme-knob { left: 4px; }
 
     /* Icon */
     #menuThemeIcon {
-      display: inline-block; font-size: 20px;
-      width: 28px; text-align: center;
-      transition: transform .2s;
-      flex-shrink: 0;
+      display: inline-block;
+      width: 26px; text-align: center; flex-shrink: 0;
+      font-size: 19px;
     }
     @keyframes iconToDark {
       0%   { transform: scale(0) rotate(180deg); opacity: 0; }
@@ -550,25 +542,36 @@
     }
     @keyframes iconToLight {
       0%   { transform: scale(0) rotate(-180deg); opacity: 0; }
-      50%  { transform: scale(1.4) rotate(20deg); opacity: 1; }
-      75%  { transform: scale(.9) rotate(-5deg); }
+      55%  { transform: scale(1.35) rotate(15deg); opacity: 1; }
+      80%  { transform: scale(.92) rotate(-4deg); }
       100% { transform: scale(1) rotate(0deg); opacity: 1; }
     }
-    .menu-theme-icon-to-dark  { animation: iconToDark  .4s cubic-bezier(.34,1.4,.64,1) both; }
-    .menu-theme-icon-to-light { animation: iconToLight .45s cubic-bezier(.34,1.4,.64,1) both; }
+    .menu-theme-icon-to-dark  { animation: iconToDark  .38s cubic-bezier(.34,1.4,.64,1) both; }
+    .menu-theme-icon-to-light { animation: iconToLight .42s cubic-bezier(.34,1.4,.64,1) both; }
 
-    /* Label */
-    #menuThemeLabel { flex: 1; }
-    @keyframes labelIn {
-      from { opacity: 0; transform: translateX(-6px); }
-      to   { opacity: 1; transform: translateX(0); }
+    /* Label — crossfade flip */
+    #menuThemeLabel {
+      flex: 1;
+      overflow: hidden; position: relative;
     }
-    .menu-theme-label-anim { animation: labelIn .25s ease both; }
+    #menuThemeLabel .lbl-inner {
+      display: inline-block;
+    }
+    @keyframes lblFlipOut {
+      0%   { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-10px); }
+    }
+    @keyframes lblFlipIn {
+      0%   { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .lbl-flip-out { animation: lblFlipOut .16s ease forwards; }
+    .lbl-flip-in  { animation: lblFlipIn  .22s ease .14s both; }
 
-    /* Particles container */
+    /* Particles */
     .theme-particles {
-      position: absolute; inset: 0; pointer-events: none; overflow: hidden;
-      border-radius: inherit;
+      position: absolute; inset: 0; pointer-events: none;
+      overflow: visible; border-radius: inherit;
     }
     .theme-particle {
       position: absolute; border-radius: 50%;
@@ -1422,7 +1425,7 @@
       </div>
       <div class="menu-item" id="menuThemeBtn" onclick="toggleTheme(); updateMenuThemeLabel(true);">
         <span id="menuThemeIcon">🌙</span>
-        <span class="menu-item-label" id="menuThemeLabel">Dark Mode</span>
+        <span class="menu-item-label" id="menuThemeLabel"><span class="lbl-inner">Dark Mode</span></span>
         <div id="menuThemeSwitch" class="menu-theme-switch">
           <div id="menuThemeKnob" class="menu-theme-knob"></div>
           <div class="theme-particles" id="themeParticles"></div>
@@ -3530,22 +3533,30 @@
       const btn    = document.getElementById('menuThemeBtn');
       if (!icon) return;
 
-      // Always update switch pill class (CSS drives knob + bg)
+      // Update pill class (CSS transitions handle knob left + bg)
       if (sw) sw.classList.toggle('light-mode', !isDark);
 
       if (!animate) {
-        icon.textContent  = isDark ? '🌙' : '☀️';
-        label.textContent = isDark ? 'Dark Mode' : 'Light Mode';
+        // Silent sync — just update text and icon, no animation
+        icon.textContent = isDark ? '🌙' : '☀️';
+        const inner = label && label.querySelector('.lbl-inner');
+        if (inner) inner.textContent = isDark ? 'Dark Mode' : 'Light Mode';
         return;
       }
 
-      // ── 1. Knob squish on press ──
+      // ── 1. Knob directional squish ──
+      // Going to light = knob moves LEFT → squish left
+      // Going to dark  = knob moves RIGHT → squish right
       if (knob) {
-        knob.classList.add('squish');
-        setTimeout(() => knob.classList.remove('squish'), 150);
+        const dir = isDark ? 'going-right' : 'going-left';
+        const opp = isDark ? 'going-left'  : 'going-right';
+        knob.classList.remove('going-left', 'going-right');
+        knob.classList.add(dir);
+        // Remove squish once knob arrives (matches .32s transition)
+        setTimeout(() => knob.classList.remove(dir, opp), 200);
       }
 
-      // ── 2. Shine sweep on pill ──
+      // ── 2. Shine sweep ──
       if (sw) {
         sw.classList.remove('sweep');
         void sw.offsetWidth;
@@ -3553,7 +3564,7 @@
         setTimeout(() => sw.classList.remove('sweep'), 450);
       }
 
-      // ── 3. Ripple on button ──
+      // ── 3. Button ripple ──
       if (btn) {
         btn.classList.remove('ripple');
         void btn.offsetWidth;
@@ -3562,41 +3573,44 @@
       }
 
       // ── 4. Icon spin in ──
-      const newIcon = isDark ? '🌙' : '☀️';
       icon.className = '';
       void icon.offsetWidth;
-      icon.textContent = newIcon;
+      icon.textContent = isDark ? '🌙' : '☀️';
       icon.className = isDark ? 'menu-theme-icon-to-dark' : 'menu-theme-icon-to-light';
 
-      // ── 5. Label slide in ──
-      label.classList.remove('menu-theme-label-anim');
-      void label.offsetWidth;
-      label.textContent = isDark ? 'Dark Mode' : 'Light Mode';
-      label.classList.add('menu-theme-label-anim');
+      // ── 5. Label flip — old text slides out up, new text slides in from below ──
+      const inner = label && label.querySelector('.lbl-inner');
+      if (inner) {
+        // Flip out current text
+        inner.classList.remove('lbl-flip-out', 'lbl-flip-in');
+        void inner.offsetWidth;
+        inner.classList.add('lbl-flip-out');
+        // After out-animation, swap text and flip in
+        setTimeout(() => {
+          inner.textContent = isDark ? 'Dark Mode' : 'Light Mode';
+          inner.classList.remove('lbl-flip-out');
+          void inner.offsetWidth;
+          inner.classList.add('lbl-flip-in');
+          setTimeout(() => inner.classList.remove('lbl-flip-in'), 400);
+        }, 160);
+      }
 
-      // ── 6. Burst particles on pill ──
+      // ── 6. Burst particles ──
       const particles = document.getElementById('themeParticles');
       if (particles) {
         particles.innerHTML = '';
         const colors = isDark
-          ? ['#7c6bff','#a78bfa','#c4b5fd','#e0d9ff']   // purple for dark
-          : ['#00d4aa','#34d399','#ffd166','#ff9a3c'];   // teal/warm for light
+          ? ['#7c6bff','#a78bfa','#c4b5fd','#e0d9ff']
+          : ['#00d4aa','#34d399','#ffd166','#ff9a3c'];
         for (let i = 0; i < 8; i++) {
-          const p = document.createElement('div');
-          const angle = (i / 8) * 360;
-          const dist  = 18 + Math.random() * 10;
-          const tx = Math.cos(angle * Math.PI/180) * dist + 'px';
-          const ty = Math.sin(angle * Math.PI/180) * dist + 'px';
-          const size = 3 + Math.random() * 3;
+          const p   = document.createElement('div');
+          const ang = (i / 8) * 360;
+          const dst = 18 + Math.random() * 10;
+          const tx  = Math.cos(ang * Math.PI/180) * dst + 'px';
+          const ty  = Math.sin(ang * Math.PI/180) * dst + 'px';
+          const sz  = 3 + Math.random() * 3;
           p.className = 'theme-particle';
-          p.style.cssText = `
-            width:${size}px; height:${size}px;
-            background:${colors[i % colors.length]};
-            left:50%; top:50%;
-            margin-left:-${size/2}px; margin-top:-${size/2}px;
-            --tx:${tx}; --ty:${ty};
-            animation-delay:${i * 0.02}s;
-          `;
+          p.style.cssText = `width:${sz}px;height:${sz}px;background:${colors[i%colors.length]};left:50%;top:50%;margin-left:-${sz/2}px;margin-top:-${sz/2}px;--tx:${tx};--ty:${ty};animation-delay:${i*0.02}s;`;
           particles.appendChild(p);
         }
         setTimeout(() => { if (particles) particles.innerHTML = ''; }, 600);
