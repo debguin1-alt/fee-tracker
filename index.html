@@ -440,9 +440,11 @@
 
     .modal-overlay        { position: fixed; inset: 0; background: rgba(0,0,0,.75); backdrop-filter: blur(12px); z-index: 200; display: flex; align-items: flex-end; justify-content: center; animation: fadeIn .15s ease; }
     .modal-overlay.hidden { display: none !important; animation: none; }
-    .modal-sheet          { background: var(--surface); border: 1px solid var(--border2); border-radius: 22px 22px 0 0; padding: 16px 18px 48px; width: 100%; max-width: 480px; animation: slideUp .24s cubic-bezier(.34,1.3,.64,1); max-height: 92vh; overflow-y: auto; }
-    .modal-handle         { width: 40px; height: 4px; background: var(--muted); border-radius: 4px; margin: 0 auto 16px; opacity: .5; cursor: grab; }
-    .modal-handle:active  { cursor: grabbing; opacity: .8; }
+    .modal-sheet          { background: var(--surface); border: 1px solid var(--border2); border-radius: 22px 22px 0 0; padding: 16px 18px 48px; width: 100%; max-width: 480px; animation: slideUp .24s cubic-bezier(.34,1.3,.64,1); max-height: 92vh; overflow-y: auto; will-change: transform; touch-action: pan-x; }
+    .modal-sheet.dragging { transition: none !important; animation: none; overflow-y: hidden; }
+    .modal-handle         { width: 44px; height: 5px; background: var(--text2); border-radius: 4px; margin: 0 auto 14px; opacity: .35; cursor: grab; touch-action: none; transition: opacity .15s, width .15s; }
+    .modal-handle:active,
+    .modal-handle.dragging { cursor: grabbing; opacity: .7; width: 56px; }
     .modal-header         { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
     .modal-title          { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; letter-spacing: -.3px; color: var(--text); }
     .modal-close          { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface2); color: var(--text2); font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
@@ -450,10 +452,32 @@
 
     /* FORM FIELDS */
     .field-group          { margin-bottom: 14px; }
-    .field-group label    { display: block; font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 7px; }
+    .field-group label    { display: block; font-size: 10px; font-weight: 700; color: var(--text2); letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 7px; }
     .field-input          { width: 100%; background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--r-lg); padding: 11px 13px; font-size: 13px; font-family: 'DM Sans', sans-serif; color: var(--text); outline: none; transition: border-color .2s, background .2s; }
-    select.field-input    { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238e8eb8' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 13px center; padding-right: 36px; }
-    select.field-input option { background: var(--surface3); color: var(--text); }
+    select.field-input    {
+      appearance: none; -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237c6bff' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 13px center;
+      padding-right: 36px; cursor: pointer;
+      border-color: rgba(124,107,255,.25);
+      font-weight: 500;
+    }
+    select.field-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124,107,255,.12);
+      background-color: var(--surface3);
+    }
+    select.field-input option { background: #1c1c38; color: var(--text); }
+    /* Wrap month+year selects in a stylish container */
+    .select-row { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .select-wrap { position: relative; }
+    .select-wrap .select-label {
+      position: absolute; top: -8px; left: 10px; z-index: 1;
+      font-size: 9px; font-weight: 700; color: var(--accent);
+      letter-spacing: .8px; text-transform: uppercase;
+      background: var(--surface); padding: 0 4px; pointer-events: none;
+    }
+    .select-wrap select.field-input { padding-top: 14px; padding-bottom: 8px; height: 52px; font-size: 13px; font-weight: 600; }
     /* ── Theme toggle row ── */
     .theme-toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--r-lg); margin-bottom: 16px; cursor: pointer; transition: background .15s; user-select: none; }
     .theme-toggle-row:active { background: var(--surface3); }
@@ -462,7 +486,7 @@
     .theme-toggle-title { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.3; }
     .theme-toggle-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
     .field-input:focus    { border-color: rgba(124,107,255,.45); background: var(--surface3); }
-    .field-input::placeholder { color: var(--muted); }
+    .field-input::placeholder { color: var(--muted); opacity: .55; }
     .field-row            { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
     .field-hint           { font-size: 10px; color: var(--muted); margin-top: 5px; line-height: 1.6; }
 
@@ -1296,6 +1320,24 @@
         <span class="menu-item-label" id="menuNotifLabel">Enable Reminders</span>
         <span class="menu-item-arrow" id="menuNotifArrow">›</span>
       </div>
+      <div class="menu-item" id="menuThemeBtn" onclick="toggleTheme(); updateMenuThemeLabel();">
+        <span class="menu-item-icon" id="menuThemeIcon">🌙</span>
+        <span class="menu-item-label" id="menuThemeLabel">Dark Mode</span>
+        <div id="menuThemeSwitch" style="
+          width:38px;height:22px;border-radius:11px;
+          background:var(--accent);
+          position:relative;flex-shrink:0;
+          transition:background .25s;pointer-events:none;
+        ">
+          <div id="menuThemeKnob" style="
+            position:absolute;top:3px;left:19px;
+            width:16px;height:16px;border-radius:50%;
+            background:#fff;
+            transition:left .22s cubic-bezier(.34,1.4,.64,1);
+            box-shadow:0 1px 4px rgba(0,0,0,.35);
+          "></div>
+        </div>
+      </div>
       <div class="menu-item menu-item-install hidden" id="menuInstallBtn">
         <span class="menu-item-icon">📲</span>
         <span class="menu-item-label">Add to Home Screen</span>
@@ -1448,25 +1490,31 @@
         </div>
         <div class="field-group">
           <label>Baseline — Last Paid</label>
-          <div class="field-row">
-            <select class="field-input" id="f-month" style="cursor:pointer;">
-              <option value="">Month</option>
-              <option value="1">January</option>
-              <option value="2">February</option>
-              <option value="3">March</option>
-              <option value="4">April</option>
-              <option value="5">May</option>
-              <option value="6">June</option>
-              <option value="7">July</option>
-              <option value="8">August</option>
-              <option value="9">September</option>
-              <option value="10">October</option>
-              <option value="11">November</option>
-              <option value="12">December</option>
-            </select>
-            <select class="field-input" id="f-year" style="cursor:pointer;">
-              <option value="">Year</option>
-            </select>
+          <div class="select-row">
+            <div class="select-wrap">
+              <span class="select-label">Month</span>
+              <select class="field-input" id="f-month">
+                <option value="">Select</option>
+                <option value="1">January</option>
+                <option value="2">February</option>
+                <option value="3">March</option>
+                <option value="4">April</option>
+                <option value="5">May</option>
+                <option value="6">June</option>
+                <option value="7">July</option>
+                <option value="8">August</option>
+                <option value="9">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+              </select>
+            </div>
+            <div class="select-wrap">
+              <span class="select-label">Year</span>
+              <select class="field-input" id="f-year">
+                <option value="">Select</option>
+              </select>
+            </div>
           </div>
           <div class="field-hint">When was this teacher last paid? This is the starting point for calculating dues.</div>
         </div>
@@ -2304,9 +2352,41 @@
 
     // SWIPE
     let sx=0;
-    window.startSwipe=(e,el)=>{ sx=e.touches[0].clientX; el.style.transition='none'; };
-    window.moveSwipe=(e,el)=>{ const d=e.touches[0].clientX-sx; if(d<0){el.style.transform=`translateX(${d}px)`;el.style.background='rgba(255,77,109,.18)';} };
-    window.endSwipe=(el,id)=>{ const m=Math.abs(el.getBoundingClientRect().left-el.parentElement.getBoundingClientRect().left); if(m>80) window.deletePayment(id); else{el.style.transition='transform .2s';el.style.transform='translateX(0)';el.style.background='';} };
+    window.startSwipe=(e,el)=>{
+      sx=e.touches[0].clientX;
+      el.style.transition='none';
+      el._origBg = el.style.background || '';
+    };
+    window.moveSwipe=(e,el)=>{
+      const d=e.touches[0].clientX-sx;
+      if(d<0){
+        el.style.transform=`translateX(${Math.max(d,-el.offsetWidth)}px)`;
+        const pct=Math.min(Math.abs(d)/100,1);
+        el.style.background=`rgba(255,77,109,${pct*0.35})`;
+        // Show delete icon hint at 80px+
+        if(!el._delHint){
+          el._delHint=document.createElement('div');
+          el._delHint.textContent='🗑';
+          el._delHint.style.cssText='position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:16px;opacity:0;transition:opacity .15s;pointer-events:none;';
+          el.appendChild(el._delHint);
+        }
+        el._delHint.style.opacity=pct>0.6?'1':'0';
+      }
+    };
+    window.endSwipe=(el,id)=>{
+      const gone=Math.abs(parseFloat(el.style.transform.replace('translateX(',''))||0);
+      if(el._delHint){ el._delHint.remove(); el._delHint=null; }
+      if(gone>80){
+        el.style.transition='transform .2s, opacity .2s';
+        el.style.transform=`translateX(-${el.offsetWidth}px)`;
+        el.style.opacity='0';
+        setTimeout(()=>window.deletePayment(id),200);
+      } else {
+        el.style.transition='transform .22s cubic-bezier(.34,1.3,.64,1), background .2s';
+        el.style.transform='translateX(0)';
+        el.style.background=el._origBg||'';
+      }
+    };
 
     // PULL TO REFRESH — only fires when scroll container is at the very top
     let py=0,pu=false;
@@ -2354,7 +2434,7 @@
     };
 
     // MENU
-    function toggleMenu(e){ e?.stopPropagation(); const m=document.getElementById('userMenu'),b=document.getElementById('menuBackdrop'),h=!m.classList.contains('hidden'); m.classList.toggle('hidden',h); b.classList.toggle('hidden',h); }
+    function toggleMenu(e){ e?.stopPropagation(); const m=document.getElementById('userMenu'),b=document.getElementById('menuBackdrop'),h=!m.classList.contains('hidden'); m.classList.toggle('hidden',h); b.classList.toggle('hidden',h); if(!h) updateMenuThemeLabel(); }
     function closeMenu(){ document.getElementById('userMenu').classList.add('hidden'); document.getElementById('menuBackdrop').classList.add('hidden'); }
 
     // RENDER
@@ -3229,6 +3309,100 @@
     window.obSubmit = obSubmit;
     window.openProfileModal=openProfileModal;
 
+    // ═══════════════════════════════════════════════════
+    //  DRAG-TO-DISMISS — works on every .modal-handle
+    // ═══════════════════════════════════════════════════
+    (function initDragDismiss(){
+      // Map overlay id → close function
+      const MODAL_CLOSE = {
+        profileModal:     () => closeProfileModal(),
+        addModal:         () => closeAddModal(),
+        addStudentModal:  () => closeAddStudentModal(),
+        editStudentModal: () => closeEditStudentModal(),
+      };
+
+      // Dismiss a modal with a fly-down animation then hide it
+      function dismissModal(overlay, sheet, closeFn){
+        sheet.style.transition = 'transform .32s cubic-bezier(.4,0,.6,1), opacity .28s ease';
+        sheet.style.transform  = `translateY(${sheet.offsetHeight + 20}px)`;
+        sheet.style.opacity    = '0';
+        overlay.style.transition = 'opacity .28s ease';
+        overlay.style.opacity    = '0';
+        setTimeout(() => {
+          sheet.style.transform  = '';
+          sheet.style.opacity    = '';
+          overlay.style.opacity  = '';
+          sheet.style.transition = '';
+          overlay.style.transition = '';
+          sheet.classList.remove('dragging');
+          closeFn();
+        }, 300);
+      }
+
+      document.querySelectorAll('.modal-handle').forEach(handle => {
+        let startY = 0, curY = 0, dragging = false;
+        const overlay = handle.closest('.modal-overlay');
+        const sheet   = handle.closest('.modal-sheet');
+        if (!overlay || !sheet) return;
+
+        const overlayId = overlay.id;
+        const closeFn   = MODAL_CLOSE[overlayId] || (() => overlay.classList.add('hidden'));
+
+        function onStart(e){
+          startY  = e.touches ? e.touches[0].clientY : e.clientY;
+          curY    = 0;
+          dragging = true;
+          handle.classList.add('dragging');
+          sheet.classList.add('dragging');
+          sheet.style.transition = 'none';
+        }
+
+        function onMove(e){
+          if (!dragging) return;
+          const y = (e.touches ? e.touches[0].clientY : e.clientY) - startY;
+          if (y < 0) return; // no pulling upward
+          curY = y;
+          sheet.style.transform = `translateY(${y}px)`;
+          // Dim the backdrop as it's dragged down
+          const pct = Math.min(y / (sheet.offsetHeight * 0.55), 1);
+          overlay.style.background = `rgba(0,0,0,${0.75 * (1 - pct * 0.7)})`;
+          if (e.cancelable) e.preventDefault();
+        }
+
+        function onEnd(){
+          if (!dragging) return;
+          dragging = false;
+          handle.classList.remove('dragging');
+          const threshold = sheet.offsetHeight * 0.35; // 35% of sheet height
+          if (curY > threshold) {
+            dismissModal(overlay, sheet, closeFn);
+          } else {
+            // Snap back with spring
+            sheet.style.transition  = 'transform .35s cubic-bezier(.34,1.35,.64,1)';
+            sheet.style.transform   = 'translateY(0)';
+            overlay.style.transition = 'background .25s';
+            overlay.style.background = '';
+            setTimeout(() => {
+              sheet.style.transition  = '';
+              sheet.classList.remove('dragging');
+            }, 360);
+          }
+        }
+
+        handle.addEventListener('touchstart', onStart, { passive: true });
+        handle.addEventListener('touchmove',  onMove,  { passive: false });
+        handle.addEventListener('touchend',   onEnd,   { passive: true });
+        // Mouse support for desktop
+        handle.addEventListener('mousedown', e => {
+          onStart(e);
+          const mm = ev => onMove(ev);
+          const mu = ()  => { onEnd(); window.removeEventListener('mousemove', mm); window.removeEventListener('mouseup', mu); };
+          window.addEventListener('mousemove', mm);
+          window.addEventListener('mouseup',   mu);
+        });
+      });
+    })();
+
     // ── NOTIFICATION BANNER + MENU ──
     document.getElementById('notifBannerAllow')?.addEventListener('click', async () => {
       document.getElementById('notifBanner').style.transform = 'translateY(100%)';
@@ -3258,6 +3432,24 @@
         await initNotifications();
       }
     });
+
+    function updateMenuThemeLabel() {
+      const isDark = !document.documentElement.classList.contains('light');
+      const icon  = document.getElementById('menuThemeIcon');
+      const label = document.getElementById('menuThemeLabel');
+      const knob  = document.getElementById('menuThemeKnob');
+      const sw    = document.getElementById('menuThemeSwitch');
+      if (icon)  icon.textContent   = isDark ? '🌙' : '☀️';
+      if (label) label.textContent  = isDark ? 'Dark Mode' : 'Light Mode';
+      if (knob)  knob.style.left    = isDark ? '19px' : '3px';
+      if (sw)    sw.style.background = isDark ? 'var(--accent)' : 'var(--accent3)';
+    }
+    // Keep in sync with the main _refreshThemeUI
+    const _origRefreshUI = window._refreshThemeUI;
+    window._refreshThemeUI = function() {
+      if (typeof _origRefreshUI === 'function') _origRefreshUI();
+      updateMenuThemeLabel();
+    };
 
     function updateNotifMenuLabel() {
       const label = document.getElementById('menuNotifLabel');
