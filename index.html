@@ -509,21 +509,16 @@
     .menu-theme-switch.sweep::before { animation: switchSweep .4s ease forwards; }
     @keyframes switchSweep { from{left:-60%} to{left:120%} }
 
-    /* Knob — slides smoothly, squishes in direction of travel */
+    /* Knob — slides smoothly */
     .menu-theme-knob {
       position: absolute; top: 4px; left: 26px;
       width: 20px; height: 20px; border-radius: 50%;
       background: #fff;
-      /* left drives position, transform handles squish stretch */
-      transition: left .32s cubic-bezier(.34,1.4,.64,1),
-                  transform .18s ease;
+      transition: left .32s cubic-bezier(.34,1.4,.64,1);
       box-shadow: 0 2px 8px rgba(0,0,0,.4);
       z-index: 1;
       transform-origin: center;
     }
-    /* Squish: stretch horizontally in direction of travel */
-    .menu-theme-knob.going-left  { transform: scaleX(1.5) translateX(-3px); }
-    .menu-theme-knob.going-right { transform: scaleX(1.5) translateX(3px); }
 
     /* Light state — knob moves to left */
     .menu-theme-switch.light-mode { background: var(--accent3); }
@@ -3530,21 +3525,13 @@
       const icon   = document.getElementById('menuThemeIcon');
       const label  = document.getElementById('menuThemeLabel');
       const sw     = document.getElementById('menuThemeSwitch');
-      const knob   = document.getElementById('menuThemeKnob');
       const btn    = document.getElementById('menuThemeBtn');
       if (!sw) return;
 
       // 1. Update pill (CSS handles knob slide + bg transition)
       sw.classList.toggle('light-mode', !goingDark);
 
-      // 2. Directional knob squish — stretch in direction of travel
-      if (knob) {
-        const dir = goingDark ? 'going-right' : 'going-left';
-        knob.classList.add(dir);
-        setTimeout(() => knob.classList.remove(dir), 220);
-      }
-
-      // 3. Shine sweep
+      // 2. Shine sweep
       if (sw) {
         sw.classList.remove('sweep'); void sw.offsetWidth;
         sw.classList.add('sweep');
