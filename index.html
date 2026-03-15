@@ -1804,6 +1804,37 @@
     </div>
   </div>
 
+  <!-- TEACHER ADD CHOICE SHEET -->
+  <div class="modal-overlay hidden" id="teacherAddChoiceSheet">
+    <div class="modal-sheet" style="padding-bottom:36px;">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title">What would you like to add?</div>
+        <button class="modal-close" onclick="document.getElementById('teacherAddChoiceSheet').classList.add('hidden')">✕</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:4px 0 8px;">
+        <button onclick="document.getElementById('teacherAddChoiceSheet').classList.add('hidden');openAddBatchModal();" style="
+          display:flex;flex-direction:column;align-items:center;gap:10px;
+          background:var(--surface2);border:1.5px solid var(--border2);
+          border-radius:18px;padding:22px 12px;cursor:pointer;
+          transition:all .18s;user-select:none;">
+          <div style="font-size:32px;">📋</div>
+          <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--text);">Add Batch</div>
+          <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5;">Group of students with one fee structure</div>
+        </button>
+        <button onclick="document.getElementById('teacherAddChoiceSheet').classList.add('hidden');openAddStandaloneStudent();" style="
+          display:flex;flex-direction:column;align-items:center;gap:10px;
+          background:var(--surface2);border:1.5px solid var(--border2);
+          border-radius:18px;padding:22px 12px;cursor:pointer;
+          transition:all .18s;user-select:none;">
+          <div style="font-size:32px;">🎓</div>
+          <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--text);">Add Student</div>
+          <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5;">Individual student, no batch required</div>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ADD STANDALONE STUDENT MODAL (teacher role, no batch) -->
   <div class="modal-overlay hidden" id="addStandaloneStudentModal">
     <div class="modal-sheet">
@@ -2713,14 +2744,25 @@
 
     // ADD
     function openAddModal(){
-      const t=isT();
-      document.getElementById('addModalTitle').textContent=t?'Add Batch':'Add Teacher';
-      document.getElementById('addStudentFields').classList.toggle('hidden',t);
-      document.getElementById('addTeacherFields').classList.toggle('hidden',!t);
-
+      if(isT()){
+        // Teacher role — show choice: Add Batch or Add Student
+        document.getElementById('teacherAddChoiceSheet').classList.remove('hidden');
+        return;
+      }
+      // Student role — open Add Teacher directly
+      document.getElementById('addModalTitle').textContent='Add Teacher';
+      document.getElementById('addStudentFields').classList.remove('hidden');
+      document.getElementById('addTeacherFields').classList.add('hidden');
       const _di=document.getElementById('f-lastpaid');
       if(_di){const _n=new Date(),_p=new Date(_n.getFullYear(),_n.getMonth()-1,1);
         _di.value=`${_p.getFullYear()}-${String(_p.getMonth()+1).padStart(2,'0')}-01`;}
+      document.getElementById('addModal').classList.remove('hidden');
+    }
+    function openAddBatchModal(){
+      document.getElementById('teacherAddChoiceSheet').classList.add('hidden');
+      document.getElementById('addModalTitle').textContent='Add Batch';
+      document.getElementById('addStudentFields').classList.add('hidden');
+      document.getElementById('addTeacherFields').classList.remove('hidden');
       document.getElementById('addModal').classList.remove('hidden');
     }
     function closeAddModal(){
@@ -2849,7 +2891,13 @@
     function closeMenu(){ document.getElementById('userMenu').classList.add('hidden'); document.getElementById('menuBackdrop').classList.add('hidden'); }
 
     // RENDER
-    function render(){ appRendered = true; isT()?renderTeacher():renderStudent(); }
+    function render(){
+      appRendered = true;
+      isT()?renderTeacher():renderStudent();
+      // Always show analytics button after any render
+      const _db=document.getElementById('dashBtn');
+      if(_db) _db.classList.remove('hidden');
+    }
 
     // Partial render — only update the cards list (used by search to preserve input focus)
     function renderCards(){
@@ -2967,7 +3015,7 @@
         const tpy=payments.filter(p=>p.teacherId===id).sort((a,b)=>b.timestamp-a.timestamp);
         const bdg=cr?`<span class="overdue-badge critical">🚨 ${dm}mo</span>`:ov2?`<span class="overdue-badge">⚠️ ${dm}mo</span>`:'';
         h+=`
-          <div class="teacher-card ${cr?'card-critical':ov2?'card-overdue':''}" style="animation-delay:${dl}s">
+          <div class="teacher-card ${cr?'card-critical':ov2?'card-overdue':''}" data-id="${id}" style="animation-delay:${dl}s">
             <div class="card-top">
               <div class="card-header">
                 <div class="card-left">
@@ -3341,7 +3389,12 @@
         await Promise.all(pendingStudents.map(s=>{
           const sd={name:s.name,baselineMonth:bm,baselineYear:by,createdAt:Date.now(),feeStatus:s.feeStatus||'never'};
           if(s.date){const p=s.date.split('-');sd.admissionDay=parseInt(p[2]);sd.admissionMonth=parseInt(p[1]);sd.admissionYear=parseInt(p[0]);}
-          if(s.feeStatus==='date'&&s.lastPaid){
+          if(s.payDate){
+            // Payment date field overrides everything — dues calculated from this date
+            const pp=s.payDate.split('-');
+            sd.baselineMonth=parseInt(pp[1]);sd.baselineYear=parseInt(pp[0]);
+            sd.lastPaidDate=s.payDate;
+          } else if(s.feeStatus==='date'&&s.lastPaid){
             const lp=s.lastPaid.split('-');
             sd.baselineMonth=parseInt(lp[1]);sd.baselineYear=parseInt(lp[0]);
             sd.lastPaidDay=parseInt(lp[2]);sd.lastPaidMonth=parseInt(lp[1]);sd.lastPaidYear=parseInt(lp[0]);
@@ -3369,7 +3422,7 @@
       const fil=bList.filter(id=>{const q=searchQ.toLowerCase();return !q||batches[id].name.toLowerCase().includes(q)||batches[id].subject?.toLowerCase().includes(q);});
       let dl=0;
       for(const bid of fil){const b=batches[bid];
-        h+=`<div class="batch-card" style="animation-delay:${dl}s" onclick="openBatchDetail('${bid}')">
+        h+=`<div class="batch-card" data-id="${bid}" style="animation-delay:${dl}s" onclick="openBatchDetail('${bid}')">
           <div class="batch-header"><div><div class="batch-name">${b.name}</div><div class="batch-meta">${b.class?b.class+' \u00b7 ':''}&rlm;&#x20B9;${b.fee}/mo per student${b.timing?' \u00b7 '+b.timing:''}</div></div>${b.session?`<span class="batch-session-badge">${b.session}</span>`:''}</div>
           <div class="batch-subject-list">${b.subject.split(',').map(s=>`<span class="batch-subj-chip">${s.trim()}</span>`).join('')}</div>
           <div class="batch-actions">
@@ -4041,16 +4094,7 @@
       _origCheckDue(force);
     };
 
-    // ═══════════════════════════════════════════════════
-    //  RENDER — show dashBtn + selection mode awareness
-    // ═══════════════════════════════════════════════════
-    const _origRender=render;
-    window.render=function(){
-      _origRender();
-      const db=document.getElementById('dashBtn'); if(db) db.classList.remove('hidden');
-      // Re-attach long-press listeners after render
-      setTimeout(attachLongPress,50);
-    };
+    // (dashBtn is shown directly inside render() above — no wrapper needed)
 
     // ═══════════════════════════════════════════════════
     //  SELECTION MODE
@@ -4063,16 +4107,18 @@
       selItems.add(firstId);
       document.getElementById('selBar').classList.remove('hidden');
       updateSelBar();
-      // Re-render cards with selection state
-      if(context==='teacher'||context==='batch') render();
-      else renderBatchDetail(currentBatchId);
+      // Render cards with selection checkboxes
+      if(context==='student') renderBatchDetail(currentBatchId);
+      else if(typeof window._patchedRenderTeacher === 'function') window._patchedRenderTeacher();
+      else if(typeof window._patchedRenderStudent === 'function') window._patchedRenderStudent();
+      else render();
     }
     function exitSelMode(){
+      const prevCtx=selContext;
       selMode=false; selItems.clear(); selContext='';
       document.getElementById('selBar').classList.add('hidden');
-      if(selContext==='teacher'||selContext==='batch'||selContext==='') render();
-      else renderBatchDetail(currentBatchId);
-      selContext='';
+      if(prevCtx==='student') renderBatchDetail(currentBatchId);
+      else render(); // render() calls renderTeacher or renderStudent based on role
     }
     function toggleSelItem(id){
       if(selItems.has(id)) selItems.delete(id);
@@ -4101,40 +4147,70 @@
       assignBtn.classList.toggle('hidden', selContext!=='student');
     }
 
-    // Long-press detection
-    function attachLongPress(){
-      const cards=document.querySelectorAll('.teacher-card[data-id],.batch-card[data-id],.student-card[data-id]');
-      cards.forEach(card=>{
-        if(card._lpAttached) return;
-        card._lpAttached=true;
-        let t=null;
-        const start=e=>{
-          if(selMode) return; // in sel mode taps toggle
-          t=setTimeout(()=>{
-            t=null;
-            const id=card.dataset.id;
-            const ctx=card.classList.contains('teacher-card')?'teacher':card.classList.contains('batch-card')?'batch':'student';
-            // Haptic feedback
-            if(navigator.vibrate) navigator.vibrate(30);
-            enterSelMode(ctx,id);
-          },420);
-        };
-        const cancel=()=>{ if(t){clearTimeout(t);t=null;} };
-        card.addEventListener('touchstart',start,{passive:true});
-        card.addEventListener('touchend',cancel);
-        card.addEventListener('touchmove',cancel,{passive:true});
-        card.addEventListener('mousedown',start);
-        card.addEventListener('mouseup',cancel);
-        card.addEventListener('mouseleave',cancel);
-      });
-    }
+    // Long-press via event delegation — one listener on the container, survives re-renders
+    // No need to re-attach after every render. Works as long as cards have data-id.
+    (function initLongPressDelegate(){
+      const HOLD_MS = 420;
+      let _timer = null;
+      let _startCard = null;
+      let _moved = false;
+
+      function cardFrom(el){
+        return el?.closest('.teacher-card[data-id],.batch-card[data-id],.student-card[data-id]');
+      }
+
+      function onStart(e){
+        const card = cardFrom(e.target);
+        if(!card) return;
+        if(selMode){
+          // In selection mode a normal tap toggles — handled by onclick on card
+          return;
+        }
+        _moved = false;
+        _startCard = card;
+        _timer = setTimeout(()=>{
+          _timer = null;
+          if(_moved || !_startCard) return;
+          const id = _startCard.dataset.id;
+          if(!id) return;
+          const ctx = _startCard.classList.contains('teacher-card')
+            ? 'teacher' : _startCard.classList.contains('batch-card')
+            ? 'batch' : 'student';
+          if(navigator.vibrate) navigator.vibrate(32);
+          // Prevent the imminent click from opening the card
+          _startCard._suppressClick = true;
+          setTimeout(()=>{ if(_startCard) _startCard._suppressClick = false; }, 600);
+          enterSelMode(ctx, id);
+        }, HOLD_MS);
+      }
+
+      function onMove(){ _moved = true; if(_timer){ clearTimeout(_timer); _timer = null; } }
+      function onEnd(){  if(_timer){ clearTimeout(_timer); _timer = null; } _startCard = null; }
+
+      // Attach to a stable container that always exists
+      document.addEventListener('touchstart', onStart, { passive: true });
+      document.addEventListener('touchmove',  onMove,  { passive: true });
+      document.addEventListener('touchend',   onEnd,   { passive: true });
+      document.addEventListener('mousedown',  onStart);
+      document.addEventListener('mouseup',    onEnd);
+      document.addEventListener('mousemove',  e => { if(e.buttons) onMove(); });
+
+      // Suppress click after long-press so card doesn't open
+      document.addEventListener('click', e => {
+        const card = cardFrom(e.target);
+        if(card && card._suppressClick){ e.stopImmediatePropagation(); e.preventDefault(); }
+      }, true);
+    })();
 
     // Tap in selection mode — toggle selection
+    // Also expose selMode so inline onclick handlers can check it
     window.selTap=function(id){
       if(!selMode) return false;
       toggleSelItem(id);
       return true;
     };
+    // Expose read-only getter for selMode so card onclick can check it
+    Object.defineProperty(window,'selMode',{ get:()=>selMode });
 
     // Selection bar buttons
     document.getElementById('selBarClose')?.addEventListener('click',exitSelMode);
@@ -4251,7 +4327,7 @@
     });
 
     // ── Standalone student (teacher role, no batch) ──
-    function openAddStandaloneStudent(){
+    window.openAddStandaloneStudent = function openAddStandaloneStudent(){
       const sel=document.getElementById('ssBatchSel');
       sel.innerHTML='<option value="">No batch — standalone</option>';
       Object.keys(batches).forEach(bid=>{
@@ -4407,7 +4483,7 @@
       }
       h+='</div>';
       root.innerHTML=h;
-      setTimeout(attachLongPress,30);
+
     }
 
     function _patchedRenderTeacher(){
@@ -4445,23 +4521,106 @@
           </div>`}
         </div>`;dl+=0.05;}
       root.innerHTML=h;
-      setTimeout(attachLongPress,30);
+      // Load and render standalone students asynchronously after batches
+      loadAndRenderStandaloneStudents(root);
     }
+
+    async function loadAndRenderStandaloneStudents(root){
+      try{
+        const snap=await getDocs(collection(db,'users',uid(),'students'));
+        if(snap.empty) return;
+        const studs=[];
+        snap.forEach(d=>studs.push({id:d.id,...d.data()}));
+        const section=document.createElement('div');
+        section.id='standaloneStudentsSection';
+        section.style.cssText='margin-top:18px';
+        const now2=new Date(),curM2=now2.getMonth()+1,curY2=now2.getFullYear();
+        let sh=`<div class="section-label" style="margin-bottom:10px"><span class="section-label-txt">Individual Students</span><span class="section-label-count">${studs.length}</span></div>`;
+        studs.sort((a,b)=>(a.name||'').localeCompare(b.name||'')).forEach((s,i)=>{
+          const fee=s.fee||0;
+          const bm=s.baselineMonth||curM2,by=s.baselineYear||curY2;
+          const lp={month:bm,year:by};
+          const mo=Math.max(mBetween(lp,{month:curM2,year:curY2}),0);
+          const due=Math.max(mo*fee,0);
+          sh+=`<div class="student-card" style="animation-delay:${i*0.05}s" data-id="${s.id}" data-standalone="1"
+            onclick="if(selMode){selTap('${s.id}');return;}">
+            <div class="sc-top">
+              <div class="sc-header">
+                <div class="sc-left">
+                  <div class="sc-name-row">
+                    <div class="sc-avatar">${(s.name||'S')[0].toUpperCase()}</div>
+                    <div class="sc-name">${s.name||'Student'}</div>
+                  </div>
+                  <div class="sc-meta">Individual · ₹${fee}/mo</div>
+                  ${s.lastPaidDate?`<div class="sc-last-paid">Last paid: ${s.lastPaidDate}</div>`:'<div class="sc-last-paid never">Never paid</div>'}
+                </div>
+                <div class="sc-due-badge">
+                  <div class="sc-due-amt ${due===0?'zero':''}">₹${due.toLocaleString('en-IN')}</div>
+                  <div class="sc-due-mo">${mo===0?'All clear ✓':`${mo} month${mo>1?'s':''} due`}</div>
+                </div>
+              </div>
+            </div>
+            <div class="sc-actions">
+              <div style="flex:1;padding:9px 13px;font-size:11px;color:var(--muted)">No batch assigned</div>
+              <button class="sc-edit-btn" onclick="event.stopPropagation();assignStandaloneToExistingBatch('${s.id}','${(s.name||'').replace(/'/g,"\'")}')">📋 Assign</button>
+              <button class="sc-del-btn" onclick="event.stopPropagation();deleteStandaloneStudent('${s.id}','${(s.name||'').replace(/'/g,"\'")}')">&#x1F5D1;</button>
+            </div>
+          </div>`;
+        });
+        section.innerHTML=sh;
+        // Remove old section if exists, then append
+        const old=root.querySelector('#standaloneStudentsSection');
+        if(old) old.remove();
+        const appInner=document.getElementById('appInner');
+        if(appInner) appInner.appendChild(section);
+      }catch(e){ console.warn('standalone load failed',e); }
+    }
+
+    window.deleteStandaloneStudent=async function(sid,name){
+      if(!await confirm2('Remove Student',`Remove <strong style="color:#f0f0f8">${name}</strong>?`,'Remove','🗑️')) return;
+      try{ await deleteDoc(doc(db,'users',uid(),'students',sid)); toast(`${name} removed`,''); loadAndRenderStandaloneStudents(document.getElementById('appInner')); }
+      catch(e){ toast('Error: '+e.message,'error'); }
+    };
+
+    window.assignStandaloneToExistingBatch=async function(sid,name){
+      const bKeys=Object.keys(batches);
+      if(!bKeys.length){ toast('Create a batch first','error'); return; }
+      const list=document.getElementById('assignBatchList');
+      let ah='';
+      bKeys.forEach(bid=>{ const b=batches[bid]; ah+=`<div class="batch-pick-item" data-bid="${bid}" onclick="toggleBatchPick(this,'${bid}')"><div class="batch-pick-icon">📋</div><div><div class="batch-pick-name">${b.name}</div><div class="batch-pick-sub">₹${b.fee}/mo per student</div></div></div>`; });
+      list.innerHTML=ah;
+      _assignStudentIds=[sid];
+      // Override confirm to handle standalone correctly
+      document.getElementById('confirmAssignBatchBtn').onclick=async()=>{
+        const sel=document.querySelector('.batch-pick-item.sel');
+        if(!sel){ toast('Select a batch','error'); return; }
+        const bid=sel.dataset.bid;
+        const btn=document.getElementById('confirmAssignBatchBtn');
+        btn.disabled=true; btn.textContent='Moving…';
+        try{
+          const snap2=await getDoc(doc(db,'users',uid(),'students',sid));
+          const sd=snap2.exists()?snap2.data():{};
+          const now3=new Date();
+          await addDoc(stuCol(bid),{name:sd.name||name,baselineMonth:sd.baselineMonth||now3.getMonth()+1,baselineYear:sd.baselineYear||now3.getFullYear(),fee:sd.fee,lastPaidDate:sd.lastPaidDate||null,createdAt:Date.now(),feeStatus:'never'});
+          await deleteDoc(doc(db,'users',uid(),'students',sid));
+          toast(`${name} moved to ${batches[bid].name} ✓`,'success');
+          document.getElementById('assignBatchModal').classList.add('hidden');
+          loadAndRenderStandaloneStudents(document.getElementById('appInner'));
+        }catch(e){ toast('Error: '+e.message,'error'); }
+        btn.disabled=false; btn.textContent='Move to Batch';
+      };
+      document.getElementById('assignBatchModal').classList.remove('hidden');
+    };
 
     // Override render to use patched versions
     const _origRenderStudent=renderStudent, _origRenderTeacher=renderTeacher;
     window.renderStudent=_patchedRenderStudent;
     window.renderTeacher=_patchedRenderTeacher;
+    window._patchedRenderStudent=_patchedRenderStudent;
+    window._patchedRenderTeacher=_patchedRenderTeacher;
 
     // ─── add payment date field to saveAllStudents ───
-    const _origSaveAll=saveAllStudents;
-    window.saveAllStudents=async function(){
-      // Read extra pay date from form before passing through
-      const pdv=document.getElementById('newStudentPayDateInp')?.value||'';
-      // Temporarily attach payDate to pending items missing it
-      // This is handled by addOnePending patching
-      await _origSaveAll();
-    };
+    // saveAllStudents uses pendingStudents which includes payDate via addOnePending patch
 
     // Patch addOnePending to include pay date
     const _origAddOne=addOnePending;
@@ -4645,9 +4804,7 @@
     // Wire dashboard button
     document.getElementById('dashBtn')?.addEventListener('click',()=>{ if(isT())openTeacherDash(); else openStudentDash(); });
 
-    // Show dashBtn when render is called
-    const _origR2=render;
-    window.render=function(){ _origR2(); const d=document.getElementById('dashBtn'); if(d)d.classList.remove('hidden'); };
+    // dashBtn is shown by render() directly
 
     // Sync notif on load
     _syncNotifToggle();
