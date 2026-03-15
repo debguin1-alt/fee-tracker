@@ -3346,24 +3346,29 @@
       return id;
     }
 
-    // Save FCM token keyed by deviceId so each device has its own record
+    // ── FCM Token Management ──────────────────────────────────────────────────
+    // Strategy: one token per device per user. Create on first use; never overwrite.
+    // On every boot we check if this device has a token — if not, create one.
+    // This ensures ALL users who granted permission have a stored FCM token.
+
     async function saveFCMToken(token) {
       if (!uid() || !token) return;
       const deviceId = getDeviceId();
       try {
-        const _ex2=await getDoc(doc(db,'users',uid(),'fcmTokens',deviceId));
-        if(_ex2.exists()){return;}
+        // Write-once: only save if no token exists for this device yet
+        const existing = await getDoc(doc(db, 'users', uid(), 'fcmTokens', deviceId));
+        if (existing.exists()) {
+          console.log('[FCM] Token already stored for this device');
+          return;
+        }
         await setDoc(doc(db, 'users', uid(), 'fcmTokens', deviceId), {
           token,
           deviceId,
-          // Human-readable device hint — extracts real model on Android
           deviceHint: (() => {
             const ua = navigator.userAgent;
-            // Android — extract exact model from UA e.g. "samsung SM-G991B", "Pixel 7"
             const androidModel = ua.match(/;\s*([^;)]+?)\s+Build\//);
             if (androidModel) {
               const raw = androidModel[1].trim();
-              // Map known Samsung codes to marketing names
               const samsungMap = {
                 'SM-S918': 'Samsung Galaxy S23 Ultra', 'SM-S916': 'Samsung Galaxy S23+',
                 'SM-S911': 'Samsung Galaxy S23',       'SM-S928': 'Samsung Galaxy S24 Ultra',
@@ -3375,45 +3380,28 @@
                 'SM-S908': 'Samsung Galaxy S22 Ultra', 'SM-A546': 'Samsung Galaxy A54',
                 'SM-A536': 'Samsung Galaxy A53',       'SM-A336': 'Samsung Galaxy A33',
                 'SM-A146': 'Samsung Galaxy A14',       'SM-A226': 'Samsung Galaxy A22',
-                'SM-F946': 'Samsung Galaxy Z Fold5',   'SM-F926': 'Samsung Galaxy Z Fold3',
-                'SM-F731': 'Samsung Galaxy Z Flip5',   'SM-F711': 'Samsung Galaxy Z Flip3',
+                'SM-F946': 'Samsung Galaxy Z Fold5',   'SM-F731': 'Samsung Galaxy Z Flip5',
                 'SM-N986': 'Samsung Galaxy Note 20 Ultra', 'SM-N981': 'Samsung Galaxy Note 20',
               };
-              // Match by prefix (ignore last char variant)
               for (const [code, name] of Object.entries(samsungMap)) {
                 if (raw.toUpperCase().startsWith(code)) return name;
               }
-              // Pixel devices
               if (/Pixel 9 Pro XL/i.test(raw)) return 'Google Pixel 9 Pro XL';
-              if (/Pixel 9 Pro/i.test(raw))    return 'Google Pixel 9 Pro';
-              if (/Pixel 9/i.test(raw))        return 'Google Pixel 9';
-              if (/Pixel 8 Pro/i.test(raw))    return 'Google Pixel 8 Pro';
-              if (/Pixel 8/i.test(raw))        return 'Google Pixel 8';
-              if (/Pixel 7 Pro/i.test(raw))    return 'Google Pixel 7 Pro';
-              if (/Pixel 7/i.test(raw))        return 'Google Pixel 7';
-              if (/Pixel 6/i.test(raw))        return 'Google Pixel 6';
-              // OnePlus
-              if (/IN2010|IN2013/i.test(raw))  return 'OnePlus 8 Pro';
-              if (/CPH2411/i.test(raw))        return 'OnePlus Nord CE 2';
-              // Xiaomi/Redmi
-              if (/23049PCD8G/i.test(raw))     return 'Xiaomi 13 Pro';
-              if (/220333QAG/i.test(raw))      return 'Redmi Note 12 Pro';
-              // Return cleaned raw model if no match
+              if (/Pixel 9/i.test(raw)) return 'Google Pixel 9';
+              if (/Pixel 8 Pro/i.test(raw)) return 'Google Pixel 8 Pro';
+              if (/Pixel 8/i.test(raw)) return 'Google Pixel 8';
+              if (/Pixel 7/i.test(raw)) return 'Google Pixel 7';
               return raw.length > 30 ? raw.slice(0,30) : raw;
             }
-            // iOS — browser UA never reveals model, use screen to guess
             if (/iPhone/.test(ua)) {
-              const w = screen.width, h = screen.height;
-              const p = Math.max(w,h);
-              if (p >= 932) return 'iPhone 15 Pro Max / 16 Pro Max';
-              if (p >= 852) return 'iPhone 15 Pro / 16 Pro';
-              if (p >= 844) return 'iPhone 14 / 15';
-              if (p >= 812) return 'iPhone 13 / 14 Pro';
-              if (p >= 780) return 'iPhone 12 / 13';
+              const p = Math.max(screen.width, screen.height);
+              if (p >= 932) return 'iPhone 15/16 Pro Max';
+              if (p >= 852) return 'iPhone 15/16 Pro';
+              if (p >= 844) return 'iPhone 14/15';
               return 'iPhone';
             }
-            if (/iPad/.test(ua))      return 'iPad';
-            if (/Windows/.test(ua))   return 'Windows PC';
+            if (/iPad/.test(ua)) return 'iPad';
+            if (/Windows/.test(ua)) return 'Windows PC';
             if (/Macintosh/.test(ua)) return 'Mac';
             return 'Unknown device';
           })(),
@@ -3423,28 +3411,32 @@
       } catch(e) { console.warn('[FCM] Token save failed:', e); }
     }
 
-    // Refresh FCM token — called on each app boot (tokens can expire/rotate)
-    // Stores new token, updates Firestore, keeps lastRefreshed timestamp
+    // Called on every boot — ensures this device has a token if permission is granted.
+    // Also creates tokens for existing users who granted permission before FCM was added.
     async function refreshFCMTokenIfNeeded() {
-      if (!messaging || !uid() || Notification.permission !== 'granted') return;
+      if (!messaging || !uid()) return;
+      // Only proceed if notifications are granted AND reminders not suppressed locally
+      if (Notification.permission !== 'granted') return;
       try {
-        // Only refresh if it's been >7 days since last refresh
-        // Write-once: check Firestore before creating
-        const _dId=getDeviceId(); try{ const _ex=await getDoc(doc(db,'users',uid(),'fcmTokens',_dId)); if(_ex.exists()) return; }catch(e){}
-
+        const deviceId = getDeviceId();
+        // Check Firestore first — if token exists, cache it locally and return
+        const existing = await getDoc(doc(db, 'users', uid(), 'fcmTokens', deviceId));
+        if (existing.exists()) {
+          if (!localStorage.getItem('ft_fcm_token')) {
+            localStorage.setItem('ft_fcm_token', existing.data().token);
+          }
+          return; // already have a token
+        }
+        // No token in Firestore for this device — generate and save one
         const sw    = await navigator.serviceWorker.ready;
         const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: sw });
-        if (!token) return;
-
-        const old = localStorage.getItem('ft_fcm_token');
+        if (!token) { console.warn('[FCM] getToken returned empty'); return; }
         localStorage.setItem('ft_fcm_token', token);
-        localStorage.setItem('ft_token_refreshed', String(Date.now()));
-
-        // Always write to Firestore — setDoc with merge so it's a no-op if unchanged
         await saveFCMToken(token);
-        if (old !== token) console.log('[FCM] Token rotated and updated');
+        console.log('[FCM] New token created for existing user');
       } catch(e) { console.warn('[FCM] Token refresh failed:', e); }
     }
+
 
     async function removeFCMToken() {
       if (!uid()) return;
@@ -3485,17 +3477,8 @@
         const permission = await Notification.requestPermission();
         if (permission !== 'granted') { updateNotifMenuLabel(); return; }
 
-        // Save token per device if FCM is available
-        if (messaging) {
-          try {
-            const sw    = await navigator.serviceWorker.ready;
-            const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: sw });
-            if (token) {
-              localStorage.setItem('ft_fcm_token', token);
-              await saveFCMToken(token);
-            }
-          } catch(e) { console.warn('[FCM] Token error (non-fatal):', e); }
-        }
+        // Use refreshFCMTokenIfNeeded — it handles write-once and creates tokens for all users
+        await refreshFCMTokenIfNeeded();
 
         updateNotifMenuLabel();
         checkDueReminder();
@@ -5215,7 +5198,7 @@
       sw.classList.remove('sweep'); void sw.offsetWidth; sw.classList.add('sweep');
       setTimeout(()=>sw.classList.remove('sweep'),450);
       if(btn){ btn.classList.remove('ripple'); void btn.offsetWidth; btn.classList.add('ripple'); setTimeout(()=>btn.classList.remove('ripple'),450); }
-      if(icon){ if(icon){icon.style.transition='transform .32s cubic-bezier(.34,1.5,.64,1)'; icon.style.transform='scale(1.35) rotate('+(goingOn?'18':'-18')+'deg)'; setTimeout(()=>{icon.style.transform='scale(1) rotate(0)';},320); }
+      if(icon){ icon.style.transition='transform .32s cubic-bezier(.34,1.5,.64,1)'; icon.style.transform='scale(1.35) rotate('+(goingOn?'18':'-18')+'deg)'; setTimeout(()=>{icon.style.transform='scale(1) rotate(0)';},320); }
       const inner=label&&label.querySelector('.notif-lbl-inner');
       if(inner){
         inner.classList.remove('lbl-flip-out','lbl-flip-in'); void inner.offsetWidth;
