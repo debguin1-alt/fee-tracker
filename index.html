@@ -233,7 +233,24 @@
     .sel-circle.checked::after { transform:scale(1); }
     .sel-circle.checked .sel-tick { opacity:1; z-index:1; }
     .sel-tick { opacity:0; font-size:11px; color:#fff; font-weight:800; z-index:1; transition:opacity .15s; }
-    .teacher-card.selected,.batch-card.selected,.student-card.selected { border-color:rgba(124,107,255,.4); background:rgba(124,107,255,.04); }
+    /* Teacher/batch selection = purple accent */
+    .teacher-card.selected { border-color:rgba(124,107,255,.55); background:rgba(124,107,255,.08); box-shadow:0 0 0 2px rgba(124,107,255,.18); }
+    .batch-card.selected   { border-color:rgba(124,107,255,.55); background:rgba(124,107,255,.08); box-shadow:0 0 0 2px rgba(124,107,255,.18); }
+    /* Student selection = teal accent */
+    .student-card.selected { border-color:rgba(0,212,170,.55); background:rgba(0,212,170,.07); box-shadow:0 0 0 2px rgba(0,212,170,.18); }
+    /* Selection-mode dim unselected cards slightly */
+    .teacher-card.sel-mode:not(.selected), .batch-card.sel-mode:not(.selected) { opacity:.82; }
+    .student-card.sel-mode:not(.selected) { opacity:.82; }
+    /* Student sel-circle = teal */
+    .student-card .sel-circle::after { background:var(--accent3); }
+    .student-card .sel-circle.checked { border-color:var(--accent3); }
+    /* Selection bar teacher = purple tint, student = teal tint */
+    .sel-bar.ctx-teacher { border-top-color:rgba(124,107,255,.3); background:linear-gradient(to right, rgba(124,107,255,.06), var(--surface2)); }
+    .sel-bar.ctx-student { border-top-color:rgba(0,212,170,.3); background:linear-gradient(to right, rgba(0,212,170,.06), var(--surface2)); }
+    .sel-bar.ctx-batch   { border-top-color:rgba(124,107,255,.3); background:linear-gradient(to right, rgba(124,107,255,.06), var(--surface2)); }
+    .sel-bar-count.ctx-teacher span { color:var(--accent); }
+    .sel-bar-count.ctx-student span { color:var(--accent3); }
+    .sel-bar-count.ctx-batch   span { color:var(--accent); }
     .pin-badge { display:inline-flex; align-items:center; gap:3px; font-size:9px; font-weight:700; color:var(--yellow); background:rgba(255,209,102,.1); border:1px solid rgba(255,209,102,.2); border-radius:20px; padding:2px 7px; flex-shrink:0; }
 
     /* ── DASHBOARD SCREENS ── */
@@ -1492,11 +1509,14 @@
       </div>
       <div class="topbar-right">
         <button class="dash-btn hidden" id="dashBtn" title="Analytics">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style="display:block">
-            <rect x="1" y="9" width="4" height="8" rx="1.5" fill="currentColor" opacity=".5"/>
-            <rect x="7" y="5" width="4" height="12" rx="1.5" fill="currentColor" opacity=".75"/>
-            <rect x="13" y="1" width="4" height="16" rx="1.5" fill="currentColor"/>
-          </svg>
+<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block">
+  <!-- Background rounded square like emoji -->
+  <rect width="22" height="22" rx="5" fill="currentColor" opacity=".12"/>
+  <!-- Three bars -->
+  <rect x="3" y="12" width="4" height="7" rx="1.2" fill="currentColor" opacity=".5"/>
+  <rect x="9" y="7"  width="4" height="12" rx="1.2" fill="currentColor" opacity=".75"/>
+  <rect x="15" y="3" width="4" height="16" rx="1.2" fill="currentColor"/>
+</svg>
         </button>
         <button class="add-btn" id="addBtn" title="Add">+</button>
       </div>
@@ -3037,7 +3057,7 @@
         </div></div>
         <div class="section-label" style="margin-bottom:12px;"><span class="section-label-txt">Students</span><span class="section-label-count">${sIds.length}</span></div>`;
       if(!sIds.length){h+=`<div class="empty-state"><div class="empty-icon">&#x1F393;</div><div class="empty-title">No students yet</div><div class="empty-sub">Tap <strong>+</strong> above to add students.</div></div>`;root.innerHTML=h;return;}
-      sIds.sort((a,b)=>sCalcDue(bid,b)-sCalcDue(bid,a));
+      sIds.sort((a,b)=>{ if(batchStudents[a]?.pinned&&!batchStudents[b]?.pinned)return -1; if(!batchStudents[a]?.pinned&&batchStudents[b]?.pinned)return 1; return sCalcDue(bid,b)-sCalcDue(bid,a); });
       let dl=0;
       for(const sid of sIds){
         const st=batchStudents[sid],dm=sMonthsDue(bid,sid),da=sCalcDue(bid,sid);
@@ -3045,7 +3065,7 @@
         const pays=batchPayments.filter(p=>p.studentId===sid).sort((a,b)=>b.timestamp-a.timestamp);
         const init=st.name.trim().split(/\s+/).map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
         const odB=cr?`<span class="sc-overdue-badge crit">&#x1F6A8; ${dm}mo</span>`:ov?`<span class="sc-overdue-badge">&#x26A0;&#xFE0F; ${dm}mo</span>`:'';
-        h+=`<div class="student-card ${cr?'sc-critical':ov?'sc-overdue':''}" style="animation-delay:${dl}s">
+        h+=`<div class="student-card ${cr?'sc-critical':ov?'sc-overdue':''} ${selMode&&selItems.has(sid)?'selected sel-mode':selMode?'sel-mode':''}" data-id="${sid}" data-type="student" style="animation-delay:${dl}s" onclick="if(selMode){event.stopPropagation();selTap('${sid}');return()=>{}}">
           <div class="sc-top"><div class="sc-header">
             <div class="sc-left">
               <div class="sc-name-row"><div class="sc-avatar">${init}</div><div class="sc-name">${st.name}</div>${odB}</div>
@@ -3077,14 +3097,18 @@
             <button class="pay-btn pay-btn-advance" onclick="sPayMonths('${bid}','${sid}','advance')">Mark</button>
           </div>
           </div>
-          <div class="sc-actions">
+          ${selMode?`<div style="display:flex;align-items:center;gap:10px;padding:10px 13px;border-top:1px solid var(--border)">
+            <div class="sel-circle ${selItems.has(sid)?'checked':''}" onclick="event.stopPropagation();selTap('${sid}')"><span class="sel-tick">✓</span></div>
+            <span style="font-size:12px;font-weight:600;color:var(--text);flex:1">${st.name}</span>
+            ${st.pinned?'<span class="pin-badge">📌 Pinned</span>':''}
+          </div>`:`<div class="sc-actions">
             <div class="sc-hist-toggle" id="stog-${sid}" onclick="toggleStudentHist('${sid}')">
               <span class="toggle-dot" style="background:var(--accent3);width:5px;height:5px;border-radius:50%;display:inline-block;opacity:.6;margin-right:4px;"></span>
               History (${pays.length})<span class="sc-h-arrow">&#x25BE;</span>
             </div>
             <button class="sc-edit-btn" onclick="openEditStudent('${bid}','${sid}')" title="Edit student">&#9998;</button>
             <button class="sc-del-btn" onclick="deleteStudent('${bid}','${sid}')">&#x1F5D1;</button>
-          </div>
+          </div>`}
           <div class="sc-hist-panel" id="shist-${sid}">
             ${pays.length===0?'<div class="hist-empty">No payments yet</div>':
               '<div class="swipe-hint">&#x2190; swipe to delete</div>'+pays.map(p=>{
@@ -4036,13 +4060,19 @@
 
     function enterSelMode(ctx,firstId){
       selMode=true; selContext=ctx; selItems.clear(); selItems.add(firstId);
-      document.getElementById('selBar').classList.remove('hidden');
+      const bar=document.getElementById('selBar');
+      bar.classList.remove('hidden','ctx-teacher','ctx-student','ctx-batch');
+      bar.classList.add('ctx-'+ctx);
+      const cnt=document.getElementById('selCount');
+      if(cnt){ cnt.parentElement.className='sel-bar-count ctx-'+ctx; }
       updateSelBar();
       if(ctx==='student') renderBatchDetail(currentBatchId); else render();
     }
     function exitSelMode(){
       const prevCtx=selContext; selMode=false; selItems.clear(); selContext='';
-      document.getElementById('selBar').classList.add('hidden');
+      const bar=document.getElementById('selBar');
+      bar.classList.add('hidden');
+      bar.classList.remove('ctx-teacher','ctx-student','ctx-batch');
       if(prevCtx==='student') renderBatchDetail(currentBatchId); else render();
     }
     function toggleSelItem(id){
@@ -4060,34 +4090,54 @@
       document.getElementById('selCount').textContent=selItems.size;
       const pinBtn=document.getElementById('selPinBtn');
       const assignBtn=document.getElementById('selAssignBtn');
-      pinBtn.classList.toggle('hidden',selItems.size!==1);
+      // Pin: show only when exactly 1 selected
+      pinBtn.classList.toggle('hidden', selItems.size!==1);
       if(selItems.size===1){
         const id=[...selItems][0];
-        pinBtn.innerHTML='<span class="sbi">'+(pinnedId===id?'📍':'📌')+'</span><span>'+(pinnedId===id?'Unpin':'Pin')+'</span>';
+        const isPinned = selContext==='student'
+          ? batchStudents[id]?.pinned
+          : selContext==='teacher'
+            ? teachers[id]?.pinned
+            : batches[id]?.pinned;
+        pinBtn.innerHTML='<span class="sbi">'+(isPinned?'📍':'📌')+'</span><span>'+(isPinned?'Unpin':'Pin')+'</span>';
+        pinBtn.style.borderColor = isPinned ? 'rgba(255,209,102,.5)' : '';
       }
-      if(assignBtn) assignBtn.classList.toggle('hidden',selContext!=='student');
+      // Assign: show for students (teacher role — add to different batch)
+      if(assignBtn) assignBtn.classList.toggle('hidden', selContext!=='student');
     }
     window.selTap=function(id){ if(!selMode)return false; toggleSelItem(id); return true; };
     document.getElementById('selBarClose')?.addEventListener('click',exitSelMode);
 
     document.getElementById('selPinBtn')?.addEventListener('click',async()=>{
-      if(selItems.size!==1)return; const id=[...selItems][0];
-      const unpinning=pinnedId===id;
-      if(unpinning)pinnedId=null; else{
-        if(pinnedId){
-          try{ if(selContext==='teacher'){if(teachers[pinnedId])teachers[pinnedId].pinned=false;await updateDoc(tcDoc(pinnedId),{pinned:false});}
-            else if(selContext==='batch'){if(batches[pinnedId])batches[pinnedId].pinned=false;await updateDoc(btDoc(pinnedId),{pinned:false});}
-            else{await updateDoc(stuDoc(currentBatchId,pinnedId),{pinned:false});if(batchStudents[pinnedId])batchStudents[pinnedId].pinned=false;}
+      if(selItems.size!==1)return;
+      const id=[...selItems][0];
+      const currentData = selContext==='student' ? batchStudents[id]
+        : selContext==='teacher' ? teachers[id] : batches[id];
+      const isPinned = currentData?.pinned;
+
+      // Unpin any currently pinned item in the same context first
+      const allInCtx = selContext==='student' ? Object.keys(batchStudents)
+        : selContext==='teacher' ? Object.keys(teachers) : Object.keys(batches);
+      for(const otherId of allInCtx){
+        const data = selContext==='student' ? batchStudents[otherId]
+          : selContext==='teacher' ? teachers[otherId] : batches[otherId];
+        if(data?.pinned && otherId!==id){
+          try{
+            if(selContext==='student'){ data.pinned=false; await updateDoc(stuDoc(currentBatchId,otherId),{pinned:false}); }
+            else if(selContext==='teacher'){ data.pinned=false; await updateDoc(tcDoc(otherId),{pinned:false}); }
+            else{ data.pinned=false; await updateDoc(btDoc(otherId),{pinned:false}); }
           }catch(e){}
         }
-        pinnedId=id;
       }
+
+      const newPinState = !isPinned;
       try{
-        if(selContext==='teacher'){teachers[id].pinned=!unpinning;await updateDoc(tcDoc(id),{pinned:!unpinning});}
-        else if(selContext==='batch'){batches[id].pinned=!unpinning;await updateDoc(btDoc(id),{pinned:!unpinning});}
-        else{await updateDoc(stuDoc(currentBatchId,id),{pinned:!unpinning});if(batchStudents[id])batchStudents[id].pinned=!unpinning;}
-      }catch(e){}
-      toast(unpinning?'Unpinned':'Pinned to top 📌','success'); exitSelMode();
+        if(selContext==='student'){ batchStudents[id].pinned=newPinState; await updateDoc(stuDoc(currentBatchId,id),{pinned:newPinState}); }
+        else if(selContext==='teacher'){ teachers[id].pinned=newPinState; await updateDoc(tcDoc(id),{pinned:newPinState}); }
+        else{ batches[id].pinned=newPinState; await updateDoc(btDoc(id),{pinned:newPinState}); }
+      }catch(e){ toast('Error: '+e.message,'error'); return; }
+      toast(newPinState?'Pinned to top 📌':'Unpinned', newPinState?'success':'');
+      exitSelMode();
     });
 
     document.getElementById('selDeleteBtn')?.addEventListener('click',async()=>{
@@ -4102,6 +4152,38 @@
       const ctx=selContext; exitSelMode();
       if(ctx==='student')renderBatchDetail(currentBatchId); else render();
     });
+
+    // ── Assign students to batch ──
+    document.getElementById('selAssignBtn')?.addEventListener('click',()=>{
+      if(!selItems.size)return;
+      const bKeys=Object.keys(batches).filter(bid=>bid!==currentBatchId);
+      const list=document.getElementById('assignBatchList');
+      if(!bKeys.length){ toast('No other batches to assign to','error'); return; }
+      let ah='';
+      bKeys.forEach(bid=>{ const b=batches[bid]; ah+=`<div class="batch-pick-item" data-bid="${bid}" onclick="document.querySelectorAll('.batch-pick-item').forEach(x=>x.classList.remove('sel'));this.classList.add('sel');this._selBid='${bid}'"><div class="batch-pick-icon">📋</div><div><div class="batch-pick-name">${b.name}</div><div class="batch-pick-sub">₹${b.fee}/mo per student</div></div></div>`; });
+      list.innerHTML=ah;
+      const confirmBtn=document.getElementById('confirmAssignBatchBtn');
+      confirmBtn.onclick=async()=>{
+        const sel=document.querySelector('.batch-pick-item.sel'); if(!sel){ toast('Pick a batch','error'); return; }
+        const bid=sel.dataset.bid||sel._selBid;
+        const btn=confirmBtn; btn.disabled=true; btn.textContent='Moving…';
+        try{
+          for(const sid of selItems){
+            const st=batchStudents[sid]||{};
+            await addDoc(stuCol(bid),{name:st.name,baselineMonth:st.baselineMonth,baselineYear:st.baselineYear,fee:st.fee||batches[bid]?.fee,createdAt:Date.now(),feeStatus:st.feeStatus||'never',lastPaidDate:st.lastPaidDate||null});
+            await deleteDoc(stuDoc(currentBatchId,sid));
+            delete batchStudents[sid];
+          }
+          toast(`Moved ${selItems.size} student${selItems.size>1?'s':''} to ${batches[bid].name} ✓`,'success');
+          document.getElementById('assignBatchModal').classList.add('hidden');
+          exitSelMode();
+        }catch(e){ toast('Error: '+e.message,'error'); }
+        btn.disabled=false; btn.textContent='Move to Batch';
+      };
+      document.getElementById('assignBatchModal').classList.remove('hidden');
+    });
+    document.getElementById('closeAssignBatchBtn')?.addEventListener('click',()=>document.getElementById('assignBatchModal').classList.add('hidden'));
+    document.getElementById('cancelAssignBatchBtn')?.addEventListener('click',()=>document.getElementById('assignBatchModal').classList.add('hidden'));
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     // PATCH renderTeacher / renderStudent for selection + pinning
