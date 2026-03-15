@@ -155,177 +155,118 @@
     :root.light .field-input[type="date"]::-webkit-calendar-picker-indicator { filter: none; opacity: .6; }
 
 
-    /* ═══════════════════════════════════════════════════
-       GLOBAL ANIMATION LIBRARY
-    ═══════════════════════════════════════════════════ */
-    @keyframes ftSlideUp    { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes ftSlideRight { from{opacity:0;transform:translateX(26px)} to{opacity:1;transform:translateX(0)} }
+    /* ── DASHBOARD BUTTON ── */
+    .dash-btn {
+      width:40px; height:40px; border-radius:var(--r-lg);
+      background:var(--surface2); border:1px solid var(--border2);
+      color:var(--text2); cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      transition:transform .15s, background .15s;
+      box-shadow:0 2px 8px rgba(0,0,0,.12);
+    }
+    .dash-btn:active { transform:scale(.88); background:var(--accent-dim); color:var(--accent); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes ftSlideUp    { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes ftSlideRight { from{opacity:0;transform:translateX(28px)} to{opacity:1;transform:translateX(0)} }
     @keyframes ftFadeIn     { from{opacity:0} to{opacity:1} }
     @keyframes ftPop        { 0%{transform:scale(.86);opacity:0} 65%{transform:scale(1.04)} 100%{transform:scale(1);opacity:1} }
     @keyframes ftBounce     { 0%,100%{transform:translateY(0)} 45%{transform:translateY(-7px)} }
     @keyframes addPulse     { 0%,100%{box-shadow:0 4px 16px rgba(124,107,255,.4)} 50%{box-shadow:0 4px 30px rgba(124,107,255,.72)} }
-    @keyframes selCheck     { 0%{transform:scale(0) rotate(-45deg);opacity:0} 70%{transform:scale(1.2) rotate(3deg)} 100%{transform:scale(1) rotate(0);opacity:1} }
-    @keyframes slideBarIn   { from{transform:translateY(100%)} to{transform:translateY(0)} }
-    @keyframes rippleOut    { from{transform:scale(0);opacity:.5} to{transform:scale(2.8);opacity:0} }
+    @keyframes spin360      { to{transform:rotate(360deg)} }
+    @keyframes skShimmer    { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
-    /* Card & screen entrance */
-    .teacher-card  { animation: ftSlideUp .28s ease both; }
-    .batch-card    { animation: ftSlideUp .28s ease both; }
-    .student-card  { animation: ftSlideUp .24s ease both; }
-    .total-card    { animation: ftSlideUp .36s cubic-bezier(.25,.8,.25,1) both; }
-    .modal-sheet   { animation: ftSlideUp .3s cubic-bezier(.34,1.2,.64,1) both; }
-    .confirm-box   { animation: ftPop .22s cubic-bezier(.34,1.35,.64,1) both; }
-    .topbar        { animation: ftFadeIn .35s ease both; }
-    .section-label { animation: ftFadeIn .4s ease both; }
-    .bd-summary-card { animation: ftSlideUp .28s ease both; }
-    #batchDetailScreen:not(.hidden) { animation: ftSlideRight .28s cubic-bezier(.25,.8,.25,1) both; }
+    .teacher-card  { animation:ftSlideUp .28s ease both; }
+    .batch-card    { animation:ftSlideUp .28s ease both; }
+    .student-card  { animation:ftSlideUp .24s ease both; }
+    .total-card    { animation:ftSlideUp .36s cubic-bezier(.25,.8,.25,1) both; }
+    .modal-sheet   { animation:ftSlideUp .3s cubic-bezier(.34,1.2,.64,1) both; }
+    .confirm-box   { animation:ftPop .22s cubic-bezier(.34,1.35,.64,1) both; }
+    .topbar        { animation:ftFadeIn .35s ease both; }
+    .bd-summary-card { animation:ftSlideUp .28s ease both; }
+    #batchDetailScreen:not(.hidden) { animation:ftSlideRight .28s cubic-bezier(.25,.8,.25,1) both; }
+    .add-btn       { animation:addPulse 2.8s ease-in-out infinite; }
+    .add-btn:active { animation:none; transform:scale(.86); }
+    .history-panel.open { animation:ftSlideUp .18s ease both; }
+    .sc-hist-panel.open { animation:ftSlideUp .18s ease both; }
+    .empty-icon    { animation:ftBounce 3.2s ease-in-out infinite; display:inline-block; }
 
-    /* Interactive feedback */
-    .add-btn { animation: addPulse 2.8s ease-in-out infinite; }
-    .add-btn:active { animation: none; transform: scale(.86); }
-    .pay-btn:not(:disabled):active,.pay-btn-partial:not(:disabled):active,.pay-btn-advance:not(:disabled):active { transform: scale(.95); }
-    .google-btn { transition: transform .18s, box-shadow .18s; }
-    .google-btn:active { transform: scale(.97); }
-    .avatar-btn { transition: transform .14s, opacity .14s; }
-    .history-panel.open { animation: ftSlideUp .18s ease both; }
-    .sc-hist-panel.open { animation: ftSlideUp .18s ease both; }
-    .empty-icon  { animation: ftBounce 3.2s ease-in-out infinite; display: inline-block; }
+    /* ── SELECTION MODE ── */
+    @keyframes slideBarIn { from{transform:translateY(100%)} to{transform:translateY(0)} }
+    @keyframes selPop     { 0%{transform:scale(0) rotate(-45deg);opacity:0} 70%{transform:scale(1.2) rotate(3deg)} 100%{transform:scale(1) rotate(0);opacity:1} }
 
-    /* Dashboard screens */
-    .dash-screen:not(.hidden) { animation: ftSlideRight .28s cubic-bezier(.25,.8,.25,1) both; }
-    .dash-stat-card   { animation: ftSlideUp .3s ease both; }
-    .dash-chart-card  { animation: ftSlideUp .35s ease both; }
-    .dash-insight-card { animation: ftSlideUp .4s ease both; }
-
-    /* ═══════════════════════════════════════════════════
-       SELECTION MODE
-    ═══════════════════════════════════════════════════ */
-
-    /* Selection action bar — slides up from bottom */
     .sel-bar {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 150;
-      background: var(--surface2); border-top: 1px solid var(--border2);
-      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      padding: 14px 18px calc(14px + env(safe-area-inset-bottom));
-      display: flex; align-items: center; gap: 10px;
-      animation: slideBarIn .28s cubic-bezier(.34,1.2,.64,1) both;
-      box-shadow: 0 -8px 32px rgba(0,0,0,.35);
+      position:fixed; bottom:0; left:0; right:0; z-index:150;
+      background:var(--surface2); border-top:1px solid var(--border2);
+      backdrop-filter:blur(20px);
+      padding:14px 18px calc(14px + env(safe-area-inset-bottom));
+      display:flex; align-items:center; gap:10px;
+      animation:slideBarIn .28s cubic-bezier(.34,1.2,.64,1) both;
+      box-shadow:0 -8px 32px rgba(0,0,0,.35);
     }
-    .sel-bar.hidden { display: none !important; }
-    .sel-bar-count  {
-      font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 800; color: var(--text);
-      flex: 1; min-width: 0;
-    }
-    .sel-bar-count span { color: var(--accent); }
+    .sel-bar.hidden { display:none !important; }
+    .sel-bar-count { font-family:'Syne',sans-serif; font-size:13px; font-weight:800; color:var(--text); flex:1; }
+    .sel-bar-count span { color:var(--accent); }
     .sel-bar-btn {
-      display: flex; flex-direction: column; align-items: center; gap: 3px;
-      background: var(--surface3); border: 1px solid var(--border); border-radius: 12px;
-      padding: 8px 14px; cursor: pointer; transition: background .15s, transform .12s;
-      color: var(--text2); font-size: 10px; font-weight: 600; letter-spacing: .4px;
-      min-width: 56px; user-select: none;
+      display:flex; flex-direction:column; align-items:center; gap:3px;
+      background:var(--surface3); border:1px solid var(--border); border-radius:12px;
+      padding:8px 14px; cursor:pointer; color:var(--text2);
+      font-size:10px; font-weight:600; letter-spacing:.4px;
+      min-width:54px; user-select:none; transition:background .15s, transform .12s;
     }
-    .sel-bar-btn:active { transform: scale(.92); background: var(--surface); }
-    .sel-bar-btn .sbi  { font-size: 18px; line-height: 1; }
-    .sel-bar-btn.danger { border-color: rgba(255,77,109,.2); color: var(--red); }
-    .sel-bar-btn.danger:active { background: rgba(255,77,109,.08); }
-    .sel-bar-btn.pin-btn { border-color: rgba(255,209,102,.2); color: var(--yellow); }
-    .sel-bar-btn.pin-btn:active { background: rgba(255,209,102,.08); }
-    .sel-bar-close {
-      width: 32px; height: 32px; border-radius: 50%; background: var(--surface3);
-      border: 1px solid var(--border); color: var(--text2); font-size: 15px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-      transition: background .15s;
-    }
-    .sel-bar-close:active { background: var(--surface); }
+    .sel-bar-btn:active { transform:scale(.92); }
+    .sel-bar-btn .sbi { font-size:18px; line-height:1; }
+    .sel-bar-btn.danger { border-color:rgba(255,77,109,.2); color:var(--red); }
+    .sel-bar-btn.danger:active { background:rgba(255,77,109,.08); }
+    .sel-bar-btn.pin-btn { border-color:rgba(255,209,102,.2); color:var(--yellow); }
+    .sel-bar-btn.pin-btn:active { background:rgba(255,209,102,.08); }
+    .sel-bar-close { width:32px; height:32px; border-radius:50%; background:var(--surface3); border:1px solid var(--border); color:var(--text2); font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 
-    /* Selection checkbox circle on card */
     .sel-circle {
-      width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border2);
-      background: var(--surface2); flex-shrink: 0; display: flex; align-items: center;
-      justify-content: center; transition: all .2s cubic-bezier(.34,1.4,.64,1);
-      cursor: pointer; position: relative; overflow: hidden;
+      width:22px; height:22px; border-radius:50%; border:2px solid var(--border2);
+      background:var(--surface2); flex-shrink:0; display:flex; align-items:center;
+      justify-content:center; cursor:pointer; position:relative; overflow:hidden;
+      transition:all .2s cubic-bezier(.34,1.4,.64,1);
     }
-    .sel-circle::after {
-      content: ''; position: absolute; inset: 0; border-radius: 50%;
-      background: var(--accent); transform: scale(0); transition: transform .22s cubic-bezier(.34,1.4,.64,1);
-    }
-    .sel-circle.checked { border-color: var(--accent); }
-    .sel-circle.checked::after { transform: scale(1); }
-    .sel-circle.checked .sel-tick { opacity: 1; z-index: 1; }
-    .sel-tick { opacity: 0; font-size: 11px; color: #fff; font-weight: 800; z-index: 1; transition: opacity .15s; }
+    .sel-circle::after { content:''; position:absolute; inset:0; border-radius:50%; background:var(--accent); transform:scale(0); transition:transform .22s cubic-bezier(.34,1.4,.64,1); }
+    .sel-circle.checked { border-color:var(--accent); }
+    .sel-circle.checked::after { transform:scale(1); }
+    .sel-circle.checked .sel-tick { opacity:1; z-index:1; }
+    .sel-tick { opacity:0; font-size:11px; color:#fff; font-weight:800; z-index:1; transition:opacity .15s; }
+    .teacher-card.selected,.batch-card.selected,.student-card.selected { border-color:rgba(124,107,255,.4); background:rgba(124,107,255,.04); }
+    .pin-badge { display:inline-flex; align-items:center; gap:3px; font-size:9px; font-weight:700; color:var(--yellow); background:rgba(255,209,102,.1); border:1px solid rgba(255,209,102,.2); border-radius:20px; padding:2px 7px; flex-shrink:0; }
 
-    /* Card selection state */
-    .teacher-card.sel-mode { cursor: pointer; }
-    .batch-card.sel-mode   { cursor: pointer; }
-    .student-card.sel-mode { cursor: pointer; }
-    .teacher-card.selected { border-color: rgba(124,107,255,.4); background: rgba(124,107,255,.04); }
-    .batch-card.selected   { border-color: rgba(124,107,255,.4); background: rgba(124,107,255,.04); }
-    .student-card.selected { border-color: rgba(124,107,255,.4); background: rgba(124,107,255,.04); }
-
-    /* Pin indicator on card */
-    .pin-badge {
-      display: inline-flex; align-items: center; gap: 3px;
-      font-size: 9px; font-weight: 700; color: var(--yellow); letter-spacing: .3px;
-      background: rgba(255,209,102,.1); border: 1px solid rgba(255,209,102,.2);
-      border-radius: 20px; padding: 2px 7px; flex-shrink: 0;
-    }
-
-    /* Assign-to-batch modal */
-    .batch-pick-item {
-      display: flex; align-items: center; gap: 12px; padding: 12px 14px;
-      background: var(--surface2); border: 1.5px solid var(--border); border-radius: 14px;
-      margin-bottom: 8px; cursor: pointer; transition: all .15s; user-select: none;
-    }
-    .batch-pick-item:active { background: var(--surface3); }
-    .batch-pick-item.sel  { border-color: var(--accent3); background: rgba(0,212,170,.06); }
-    .batch-pick-icon { font-size: 20px; flex-shrink: 0; }
-    .batch-pick-name { font-family: 'Syne',sans-serif; font-size: 13px; font-weight: 700; color: var(--text); }
-    .batch-pick-sub  { font-size: 10px; color: var(--muted); margin-top: 2px; }
-
-    /* Notification toggle matching theme toggle */
-    #menuNotifBtn { position: relative; overflow: hidden; transition: background .2s; }
-    #menuNotifBtn::after { content:''; position:absolute; inset:0; background:radial-gradient(circle at 50% 50%,rgba(0,212,170,.18) 0%,transparent 70%); opacity:0; transition:opacity .4s; pointer-events:none; border-radius:inherit; }
-    #menuNotifBtn.ripple::after { opacity:1; transition:opacity .05s; }
-
-    .menu-notif-switch {
-      width:52px; height:28px; border-radius:14px; background:var(--surface3);
-      border:1px solid var(--border2); position:relative; flex-shrink:0; pointer-events:none;
-      transition:background .4s cubic-bezier(.4,0,.2,1), border-color .4s; overflow:hidden;
-    }
-    .menu-notif-switch::before { content:''; position:absolute; top:0; left:-100%; width:60%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent); }
-    .menu-notif-switch.sweep::before { animation:switchSweep .4s ease forwards; }
-    .menu-notif-switch.on  { background:var(--accent3); border-color:var(--accent3); }
-    .menu-notif-switch.blocked { background:rgba(255,77,109,.35); border-color:var(--red); }
-    .menu-notif-knob { position:absolute; top:4px; left:4px; width:20px; height:20px; border-radius:50%; background:var(--muted); transition:left .32s cubic-bezier(.34,1.4,.64,1), background .25s; box-shadow:0 2px 8px rgba(0,0,0,.4); z-index:1; }
-    .menu-notif-switch.on .menu-notif-knob { left:26px; background:#fff; }
-    .menu-notif-switch.blocked .menu-notif-knob { left:26px; background:var(--red); }
-    #menuNotifLabel { flex:1; overflow:hidden; position:relative; }
-    .notif-lbl-inner { display:inline-block; }
-    .notif-particles { position:absolute; inset:0; pointer-events:none; overflow:visible; border-radius:inherit; }
-
-    /* Dashboards */
+    /* ── DASHBOARD SCREENS ── */
     .dash-screen { position:fixed; inset:0; z-index:25; background:var(--bg); display:flex; flex-direction:column; overflow:hidden; }
+    .dash-screen:not(.hidden) { animation:ftSlideRight .28s cubic-bezier(.25,.8,.25,1) both; }
     .dash-screen.hidden { display:none !important; }
     .dash-topbar { display:flex; align-items:center; gap:12px; padding:52px 16px 14px; background:linear-gradient(180deg,var(--bg) 80%,transparent); flex-shrink:0; }
     .dash-title-wrap { flex:1; min-width:0; }
     .dash-title { font-family:'Syne',sans-serif; font-size:20px; font-weight:800; color:var(--text); letter-spacing:-.4px; }
     .dash-sub { font-size:11px; color:var(--muted); margin-top:2px; }
-    .dash-refresh { width:38px; height:38px; border-radius:14px; background:var(--surface2); border:1px solid var(--border); color:var(--text2); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:transform .3s, background .15s; }
+    .dash-refresh { width:38px; height:38px; border-radius:14px; background:var(--surface2); border:1px solid var(--border); color:var(--text2); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .15s; }
     .dash-refresh.spinning { animation:spin360 .6s linear infinite; }
-    @keyframes spin360 { to{transform:rotate(360deg)} }
     .dash-refresh:active { background:var(--surface3); }
     .dash-body { flex:1; overflow-y:auto; padding:0 16px 80px; }
+
+    /* Dashboard skeleton */
+    .dash-sk { border-radius:18px; overflow:hidden; margin-bottom:14px; background:var(--surface); border:1px solid var(--border); padding:16px; }
+    .dash-sk-row { display:flex; gap:9px; margin-bottom:14px; }
+    .dash-sk-card { flex:1; height:82px; border-radius:14px; background:linear-gradient(90deg,var(--surface3) 25%,var(--surface2) 50%,var(--surface3) 75%); background-size:200% 100%; animation:skShimmer 1.4s ease-in-out infinite; }
+    .dash-sk-bar { height:160px; border-radius:10px; background:linear-gradient(90deg,var(--surface3) 25%,var(--surface2) 50%,var(--surface3) 75%); background-size:200% 100%; animation:skShimmer 1.4s ease-in-out infinite; }
+    .dash-sk-line { height:12px; border-radius:6px; margin-bottom:8px; background:linear-gradient(90deg,var(--surface3) 25%,var(--surface2) 50%,var(--surface3) 75%); background-size:200% 100%; animation:skShimmer 1.4s ease-in-out infinite; }
+
     .dash-stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:18px; }
-    .dash-stat-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:14px 14px 12px; position:relative; overflow:hidden; }
+    .dash-stat-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:14px 14px 12px; position:relative; overflow:hidden; animation:ftSlideUp .3s ease both; }
     .dash-stat-card::before { content:''; position:absolute; top:-20px; right:-20px; width:70px; height:70px; background:var(--stat-glow,rgba(124,107,255,.06)); border-radius:50%; }
     .dash-stat-icon { font-size:20px; margin-bottom:6px; }
     .dash-stat-val { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; color:var(--text); letter-spacing:-.5px; line-height:1; }
     .dash-stat-label { font-size:10px; color:var(--muted); margin-top:3px; text-transform:uppercase; letter-spacing:.5px; font-weight:600; }
-    .dash-chart-card { background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:16px; margin-bottom:14px; }
+    .dash-chart-card { background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:16px; margin-bottom:14px; animation:ftSlideUp .35s ease both; }
     .dash-chart-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:800; color:var(--text); margin-bottom:4px; }
     .dash-chart-sub { font-size:10px; color:var(--muted); margin-bottom:14px; }
     .dash-canvas-wrap { position:relative; }
-    .dash-insight-card { background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:14px 16px; margin-bottom:14px; }
+    .dash-insight-card { background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:14px 16px; margin-bottom:14px; animation:ftSlideUp .4s ease both; }
     .dash-insight-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:800; color:var(--text); margin-bottom:10px; }
     .dash-insight-row { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); }
     .dash-insight-row:last-child { border-bottom:none; padding-bottom:0; }
@@ -342,12 +283,35 @@
     .dash-prog-bar { height:6px; background:var(--surface3); border-radius:3px; overflow:hidden; }
     .dash-prog-fill { height:100%; border-radius:3px; transition:width .7s cubic-bezier(.25,.8,.25,1); }
     .dash-empty { text-align:center; padding:48px 24px; color:var(--muted); }
-    .dash-empty-icon { font-size:36px; margin-bottom:10px; }
+    .dash-empty-icon { font-size:36px; margin-bottom:10px; display:inline-block; animation:ftBounce 3s ease-in-out infinite; }
     .dash-empty-txt { font-size:13px; }
 
-    /* Dashboard button */
-    .dash-btn { width:40px; height:40px; border-radius:var(--r-lg); background:var(--surface2); border:1px solid var(--border2); color:var(--text2); font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:transform .15s, background .15s; box-shadow:0 2px 8px rgba(0,0,0,.12); }
-    .dash-btn:active { transform:scale(.88); background:var(--accent-dim); color:var(--accent); }
+    /* Notification toggle */
+    #menuNotifBtn { position:relative; overflow:hidden; transition:background .2s; }
+    #menuNotifBtn::after { content:''; position:absolute; inset:0; background:radial-gradient(circle at 50% 50%,rgba(0,212,170,.18) 0%,transparent 70%); opacity:0; transition:opacity .4s; pointer-events:none; border-radius:inherit; }
+    #menuNotifBtn.ripple::after { opacity:1; transition:opacity .05s; }
+    .menu-notif-switch { width:52px; height:28px; border-radius:14px; background:var(--surface3); border:1px solid var(--border2); position:relative; flex-shrink:0; pointer-events:none; transition:background .4s cubic-bezier(.4,0,.2,1), border-color .4s; overflow:hidden; }
+    .menu-notif-switch::before { content:''; position:absolute; top:0; left:-100%; width:60%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent); }
+    .menu-notif-switch.sweep::before { animation:switchSweep .4s ease forwards; }
+    .menu-notif-switch.on  { background:var(--accent3); border-color:var(--accent3); }
+    .menu-notif-switch.blocked { background:rgba(255,77,109,.35); border-color:var(--red); }
+    .menu-notif-knob { position:absolute; top:4px; left:4px; width:20px; height:20px; border-radius:50%; background:var(--muted); transition:left .32s cubic-bezier(.34,1.4,.64,1),background .25s; box-shadow:0 2px 8px rgba(0,0,0,.4); z-index:1; }
+    .menu-notif-switch.on .menu-notif-knob { left:26px; background:#fff; }
+    .menu-notif-switch.blocked .menu-notif-knob { left:26px; background:var(--red); }
+    #menuNotifLabel { flex:1; overflow:hidden; }
+    .notif-lbl-inner { display:inline-block; }
+    .notif-particles { position:absolute; inset:0; pointer-events:none; overflow:visible; }
+
+    /* Add students button */
+    .bd-add-students-btn { display:flex; align-items:center; gap:6px; background:var(--accent3); border:none; border-radius:var(--r-md); color:#fff; font-family:'Syne',sans-serif; font-size:11px; font-weight:700; padding:0 14px; height:38px; cursor:pointer; box-shadow:0 3px 12px rgba(0,212,170,.28); transition:transform .15s, opacity .15s; white-space:nowrap; flex-shrink:0; }
+    .bd-add-students-btn:active { transform:scale(.92); opacity:.85; }
+
+    /* Batch pick */
+    .batch-pick-item { display:flex; align-items:center; gap:12px; padding:12px 14px; background:var(--surface2); border:1.5px solid var(--border); border-radius:14px; margin-bottom:8px; cursor:pointer; transition:all .15s; user-select:none; }
+    .batch-pick-item.sel { border-color:var(--accent3); background:rgba(0,212,170,.06); }
+    .batch-pick-icon { font-size:20px; flex-shrink:0; }
+    .batch-pick-name { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:var(--text); }
+    .batch-pick-sub { font-size:10px; color:var(--muted); margin-top:2px; }
 
     /* ── THEME TOGGLE BUTTON ── */
 
@@ -1060,21 +1024,18 @@
        TOAST
     ═══════════════════════════════════════════════════ */
     .toast {
-      position: fixed; bottom: 88px; left: 50%; transform: translateX(-50%) translateY(28px);
-      background: rgba(15,15,29,.95); backdrop-filter: blur(18px) saturate(1.6);
-      border: 1px solid var(--border2); color: var(--text);
-      padding: 11px 22px; border-radius: 50px;
-      font-size: 13px; font-weight: 600; z-index: 600;
-      opacity: 0; transition: opacity .22s ease, transform .28s cubic-bezier(.34,1.4,.64,1);
-      box-shadow: 0 8px 32px rgba(0,0,0,.55), 0 2px 8px rgba(0,0,0,.3);
-      white-space: nowrap; pointer-events: none; text-align: center;
-      display: flex; align-items: center; gap: 8px;
-      min-width: 140px; justify-content: center;
+      position:fixed; bottom:88px; left:50%; transform:translateX(-50%) translateY(24px);
+      background:rgba(15,15,29,.96); backdrop-filter:blur(18px);
+      border:1px solid var(--border2); color:var(--text);
+      padding:11px 22px; border-radius:50px; font-size:13px; font-weight:600;
+      z-index:600; opacity:0; pointer-events:none; white-space:nowrap;
+      transition:opacity .22s ease, transform .28s cubic-bezier(.34,1.4,.64,1);
+      box-shadow:0 8px 32px rgba(0,0,0,.55); min-width:140px; text-align:center;
     }
-    .toast.show    { opacity: 1; transform: translateX(-50%) translateY(0); }
-    .toast.success { border-color: rgba(0,212,170,.35); color: var(--accent3); background: rgba(0,212,170,.08); }
-    .toast.error   { border-color: rgba(255,77,109,.35); color: var(--red); background: rgba(255,77,109,.08); }
-    :root.light .toast { background: rgba(255,255,255,.97); }
+    .toast.show    { opacity:1; transform:translateX(-50%) translateY(0); }
+    .toast.success { border-color:rgba(0,212,170,.35); color:var(--accent3); background:rgba(0,212,170,.08); }
+    .toast.error   { border-color:rgba(255,77,109,.35); color:var(--red); background:rgba(255,77,109,.08); }
+    :root.light .toast { background:rgba(255,255,255,.97); }
 
     /* ═══════════════════════════════════════════════════
        LOADING STATES
@@ -1530,11 +1491,13 @@
         <div class="topbar-title">Fee Tracker</div>
       </div>
       <div class="topbar-right">
-        <button class="dash-btn hidden" id="dashBtn" title="Analytics"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block">
-  <rect x="1" y="9" width="4" height="8" rx="1.5" fill="currentColor" opacity=".55"/>
-  <rect x="7" y="5" width="4" height="12" rx="1.5" fill="currentColor" opacity=".8"/>
-  <rect x="13" y="1" width="4" height="16" rx="1.5" fill="currentColor"/>
-</svg></button>
+        <button class="dash-btn hidden" id="dashBtn" title="Analytics">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style="display:block">
+            <rect x="1" y="9" width="4" height="8" rx="1.5" fill="currentColor" opacity=".5"/>
+            <rect x="7" y="5" width="4" height="12" rx="1.5" fill="currentColor" opacity=".75"/>
+            <rect x="13" y="1" width="4" height="16" rx="1.5" fill="currentColor"/>
+          </svg>
+        </button>
         <button class="add-btn" id="addBtn" title="Add">+</button>
       </div>
     </div>
@@ -1769,110 +1732,6 @@
     </div>
   </div>
 
-
-  <!-- SELECTION ACTION BAR -->
-  <div class="sel-bar hidden" id="selBar">
-    <button class="sel-bar-close" id="selBarClose">✕</button>
-    <div class="sel-bar-count"><span id="selCount">0</span> selected</div>
-    <button class="sel-bar-btn pin-btn hidden" id="selPinBtn">
-      <span class="sbi">📌</span><span>Pin</span>
-    </button>
-    <button class="sel-bar-btn hidden" id="selAssignBtn">
-      <span class="sbi">📋</span><span>Assign</span>
-    </button>
-    <button class="sel-bar-btn danger" id="selDeleteBtn">
-      <span class="sbi">🗑</span><span>Delete</span>
-    </button>
-  </div>
-
-  <!-- ASSIGN TO BATCH MODAL (teacher role) -->
-  <div class="modal-overlay hidden" id="assignBatchModal">
-    <div class="modal-sheet">
-      <div class="modal-handle"></div>
-      <div class="modal-header">
-        <div class="modal-title">Add to Batch</div>
-        <button class="modal-close" id="closeAssignBatchBtn">✕</button>
-      </div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">
-        Pick a batch to move the selected student(s) into, or create a new batch first.
-      </div>
-      <div id="assignBatchList"></div>
-      <div class="btn-row">
-        <button class="btn-cancel" id="cancelAssignBatchBtn">Cancel</button>
-        <button class="btn-primary" id="confirmAssignBatchBtn">Move to Batch</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- TEACHER ADD CHOICE SHEET -->
-  <div class="modal-overlay hidden" id="teacherAddChoiceSheet">
-    <div class="modal-sheet" style="padding-bottom:36px;">
-      <div class="modal-handle"></div>
-      <div class="modal-header">
-        <div class="modal-title">What would you like to add?</div>
-        <button class="modal-close" onclick="document.getElementById('teacherAddChoiceSheet').classList.add('hidden')">✕</button>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:4px 0 8px;">
-        <button onclick="document.getElementById('teacherAddChoiceSheet').classList.add('hidden');openAddBatchModal();" style="
-          display:flex;flex-direction:column;align-items:center;gap:10px;
-          background:var(--surface2);border:1.5px solid var(--border2);
-          border-radius:18px;padding:22px 12px;cursor:pointer;
-          transition:all .18s;user-select:none;">
-          <div style="font-size:32px;">📋</div>
-          <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--text);">Add Batch</div>
-          <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5;">Group of students with one fee structure</div>
-        </button>
-        <button onclick="document.getElementById('teacherAddChoiceSheet').classList.add('hidden');openAddStandaloneStudent();" style="
-          display:flex;flex-direction:column;align-items:center;gap:10px;
-          background:var(--surface2);border:1.5px solid var(--border2);
-          border-radius:18px;padding:22px 12px;cursor:pointer;
-          transition:all .18s;user-select:none;">
-          <div style="font-size:32px;">🎓</div>
-          <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--text);">Add Student</div>
-          <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5;">Individual student, no batch required</div>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ADD STANDALONE STUDENT MODAL (teacher role, no batch) -->
-  <div class="modal-overlay hidden" id="addStandaloneStudentModal">
-    <div class="modal-sheet">
-      <div class="modal-handle"></div>
-      <div class="modal-header">
-        <div class="modal-title">Add Student</div>
-        <button class="modal-close" id="closeStandaloneStudentBtn">✕</button>
-      </div>
-      <div class="field-group">
-        <label>Student Name</label>
-        <input class="field-input" id="ssNameInp" placeholder="e.g. Rahul Sharma" maxlength="40">
-      </div>
-      <div class="field-group">
-        <label>Admission Date <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
-        <input class="field-input" id="ssDateInp" type="date">
-      </div>
-      <div class="field-group">
-        <label>Payment Date <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(optional — dues from here)</span></label>
-        <input class="field-input" id="ssPayDateInp" type="date">
-        <div class="field-hint">Leave blank to start dues from today.</div>
-      </div>
-      <div class="field-group">
-        <label>Monthly Fee (₹)</label>
-        <input class="field-input" id="ssFeeInp" type="number" placeholder="500">
-      </div>
-      <div class="field-group">
-        <label>Assign to Batch <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
-        <select class="field-input" id="ssBatchSel">
-          <option value="">No batch — standalone</option>
-        </select>
-      </div>
-      <div class="btn-row">
-        <button class="btn-cancel" id="cancelStandaloneStudentBtn">Cancel</button>
-        <button class="btn-primary" id="confirmStandaloneStudentBtn">Add Student</button>
-      </div>
-    </div>
-  </div>
-
   <!-- ADD MODAL -->
   <div class="modal-overlay hidden" id="addModal">
     <div class="modal-sheet">
@@ -1896,9 +1755,9 @@
           <input class="field-input" id="f-fee" type="number" placeholder="500">
         </div>
         <div class="field-group">
-          <label>Last Payment Date</label>
+          <label>Last Payment Date <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
           <input class="field-input" id="f-lastpaid" type="date">
-          <div class="field-hint">Dues are calculated from this date. Leave blank if never paid.</div>
+          <div class="field-hint">Dues calculated from this date. Leave blank if never paid.</div>
         </div>
       </div>
 
@@ -1947,7 +1806,7 @@
         <div class="bd-title" id="bdTitle">Batch</div>
         <div class="bd-sub" id="bdSub"></div>
       </div>
-      <button class="bd-add-btn" id="bdAddStudentBtn" style="width:auto;padding:0 14px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;">+ Add Students</button>
+      <button class="bd-add-students-btn" id="bdAddStudentBtn">+ Add Students</button>
     </div>
     <div class="bd-body" id="bdBody"></div>
   </div>
@@ -1965,9 +1824,9 @@
         <input class="field-input" id="newStudentNameInp" placeholder="e.g. Rahul Sharma" maxlength="40" style="margin-bottom:12px;">
         <label>Admission Date <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
         <input class="field-input" id="newStudentDateInp" type="date" style="margin-bottom:12px;">
-        <label>Payment Date <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(optional — due calculated from here)</span></label>
-        <input class="field-input" id="newStudentPayDateInp" type="date" style="margin-bottom:12px;">
-        <div class="field-hint" style="margin-top:-8px;margin-bottom:12px;">If set, dues start from this date. Otherwise uses admission date or today.</div>
+        <label>Payment Date <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
+        <input class="field-input" id="newStudentPayDateInp" type="date" style="margin-bottom:4px;">
+        <div class="field-hint" style="margin-bottom:12px;">Dues start from this date if set.</div>
         <label>Fee Status</label>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
           <div id="feeStatusNever" onclick="setNewFeeStatus('never')" style="padding:12px 10px;border-radius:14px;border:1.5px solid var(--accent3);background:rgba(0,212,170,.1);cursor:pointer;text-align:center;transition:all .15s;user-select:none;">
@@ -1995,6 +1854,38 @@
       <div class="btn-row">
         <button class="btn-cancel" id="cancelAddStudentBtn">Cancel</button>
         <button class="btn-primary" id="saveStudentsBtn" style="background:linear-gradient(135deg,var(--accent3),#00a884);box-shadow:0 4px 18px rgba(0,212,170,.3);">Save All</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT TEACHER MODAL -->
+  <div class="modal-overlay hidden" id="editTeacherModal">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title">Edit Teacher</div>
+        <button class="modal-close" id="closeEditTeacherBtn">&#10005;</button>
+      </div>
+      <div class="field-group">
+        <label>Teacher Name</label>
+        <input class="field-input" id="etNameInp" placeholder="e.g. Arpan sir" maxlength="40">
+      </div>
+      <div class="field-group">
+        <label>Subject</label>
+        <input class="field-input" id="etSubjectInp" placeholder="e.g. Physics">
+      </div>
+      <div class="field-group">
+        <label>Monthly Fee (₹)</label>
+        <input class="field-input" id="etFeeInp" type="number" placeholder="500">
+      </div>
+      <div class="field-group">
+        <label>Last Payment Date <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
+        <input class="field-input" id="etLastPaidInp" type="date">
+        <div class="field-hint">Changing this resets when dues start from.</div>
+      </div>
+      <div class="btn-row" style="margin-top:8px;">
+        <button class="btn-cancel" id="cancelEditTeacherBtn">Cancel</button>
+        <button class="btn-primary" id="saveEditTeacherBtn" style="background:linear-gradient(135deg,var(--accent),#5a4de6);box-shadow:0 4px 18px rgba(124,107,255,.3);">Save Changes</button>
       </div>
     </div>
   </div>
@@ -2272,8 +2163,7 @@
       if (!uid() || !token) return;
       const deviceId = getDeviceId();
       try {
-        const _ex2=await getDoc(doc(db,'users',uid(),'fcmTokens',deviceId));
-        if(_ex2.exists()){return;}
+        const _fex=await getDoc(doc(db,'users',uid(),'fcmTokens',deviceId)); if(_fex.exists()) return;
         await setDoc(doc(db, 'users', uid(), 'fcmTokens', deviceId), {
           token,
           deviceId,
@@ -2344,27 +2234,19 @@
       } catch(e) { console.warn('[FCM] Token save failed:', e); }
     }
 
-    // Refresh FCM token — called on each app boot (tokens can expire/rotate)
+    // FCM: create token only if device doesn't have one yet (tokens can expire/rotate)
     // Stores new token, updates Firestore, keeps lastRefreshed timestamp
     async function refreshFCMTokenIfNeeded() {
       if (!messaging || !uid() || Notification.permission !== 'granted') return;
       try {
-        // Only refresh if it's been >7 days since last refresh
-        const lastRefresh = parseInt(localStorage.getItem('ft_token_refreshed') || '0');
-        const daysSince   = (Date.now() - lastRefresh) / 86400000;
-        if (daysSince < 7 && localStorage.getItem('ft_fcm_token')) return;
-
-        const sw    = await navigator.serviceWorker.ready;
-        const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: sw });
-        if (!token) return;
-
-        const old = localStorage.getItem('ft_fcm_token');
-        localStorage.setItem('ft_fcm_token', token);
-        localStorage.setItem('ft_token_refreshed', String(Date.now()));
-
-        // Always write to Firestore — setDoc with merge so it's a no-op if unchanged
+        const _fDevId=getDeviceId();
+        const _fEx2=await getDoc(doc(db,'users',uid(),'fcmTokens',_fDevId));
+        if(_fEx2.exists()){if(!localStorage.getItem('ft_fcm_token'))localStorage.setItem('ft_fcm_token',_fEx2.data().token);return;}
+        const sw=await navigator.serviceWorker.ready;
+        const token=await getToken(messaging,{vapidKey:VAPID_KEY,serviceWorkerRegistration:sw});
+        if(!token)return;
+        localStorage.setItem('ft_fcm_token',token);
         await saveFCMToken(token);
-        if (old !== token) console.log('[FCM] Token rotated and updated');
       } catch(e) { console.warn('[FCM] Token refresh failed:', e); }
     }
 
@@ -2744,25 +2626,13 @@
 
     // ADD
     function openAddModal(){
-      if(isT()){
-        // Teacher role — show choice: Add Batch or Add Student
-        document.getElementById('teacherAddChoiceSheet').classList.remove('hidden');
-        return;
-      }
-      // Student role — open Add Teacher directly
+      if(isT()){ document.getElementById('teacherAddChoiceSheet').classList.remove('hidden'); return; }
       document.getElementById('addModalTitle').textContent='Add Teacher';
       document.getElementById('addStudentFields').classList.remove('hidden');
       document.getElementById('addTeacherFields').classList.add('hidden');
-      const _di=document.getElementById('f-lastpaid');
-      if(_di){const _n=new Date(),_p=new Date(_n.getFullYear(),_n.getMonth()-1,1);
-        _di.value=`${_p.getFullYear()}-${String(_p.getMonth()+1).padStart(2,'0')}-01`;}
-      document.getElementById('addModal').classList.remove('hidden');
-    }
-    function openAddBatchModal(){
-      document.getElementById('teacherAddChoiceSheet').classList.add('hidden');
-      document.getElementById('addModalTitle').textContent='Add Batch';
-      document.getElementById('addStudentFields').classList.add('hidden');
-      document.getElementById('addTeacherFields').classList.remove('hidden');
+
+      const _di2=document.getElementById('f-lastpaid');
+      if(_di2&&!_di2.value){const _n2=new Date(),_p2=new Date(_n2.getFullYear(),_n2.getMonth()-1,1);_di2.value=`${_p2.getFullYear()}-${String(_p2.getMonth()+1).padStart(2,'0')}-01`;}
       document.getElementById('addModal').classList.remove('hidden');
     }
     function closeAddModal(){
@@ -2788,9 +2658,7 @@
         const fe=parseInt(document.getElementById('f-fee').value);
         if(!nm||!sb||!fe) return toast('Fill name, subject and fee','error');
         const dv=document.getElementById('f-lastpaid').value;
-        const now2=new Date();
-        const mo=dv?parseInt(dv.split('-')[1]):now2.getMonth()+1;
-        const yr=dv?parseInt(dv.split('-')[0]):now2.getFullYear();
+        const _now=new Date(); const mo=dv?parseInt(dv.split('-')[1]):_now.getMonth()+1; const yr=dv?parseInt(dv.split('-')[0]):_now.getFullYear();
         const tref=await addDoc(tcCol(),{name:nm,subject:sb,fee:fe,baselineMonth:mo,baselineYear:yr,lastPaidDate:dv||null});
         teachers[tref.id]={name:nm,subject:sb,fee:fe,baselineMonth:mo,baselineYear:yr,lastPaidDate:dv||null}; saveToCache();
         closeAddModal(); toast(`${nm} added ✓`,'success');
@@ -2892,11 +2760,8 @@
 
     // RENDER
     function render(){
-      appRendered = true;
-      isT()?renderTeacher():renderStudent();
-      // Always show analytics button after any render
-      const _db=document.getElementById('dashBtn');
-      if(_db) _db.classList.remove('hidden');
+      appRendered=true; isT()?renderTeacher():renderStudent();
+      const _db=document.getElementById('dashBtn'); if(_db) _db.classList.remove('hidden');
     }
 
     // Partial render — only update the cards list (used by search to preserve input focus)
@@ -2923,7 +2788,7 @@
         const t=teachers[id], dm=monthsDue(id), da=calcDue(id), lps=lastPaidStr(id), ov2=dm>=3, cr=dm>=6, pb=partialBal(id);
         const tpy=payments.filter(p=>p.teacherId===id).sort((a,b)=>b.timestamp-a.timestamp);
         const bdg=cr?`<span class="overdue-badge critical">🚨 ${dm}mo</span>`:ov2?`<span class="overdue-badge">⚠️ ${dm}mo</span>`:'';
-        h+=`<div class="teacher-card ${cr?'card-critical':ov2?'card-overdue':''}" style="animation-delay:${dl}s">
+        h+=`<div class="teacher-card ${cr?'card-critical':ov2?'card-overdue':''}" data-id="${id}" style="animation-delay:${dl}s">
           <div class="card-top"><div class="card-header">
             <div class="card-left">
               <div class="teacher-name-row"><div class="teacher-name">${t.name}</div>${bdg}</div>
@@ -2959,6 +2824,7 @@
             <div class="history-toggle" id="tog-${id}" onclick="toggleHistory('${id}')">
               <span class="toggle-dot"></span>History (${tpy.length})<span class="h-arrow">▾</span>
             </div>
+            <button class="sc-edit-btn" onclick="openEditTeacher('${id}')" title="Edit teacher">&#9998;</button>
           </div>
           <div class="history-panel" id="hist-${id}">
             ${tpy.length===0?'<div class="hist-empty">No payments yet</div>':
@@ -3053,6 +2919,7 @@
               <div class="history-toggle" id="tog-${id}" onclick="toggleHistory('${id}')">
                 <span class="toggle-dot"></span>History (${tpy.length})<span class="h-arrow">▾</span>
               </div>
+              <button class="sc-edit-btn" onclick="openEditTeacher('${id}')" title="Edit teacher">&#9998;</button>
             </div>
             <div class="history-panel" id="hist-${id}">
               ${tpy.length===0?'<div class="hist-empty">No payments yet</div>':
@@ -3365,10 +3232,11 @@
       const ni=document.getElementById('newStudentNameInp'),v=ni.value.trim();
       const di=document.getElementById('newStudentDateInp'),d=di.value;
       const lpi=document.getElementById('newStudentLastPaidInp'),lp=lpi?lpi.value:'';
+      const pdi=document.getElementById('newStudentPayDateInp'),pd=pdi?pdi.value:'';
       if(!v)return;
-      if(newFeeStatus==='date'&&!lp)return toast('Enter last payment date','error');
-      pendingStudents.push({name:v,date:d,feeStatus:newFeeStatus,lastPaid:lp});
-      ni.value='';di.value='';if(lpi)lpi.value='';
+      if(newFeeStatus==='date'&&!lp&&!pd)return toast('Enter last payment date','error');
+      pendingStudents.push({name:v,date:d,feeStatus:newFeeStatus,lastPaid:lp,payDate:pd});
+      ni.value='';di.value='';if(lpi)lpi.value='';if(pdi)pdi.value='';
       newFeeStatus='never';window.setNewFeeStatus('never');
       ni.focus();renderPendingList();
     }
@@ -3390,10 +3258,7 @@
           const sd={name:s.name,baselineMonth:bm,baselineYear:by,createdAt:Date.now(),feeStatus:s.feeStatus||'never'};
           if(s.date){const p=s.date.split('-');sd.admissionDay=parseInt(p[2]);sd.admissionMonth=parseInt(p[1]);sd.admissionYear=parseInt(p[0]);}
           if(s.payDate){
-            // Payment date field overrides everything — dues calculated from this date
-            const pp=s.payDate.split('-');
-            sd.baselineMonth=parseInt(pp[1]);sd.baselineYear=parseInt(pp[0]);
-            sd.lastPaidDate=s.payDate;
+            const pp=s.payDate.split('-'); sd.baselineMonth=parseInt(pp[1]); sd.baselineYear=parseInt(pp[0]); sd.lastPaidDate=s.payDate;
           } else if(s.feeStatus==='date'&&s.lastPaid){
             const lp=s.lastPaid.split('-');
             sd.baselineMonth=parseInt(lp[1]);sd.baselineYear=parseInt(lp[0]);
@@ -4009,337 +3874,106 @@
     // Set label on load
     updateNotifMenuLabel();
 
-    // ═══════════════════════════════════════════════════
-    //  NOTIFICATION TOGGLE — full animation like theme toggle
-    // ═══════════════════════════════════════════════════
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // NOTIFICATION TOGGLE — full animation
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     function _syncNotifToggle(){
       const sw=document.getElementById('menuNotifSwitch');
       const inner=document.querySelector('#menuNotifLabel .notif-lbl-inner');
       const perm=(typeof Notification!=='undefined')?Notification.permission:'default';
       const off=localStorage.getItem('ft_reminders_off')==='1';
       const on=perm==='granted'&&!off;
-      if(sw){ sw.classList.remove('on','blocked'); if(on) sw.classList.add('on'); else if(perm==='denied') sw.classList.add('blocked'); }
-      if(inner) inner.textContent=on?'Reminders On':perm==='denied'?'Notifications Blocked':'Enable Reminders';
+      if(sw){sw.classList.remove('on','blocked');if(on)sw.classList.add('on');else if(perm==='denied')sw.classList.add('blocked');}
+      if(inner)inner.textContent=on?'Reminders On':perm==='denied'?'Notifications Blocked':'Enable Reminders';
     }
     function _applyNotifToggle(goingOn){
-      const sw=document.getElementById('menuNotifSwitch');
-      const btn=document.getElementById('menuNotifBtn');
-      const icon=document.getElementById('menuNotifIcon');
-      const label=document.getElementById('menuNotifLabel');
-      if(!sw) return;
-      sw.classList.remove('on','blocked');
-      if(goingOn) sw.classList.add('on');
-      sw.classList.remove('sweep'); void sw.offsetWidth; sw.classList.add('sweep');
-      setTimeout(()=>sw.classList.remove('sweep'),450);
-      if(btn){ btn.classList.remove('ripple'); void btn.offsetWidth; btn.classList.add('ripple'); setTimeout(()=>btn.classList.remove('ripple'),450); }
-      if(icon){ icon.style.transition='transform .32s cubic-bezier(.34,1.5,.64,1)'; icon.style.transform='scale(1.35) rotate('+(goingOn?'18':'-18')+'deg)'; setTimeout(()=>{icon.style.transform='scale(1) rotate(0)';},320); }
+      const sw=document.getElementById('menuNotifSwitch'),btn=document.getElementById('menuNotifBtn');
+      const icon=document.getElementById('menuNotifIcon'),label=document.getElementById('menuNotifLabel');
+      if(!sw)return;
+      sw.classList.remove('on','blocked'); if(goingOn) sw.classList.add('on');
+      sw.classList.remove('sweep'); void sw.offsetWidth; sw.classList.add('sweep'); setTimeout(()=>sw.classList.remove('sweep'),450);
+      if(btn){btn.classList.remove('ripple');void btn.offsetWidth;btn.classList.add('ripple');setTimeout(()=>btn.classList.remove('ripple'),450);}
+      if(icon){icon.style.transition='transform .32s cubic-bezier(.34,1.5,.64,1)';icon.style.transform='scale(1.35) rotate('+(goingOn?'18':'-18')+'deg)';setTimeout(()=>{icon.style.transform='scale(1) rotate(0)';},320);}
       const inner=label&&label.querySelector('.notif-lbl-inner');
       if(inner){
-        inner.classList.remove('lbl-flip-out','lbl-flip-in'); void inner.offsetWidth;
-        inner.classList.add('lbl-flip-out');
-        setTimeout(()=>{
-          inner.textContent=goingOn?'Reminders On':(Notification.permission==='denied'?'Notifications Blocked':'Enable Reminders');
-          inner.classList.remove('lbl-flip-out'); void inner.offsetWidth;
-          inner.classList.add('lbl-flip-in');
-          setTimeout(()=>inner.classList.remove('lbl-flip-in'),300);
-        },160);
+        inner.classList.remove('lbl-flip-out','lbl-flip-in');void inner.offsetWidth;inner.classList.add('lbl-flip-out');
+        setTimeout(()=>{inner.textContent=goingOn?'Reminders On':(Notification.permission==='denied'?'Notifications Blocked':'Enable Reminders');inner.classList.remove('lbl-flip-out');void inner.offsetWidth;inner.classList.add('lbl-flip-in');setTimeout(()=>inner.classList.remove('lbl-flip-in'),300);},160);
       }
       const particles=document.getElementById('notifParticles');
-      if(particles){
-        particles.innerHTML='';
-        const cols=goingOn?['#00d4aa','#34d399','#a7f3d0','#6ee7b7']:['#ff4d6d','#ff6b9d','#fca5a5','#fcd34d'];
-        for(let i=0;i<8;i++){
-          const p=document.createElement('div');
-          const ang=(i/8)*360,dst=18+Math.random()*10,sz=3+Math.random()*3;
-          p.className='theme-particle';
-          p.style.cssText=`width:${sz}px;height:${sz}px;background:${cols[i%4]};left:50%;top:50%;margin-left:-${sz/2}px;margin-top:-${sz/2}px;--tx:${Math.cos(ang*Math.PI/180)*dst}px;--ty:${Math.sin(ang*Math.PI/180)*dst}px;animation-delay:${i*0.02}s`;
-          particles.appendChild(p);
-        }
-        setTimeout(()=>{if(particles)particles.innerHTML='';},600);
-      }
+      if(particles){particles.innerHTML='';const cols=goingOn?['#00d4aa','#34d399','#a7f3d0','#6ee7b7']:['#ff4d6d','#ff6b9d','#fca5a5','#fcd34d'];for(let i=0;i<8;i++){const p=document.createElement('div');const ang=(i/8)*360,dst=18+Math.random()*10,sz=3+Math.random()*3;p.className='theme-particle';p.style.cssText=`width:${sz}px;height:${sz}px;background:${cols[i%4]};left:50%;top:50%;margin-left:-${sz/2}px;margin-top:-${sz/2}px;--tx:${Math.cos(ang*Math.PI/180)*dst}px;--ty:${Math.sin(ang*Math.PI/180)*dst}px;animation-delay:${i*0.02}s`;particles.appendChild(p);}setTimeout(()=>{if(particles)particles.innerHTML='';},600);}
     }
-
     document.getElementById('menuNotifBtn')?.addEventListener('click',async()=>{
       const perm=(typeof Notification!=='undefined')?Notification.permission:'default';
       const off=localStorage.getItem('ft_reminders_off')==='1';
       const on=perm==='granted'&&!off;
-      if(on){
-        localStorage.setItem('ft_reminders_off','1');
-        _applyNotifToggle(false);
-        toast('Reminders turned off 🔕','');
-        setTimeout(()=>closeMenu(),320);
-      } else if(perm==='denied'){
-        _applyNotifToggle(false);
-        setTimeout(()=>{ closeMenu(); toast('Enable notifications in browser settings ⚙️','error'); },320);
-      } else if(perm==='granted'&&off){
-        localStorage.removeItem('ft_reminders_off');
-        _applyNotifToggle(true);
-        toast('Reminders back on 🔔','success');
-        setTimeout(()=>closeMenu(),320);
-      } else {
-        _applyNotifToggle(true);
-        setTimeout(async()=>{
-          closeMenu();
-          await initNotifications();
-          if(Notification.permission==='granted'){ localStorage.removeItem('ft_reminders_off'); toast('Reminders enabled 🔔','success'); }
-          else _syncNotifToggle();
-        },340);
-      }
+      if(on){localStorage.setItem('ft_reminders_off','1');_applyNotifToggle(false);toast('Reminders turned off 🔕','');setTimeout(()=>closeMenu(),320);}
+      else if(perm==='denied'){_applyNotifToggle(false);setTimeout(()=>{closeMenu();toast('Enable notifications in browser settings ⚙️','error');},320);}
+      else if(perm==='granted'&&off){localStorage.removeItem('ft_reminders_off');_applyNotifToggle(true);toast('Reminders back on 🔔','success');setTimeout(()=>closeMenu(),320);}
+      else{_applyNotifToggle(true);setTimeout(async()=>{closeMenu();await initNotifications();if(Notification.permission==='granted'){localStorage.removeItem('ft_reminders_off');toast('Reminders enabled 🔔','success');}else _syncNotifToggle();},340);}
     });
-
     // Patch checkDueReminder to respect off-flag
-    const _origCheckDue=checkDueReminder;
-    window._checkDueReminder=function(force=false){
-      if(localStorage.getItem('ft_reminders_off')==='1') return;
-      _origCheckDue(force);
+    const _cdr0=checkDueReminder;
+    window.checkDueReminder=function(f=false){if(localStorage.getItem('ft_reminders_off')==='1')return;_cdr0(f);};
+    _syncNotifToggle();
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // EDIT TEACHER — open/save/close
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    let _etId='';
+    window.openEditTeacher=function(id){
+      _etId=id; const t=teachers[id];
+      document.getElementById('etNameInp').value=t.name||'';
+      document.getElementById('etSubjectInp').value=t.subject||'';
+      document.getElementById('etFeeInp').value=t.fee||'';
+      document.getElementById('etLastPaidInp').value=t.lastPaidDate||'';
+      document.getElementById('editTeacherModal').classList.remove('hidden');
+      setTimeout(()=>document.getElementById('etNameInp').focus(),150);
     };
-
-    // (dashBtn is shown directly inside render() above — no wrapper needed)
-
-    // ═══════════════════════════════════════════════════
-    //  SELECTION MODE
-    // ═══════════════════════════════════════════════════
-    let selMode=false, selItems=new Set(), selContext=''; // context: 'teacher','batch','student'
-    let pinnedId=null; // only one pinned item at a time
-
-    function enterSelMode(context,firstId){
-      selMode=true; selContext=context; selItems.clear();
-      selItems.add(firstId);
-      document.getElementById('selBar').classList.remove('hidden');
-      updateSelBar();
-      // Render cards with selection checkboxes
-      if(context==='student') renderBatchDetail(currentBatchId);
-      else if(typeof window._patchedRenderTeacher === 'function') window._patchedRenderTeacher();
-      else if(typeof window._patchedRenderStudent === 'function') window._patchedRenderStudent();
-      else render();
-    }
-    function exitSelMode(){
-      const prevCtx=selContext;
-      selMode=false; selItems.clear(); selContext='';
-      document.getElementById('selBar').classList.add('hidden');
-      if(prevCtx==='student') renderBatchDetail(currentBatchId);
-      else render(); // render() calls renderTeacher or renderStudent based on role
-    }
-    function toggleSelItem(id){
-      if(selItems.has(id)) selItems.delete(id);
-      else selItems.add(id);
-      if(!selItems.size){ exitSelMode(); return; }
-      updateSelBar();
-      // update visual
-      document.querySelectorAll(`[data-sel-id="${id}"]`).forEach(el=>{
-        el.closest('.teacher-card,.batch-card,.student-card')?.classList.toggle('selected', selItems.has(id));
-        const circle=el.querySelector('.sel-circle');
-        if(circle) circle.classList.toggle('checked', selItems.has(id));
-      });
-    }
-    function updateSelBar(){
-      document.getElementById('selCount').textContent=selItems.size;
-      const pinBtn=document.getElementById('selPinBtn');
-      const assignBtn=document.getElementById('selAssignBtn');
-      // Pin only when exactly one selected
-      pinBtn.classList.toggle('hidden', selItems.size!==1);
-      if(selItems.size===1){
-        const id=[...selItems][0];
-        pinBtn.textContent='';
-        pinBtn.innerHTML='<span class="sbi">'+(pinnedId===id?'📍':'📌')+'</span><span>'+(pinnedId===id?'Unpin':'Pin')+'</span>';
-      }
-      // Assign batch only for student context (teacher role, standalone students)
-      assignBtn.classList.toggle('hidden', selContext!=='student');
-    }
-
-    // Long-press via event delegation — one listener on the container, survives re-renders
-    // No need to re-attach after every render. Works as long as cards have data-id.
-    (function initLongPressDelegate(){
-      const HOLD_MS = 420;
-      let _timer = null;
-      let _startCard = null;
-      let _moved = false;
-
-      function cardFrom(el){
-        return el?.closest('.teacher-card[data-id],.batch-card[data-id],.student-card[data-id]');
-      }
-
-      function onStart(e){
-        const card = cardFrom(e.target);
-        if(!card) return;
-        if(selMode){
-          // In selection mode a normal tap toggles — handled by onclick on card
-          return;
-        }
-        _moved = false;
-        _startCard = card;
-        _timer = setTimeout(()=>{
-          _timer = null;
-          if(_moved || !_startCard) return;
-          const id = _startCard.dataset.id;
-          if(!id) return;
-          const ctx = _startCard.classList.contains('teacher-card')
-            ? 'teacher' : _startCard.classList.contains('batch-card')
-            ? 'batch' : 'student';
-          if(navigator.vibrate) navigator.vibrate(32);
-          // Prevent the imminent click from opening the card
-          _startCard._suppressClick = true;
-          setTimeout(()=>{ if(_startCard) _startCard._suppressClick = false; }, 600);
-          enterSelMode(ctx, id);
-        }, HOLD_MS);
-      }
-
-      function onMove(){ _moved = true; if(_timer){ clearTimeout(_timer); _timer = null; } }
-      function onEnd(){  if(_timer){ clearTimeout(_timer); _timer = null; } _startCard = null; }
-
-      // Attach to a stable container that always exists
-      document.addEventListener('touchstart', onStart, { passive: true });
-      document.addEventListener('touchmove',  onMove,  { passive: true });
-      document.addEventListener('touchend',   onEnd,   { passive: true });
-      document.addEventListener('mousedown',  onStart);
-      document.addEventListener('mouseup',    onEnd);
-      document.addEventListener('mousemove',  e => { if(e.buttons) onMove(); });
-
-      // Suppress click after long-press so card doesn't open
-      document.addEventListener('click', e => {
-        const card = cardFrom(e.target);
-        if(card && card._suppressClick){ e.stopImmediatePropagation(); e.preventDefault(); }
-      }, true);
-    })();
-
-    // Tap in selection mode — toggle selection
-    // Also expose selMode so inline onclick handlers can check it
-    window.selTap=function(id){
-      if(!selMode) return false;
-      toggleSelItem(id);
-      return true;
-    };
-    // Expose read-only getter for selMode so card onclick can check it
-    Object.defineProperty(window,'selMode',{ get:()=>selMode });
-
-    // Selection bar buttons
-    document.getElementById('selBarClose')?.addEventListener('click',exitSelMode);
-
-    document.getElementById('selPinBtn')?.addEventListener('click',async()=>{
-      if(selItems.size!==1) return;
-      const id=[...selItems][0];
-      if(pinnedId===id){
-        // Unpin
-        pinnedId=null;
-        if(selContext==='teacher'||selContext==='batch'){
-          await updateDoc(selContext==='teacher'?tcDoc(id):btDoc(id),{pinned:false});
-          if(selContext==='teacher') teachers[id].pinned=false;
-          else batches[id].pinned=false;
-        } else {
-          await updateDoc(stuDoc(currentBatchId,id),{pinned:false});
-          batchStudents[id].pinned=false;
-        }
-        toast('Unpinned','');
-      } else {
-        // Unpin previous if any
-        if(pinnedId){
-          if(selContext==='teacher'){ try{await updateDoc(tcDoc(pinnedId),{pinned:false});}catch(e){} if(teachers[pinnedId]) teachers[pinnedId].pinned=false; }
-          else if(selContext==='batch'){ try{await updateDoc(btDoc(pinnedId),{pinned:false});}catch(e){} if(batches[pinnedId]) batches[pinnedId].pinned=false; }
-          else{ try{await updateDoc(stuDoc(currentBatchId,pinnedId),{pinned:false});}catch(e){} if(batchStudents[pinnedId]) batchStudents[pinnedId].pinned=false; }
-        }
-        pinnedId=id;
-        if(selContext==='teacher'||selContext==='batch'){
-          await updateDoc(selContext==='teacher'?tcDoc(id):btDoc(id),{pinned:true});
-          if(selContext==='teacher') teachers[id].pinned=true;
-          else batches[id].pinned=true;
-        } else {
-          await updateDoc(stuDoc(currentBatchId,id),{pinned:true});
-          batchStudents[id].pinned=true;
-        }
-        toast('Pinned to top 📌','success');
-      }
-      exitSelMode();
-    });
-
-    document.getElementById('selDeleteBtn')?.addEventListener('click',async()=>{
-      const ids=[...selItems];
-      const label=ids.length===1?'this item':`${ids.length} items`;
-      if(!await confirm2('Delete',`Remove ${label}? This cannot be undone.`,'Delete','🗑️')) return;
-      for(const id of ids){
-        if(selContext==='teacher'){
-          await Promise.all(payments.filter(p=>p.teacherId===id).map(p=>deleteDoc(pyDoc(p.id))));
-          await deleteDoc(tcDoc(id));
-          payments=payments.filter(p=>p.teacherId!==id);
-          delete teachers[id];
-        } else if(selContext==='batch'){
-          await deleteDoc(btDoc(id));
-          delete batches[id];
-        } else if(selContext==='student'){
-          await deleteDoc(stuDoc(currentBatchId,id));
-          delete batchStudents[id];
-        }
-      }
-      saveToCache();
-      toast(`Deleted ${ids.length} item${ids.length>1?'s':''}` ,'');
-      exitSelMode();
-      if(selContext==='student') renderBatchDetail(currentBatchId);
-      else render();
-      selContext='';
-    });
-
-    // ── Assign to batch ──
-    let _assignStudentIds=[];
-    document.getElementById('selAssignBtn')?.addEventListener('click',()=>{
-      _assignStudentIds=[...selItems];
-      const list=document.getElementById('assignBatchList');
-      let h='';
-      let _selBatch='';
-      Object.keys(batches).forEach(bid=>{
-        const b=batches[bid];
-        h+=`<div class="batch-pick-item" data-bid="${bid}" onclick="toggleBatchPick(this,'${bid}')">
-          <div class="batch-pick-icon">📋</div>
-          <div>
-            <div class="batch-pick-name">${b.name}</div>
-            <div class="batch-pick-sub">${b.class||''} · ₹${b.fee}/mo${b.timing?' · '+b.timing:''}</div>
-          </div>
-        </div>`;
-      });
-      list.innerHTML=h||'<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">No batches yet — create one first.</div>';
-      document.getElementById('assignBatchModal').classList.remove('hidden');
-    });
-    window.toggleBatchPick=function(el,bid){
-      document.querySelectorAll('.batch-pick-item').forEach(x=>x.classList.remove('sel'));
-      el.classList.add('sel');
-      el._selBid=bid;
-    };
-    document.getElementById('closeAssignBatchBtn')?.addEventListener('click',()=>document.getElementById('assignBatchModal').classList.add('hidden'));
-    document.getElementById('cancelAssignBatchBtn')?.addEventListener('click',()=>document.getElementById('assignBatchModal').classList.add('hidden'));
-    document.getElementById('confirmAssignBatchBtn')?.addEventListener('click',async()=>{
-      const sel=document.querySelector('.batch-pick-item.sel');
-      if(!sel){ toast('Select a batch first','error'); return; }
-      const bid=sel.dataset.bid||sel._selBid;
-      const btn=document.getElementById('confirmAssignBatchBtn');
-      btn.disabled=true; btn.textContent='Moving…';
+    function closeEditTeacherModal(){document.getElementById('editTeacherModal').classList.add('hidden');}
+    document.getElementById('closeEditTeacherBtn')?.addEventListener('click',closeEditTeacherModal);
+    document.getElementById('cancelEditTeacherBtn')?.addEventListener('click',closeEditTeacherModal);
+    document.getElementById('editTeacherModal')?.addEventListener('click',e=>{if(e.target===document.getElementById('editTeacherModal'))closeEditTeacherModal();});
+    document.getElementById('saveEditTeacherBtn')?.addEventListener('click',async()=>{
+      const nm=document.getElementById('etNameInp').value.trim();
+      const sb=document.getElementById('etSubjectInp').value.trim();
+      const fe=parseInt(document.getElementById('etFeeInp').value);
+      if(!nm||!sb||!fe)return toast('Fill all fields','error');
+      const dv=document.getElementById('etLastPaidInp').value;
+      const btn=document.getElementById('saveEditTeacherBtn');
+      btn.disabled=true; btn.textContent='Saving…';
       try{
-        const now=new Date(),bm=now.getMonth()+1,by=now.getFullYear();
-        for(const sid of _assignStudentIds){
-          const st=batchStudents[sid]||{name:'Student',baselineMonth:bm,baselineYear:by};
-          await addDoc(stuCol(bid),{name:st.name,baselineMonth:st.baselineMonth||bm,baselineYear:st.baselineYear||by,createdAt:Date.now(),feeStatus:'never'});
-          // Remove from standalone if applicable
-          if(currentBatchId==='__standalone__') await deleteDoc(doc(db,'users',uid(),'students',sid));
-        }
-        toast(`Moved to ${batches[bid].name} ✓`,'success');
-        document.getElementById('assignBatchModal').classList.add('hidden');
-        exitSelMode();
-        await loadBatchDetail(bid);
-      }catch(e){ toast('Error: '+e.message,'error'); }
-      btn.disabled=false; btn.textContent='Move to Batch';
+        const upd={name:nm,subject:sb,fee:fe,lastPaidDate:dv||null};
+        if(dv){const dp=dv.split('-');upd.baselineMonth=parseInt(dp[1]);upd.baselineYear=parseInt(dp[0]);}
+        await updateDoc(tcDoc(_etId),upd);
+        teachers[_etId]={...teachers[_etId],...upd}; saveToCache();
+        closeEditTeacherModal(); render(); toast('Teacher updated ✓','success');
+      }catch(e){toast('Error: '+e.message,'error');}
+      btn.disabled=false; btn.textContent='Save Changes';
     });
 
-    // ── Standalone student (teacher role, no batch) ──
-    window.openAddStandaloneStudent = function openAddStandaloneStudent(){
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // ADD BATCH (from choice sheet)
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    function openAddBatchModal(){
+      document.getElementById('teacherAddChoiceSheet').classList.add('hidden');
+      document.getElementById('addModalTitle').textContent='Add Batch';
+      document.getElementById('addStudentFields').classList.add('hidden');
+      document.getElementById('addTeacherFields').classList.remove('hidden');
+      document.getElementById('addModal').classList.remove('hidden');
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // STANDALONE STUDENT (teacher role, no batch)
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    window.openAddStandaloneStudent=function(){
       const sel=document.getElementById('ssBatchSel');
       sel.innerHTML='<option value="">No batch — standalone</option>';
-      Object.keys(batches).forEach(bid=>{
-        const opt=document.createElement('option');
-        opt.value=bid; opt.textContent=batches[bid].name;
-        sel.appendChild(opt);
-      });
+      Object.keys(batches).forEach(bid=>{const opt=document.createElement('option');opt.value=bid;opt.textContent=batches[bid].name;sel.appendChild(opt);});
       ['ssNameInp','ssFeeInp'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
       ['ssDateInp','ssPayDateInp'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
       document.getElementById('addStandaloneStudentModal').classList.remove('hidden');
       setTimeout(()=>document.getElementById('ssNameInp')?.focus(),200);
-    }
+    };
     document.getElementById('closeStandaloneStudentBtn')?.addEventListener('click',()=>document.getElementById('addStandaloneStudentModal').classList.add('hidden'));
     document.getElementById('cancelStandaloneStudentBtn')?.addEventListener('click',()=>document.getElementById('addStandaloneStudentModal').classList.add('hidden'));
     document.getElementById('confirmStandaloneStudentBtn')?.addEventListener('click',async()=>{
@@ -4348,41 +3982,161 @@
       const dv=document.getElementById('ssDateInp').value;
       const pdv=document.getElementById('ssPayDateInp').value;
       const bid=document.getElementById('ssBatchSel').value;
-      if(!nm) return toast('Enter student name','error');
-      if(!fe) return toast('Enter monthly fee','error');
+      if(!nm)return toast('Enter student name','error');
+      if(!fe)return toast('Enter monthly fee','error');
       const btn=document.getElementById('confirmStandaloneStudentBtn');
       btn.disabled=true; btn.textContent='Adding…';
       try{
         const now=new Date(),bm=now.getMonth()+1,by=now.getFullYear();
         const sd={name:nm,fee:fe,createdAt:Date.now(),feeStatus:'never'};
-        if(pdv){ const pp=pdv.split('-'); sd.baselineMonth=parseInt(pp[1]); sd.baselineYear=parseInt(pp[0]); sd.lastPaidDate=pdv; }
-        else if(dv){ const dp=dv.split('-'); sd.baselineMonth=parseInt(dp[1]); sd.baselineYear=parseInt(dp[0]); }
-        else { sd.baselineMonth=bm; sd.baselineYear=by; }
-        if(dv){ const dp=dv.split('-'); sd.admissionDay=parseInt(dp[2]); sd.admissionMonth=parseInt(dp[1]); sd.admissionYear=parseInt(dp[0]); }
-        if(bid){
-          // Add into chosen batch
-          await addDoc(stuCol(bid),sd);
-          toast(`${nm} added to ${batches[bid].name} ✓`,'success');
-        } else {
-          // Save to standalone students collection
-          await addDoc(collection(db,'users',uid(),'students'),sd);
-          toast(`${nm} added ✓`,'success');
-        }
+        if(pdv){const pp=pdv.split('-');sd.baselineMonth=parseInt(pp[1]);sd.baselineYear=parseInt(pp[0]);sd.lastPaidDate=pdv;}
+        else if(dv){const dp=dv.split('-');sd.baselineMonth=parseInt(dp[1]);sd.baselineYear=parseInt(dp[0]);}
+        else{sd.baselineMonth=bm;sd.baselineYear=by;}
+        if(dv){const dp=dv.split('-');sd.admissionDay=parseInt(dp[2]);sd.admissionMonth=parseInt(dp[1]);sd.admissionYear=parseInt(dp[0]);}
+        if(bid){await addDoc(stuCol(bid),sd);toast(`${nm} added to ${batches[bid].name} ✓`,'success');}
+        else{await addDoc(collection(db,'users',uid(),'students'),sd);toast(`${nm} added ✓`,'success');}
         document.getElementById('addStandaloneStudentModal').classList.add('hidden');
-        if(bid) await loadBatchDetail(bid);
-      }catch(e){ toast('Error: '+e.message,'error'); }
+        if(bid)await loadBatchDetail(bid);else render();
+      }catch(e){toast('Error: '+e.message,'error');}
       btn.disabled=false; btn.textContent='Add Student';
     });
 
-    // ── Patch renderStudent + renderTeacher to support selection mode and pinning ──
-    // Pinning: sort pinned items first
-    function _patchedRenderStudent(){
-      // Get sorted teachers with pin awareness
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // LONG-PRESS SELECTION (event delegation)
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    let selMode=false, selItems=new Set(), selContext='', pinnedId=null;
+    Object.defineProperty(window,'selMode',{get:()=>selMode});
+
+    (function initLP(){
+      const HOLD=420; let timer=null,startCard=null,moved=false;
+      function cardFrom(el){return el?.closest('.teacher-card[data-id],.batch-card[data-id],.student-card[data-id]');}
+      function onStart(e){
+        const c=cardFrom(e.target); if(!c||selMode)return;
+        moved=false; startCard=c;
+        timer=setTimeout(()=>{
+          timer=null; if(moved||!startCard)return;
+          const id=startCard.dataset.id;
+          if(!id)return;
+          const ctx=startCard.classList.contains('teacher-card')?'teacher':startCard.classList.contains('batch-card')?'batch':'student';
+          if(navigator.vibrate)navigator.vibrate(32);
+          startCard._sc=true; setTimeout(()=>{if(startCard)startCard._sc=false;},600);
+          enterSelMode(ctx,id);
+        },HOLD);
+      }
+      function onMove(){moved=true;if(timer){clearTimeout(timer);timer=null;}}
+      function onEnd(){if(timer){clearTimeout(timer);timer=null;}startCard=null;}
+      document.addEventListener('touchstart',onStart,{passive:true});
+      document.addEventListener('touchmove',onMove,{passive:true});
+      document.addEventListener('touchend',onEnd,{passive:true});
+      document.addEventListener('mousedown',onStart);
+      document.addEventListener('mouseup',onEnd);
+      document.addEventListener('mousemove',e=>{if(e.buttons)onMove();});
+      document.addEventListener('click',e=>{const c=cardFrom(e.target);if(c&&c._sc){e.stopImmediatePropagation();e.preventDefault();}},true);
+    })();
+
+    function enterSelMode(ctx,firstId){
+      selMode=true; selContext=ctx; selItems.clear(); selItems.add(firstId);
+      document.getElementById('selBar').classList.remove('hidden');
+      updateSelBar();
+      if(ctx==='student') renderBatchDetail(currentBatchId); else render();
+    }
+    function exitSelMode(){
+      const prevCtx=selContext; selMode=false; selItems.clear(); selContext='';
+      document.getElementById('selBar').classList.add('hidden');
+      if(prevCtx==='student') renderBatchDetail(currentBatchId); else render();
+    }
+    function toggleSelItem(id){
+      if(selItems.has(id))selItems.delete(id); else selItems.add(id);
+      if(!selItems.size){exitSelMode();return;}
+      updateSelBar();
+      // update checkboxes visually without full re-render
+      document.querySelectorAll(`.teacher-card[data-id="${id}"],.batch-card[data-id="${id}"],.student-card[data-id="${id}"]`).forEach(el=>{
+        el.classList.toggle('selected',selItems.has(id));
+        const circ=el.querySelector('.sel-circle');
+        if(circ)circ.classList.toggle('checked',selItems.has(id));
+      });
+    }
+    function updateSelBar(){
+      document.getElementById('selCount').textContent=selItems.size;
+      const pinBtn=document.getElementById('selPinBtn');
+      const assignBtn=document.getElementById('selAssignBtn');
+      pinBtn.classList.toggle('hidden',selItems.size!==1);
+      if(selItems.size===1){
+        const id=[...selItems][0];
+        pinBtn.innerHTML='<span class="sbi">'+(pinnedId===id?'📍':'📌')+'</span><span>'+(pinnedId===id?'Unpin':'Pin')+'</span>';
+      }
+      if(assignBtn) assignBtn.classList.toggle('hidden',selContext!=='student');
+    }
+    window.selTap=function(id){ if(!selMode)return false; toggleSelItem(id); return true; };
+    document.getElementById('selBarClose')?.addEventListener('click',exitSelMode);
+
+    document.getElementById('selPinBtn')?.addEventListener('click',async()=>{
+      if(selItems.size!==1)return; const id=[...selItems][0];
+      const unpinning=pinnedId===id;
+      if(unpinning)pinnedId=null; else{
+        if(pinnedId){
+          try{ if(selContext==='teacher'){if(teachers[pinnedId])teachers[pinnedId].pinned=false;await updateDoc(tcDoc(pinnedId),{pinned:false});}
+            else if(selContext==='batch'){if(batches[pinnedId])batches[pinnedId].pinned=false;await updateDoc(btDoc(pinnedId),{pinned:false});}
+            else{await updateDoc(stuDoc(currentBatchId,pinnedId),{pinned:false});if(batchStudents[pinnedId])batchStudents[pinnedId].pinned=false;}
+          }catch(e){}
+        }
+        pinnedId=id;
+      }
+      try{
+        if(selContext==='teacher'){teachers[id].pinned=!unpinning;await updateDoc(tcDoc(id),{pinned:!unpinning});}
+        else if(selContext==='batch'){batches[id].pinned=!unpinning;await updateDoc(btDoc(id),{pinned:!unpinning});}
+        else{await updateDoc(stuDoc(currentBatchId,id),{pinned:!unpinning});if(batchStudents[id])batchStudents[id].pinned=!unpinning;}
+      }catch(e){}
+      toast(unpinning?'Unpinned':'Pinned to top 📌','success'); exitSelMode();
+    });
+
+    document.getElementById('selDeleteBtn')?.addEventListener('click',async()=>{
+      const ids=[...selItems];
+      if(!await confirm2('Delete',`Remove ${ids.length===1?'this item':`${ids.length} items`}? This cannot be undone.`,'Delete','🗑️'))return;
+      for(const id of ids){
+        if(selContext==='teacher'){await Promise.all(payments.filter(p=>p.teacherId===id).map(p=>deleteDoc(pyDoc(p.id))));await deleteDoc(tcDoc(id));payments=payments.filter(p=>p.teacherId!==id);delete teachers[id];}
+        else if(selContext==='batch'){await deleteDoc(btDoc(id));delete batches[id];}
+        else if(selContext==='student'){await deleteDoc(stuDoc(currentBatchId,id));delete batchStudents[id];}
+      }
+      saveToCache(); toast(`Deleted ${ids.length} item${ids.length>1?'s':''}` ,'');
+      const ctx=selContext; exitSelMode();
+      if(ctx==='student')renderBatchDetail(currentBatchId); else render();
+    });
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // PATCH renderTeacher / renderStudent for selection + pinning
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    const _origRenderTeacher2=renderTeacher, _origRenderStudent2=renderStudent;
+
+    window.renderTeacher=function(){
       const root=document.getElementById('appInner');
-      const td=totalDue(), n=new Date();
-      const ds=n.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
-      const ov=Object.keys(teachers).filter(id=>monthsDue(id)>0).length;
-      const cl=Object.keys(teachers).filter(id=>monthsDue(id)===0).length;
+      const subjs=profile.subjects||[],classes=profile.classes||[],sess=profile.session||'',bList=Object.keys(batches);
+      const subjLine=[subjs.length?subjs.join(', '):'No subjects set',classes.length?classes.join(', '):'',sess].filter(Boolean).join(' · ');
+      let h=`
+        ${!profile.displayName?`<div class="setup-banner" onclick="openProfileModal()"><span class="setup-banner-icon">👨‍🏫</span><div class="setup-banner-text"><div class="setup-banner-title">Set up your teacher profile</div><div class="setup-banner-sub">Add your subjects and session</div></div><button class="setup-banner-btn">Set up</button></div>`:''}
+        <div class="teacher-mode-header"><div class="tmh-icon">👨‍🏫</div><div class="tmh-info"><div class="tmh-title">Teacher Dashboard</div><div class="tmh-sub">${subjLine}</div></div>
+          <button onclick="openAddStandaloneStudent()" style="background:var(--accent-dim);border:1px solid var(--accent);border-radius:10px;padding:6px 11px;font-family:'Syne',sans-serif;font-size:10px;font-weight:700;color:var(--accent);cursor:pointer;white-space:nowrap;flex-shrink:0;">+ Student</button>
+        </div>
+        <div class="search-wrap"><span class="search-icon">🔍</span><input class="search-input" type="text" placeholder="Search batch…" value="${searchQ}" oninput="onSearch(this.value)"/>${searchQ?`<span class="search-clear" onclick="onSearch('')">✕</span>`:''}</div>
+        <div class="section-label"><span class="section-label-txt">My Batches</span><span class="section-label-count">${bList.length}</span></div>`;
+      if(!bList.length){h+=`<div class="empty-state"><div class="empty-icon">👨‍🏫</div><div class="empty-title">No batches yet</div><div class="empty-sub">Tap <strong>+</strong> to add.</div></div>`;root.innerHTML=h;return;}
+      const fil=bList.filter(id=>{const q=searchQ.toLowerCase();return !q||batches[id].name.toLowerCase().includes(q)||batches[id].subject?.toLowerCase().includes(q);}).sort((a,b)=>(batches[b].pinned?1:0)-(batches[a].pinned?1:0));
+      let dl=0;
+      for(const bid of fil){const b=batches[bid],isSel=selItems.has(bid),pinBdg=b.pinned?'<span class="pin-badge">📌 Pinned</span>':'';
+        h+=`<div class="batch-card ${selMode?'sel-mode':''} ${isSel?'selected':''}" data-id="${bid}" style="animation-delay:${dl}s"
+          onclick="if(selMode){event.stopPropagation();selTap('${bid}');return;}openBatchDetail('${bid}')">
+          ${selMode?`<div style="display:flex;align-items:center;gap:10px;padding:10px 14px 0"><div class="sel-circle ${isSel?'checked':''}" onclick="event.stopPropagation();selTap('${bid}')"><span class="sel-tick">✓</span></div><div class="batch-name">${b.name}</div>${pinBdg}</div>`:''}
+          <div class="batch-header"><div><div class="batch-name">${b.name}${b.pinned&&!selMode?' <span class="pin-badge">📌</span>':''}</div><div class="batch-meta">${b.class?b.class+' · ':''} ₹${b.fee}/mo per student${b.timing?' · '+b.timing:''}</div></div>${b.session?`<span class="batch-session-badge">${b.session}</span>`:''}</div>
+          <div class="batch-subject-list">${b.subject.split(',').map(s=>`<span class="batch-subj-chip">${s.trim()}</span>`).join('')}</div>
+          ${selMode?'':`<div class="batch-actions"><button class="batch-open-btn" onclick="event.stopPropagation();openBatchDetail('${bid}')">🎓 View students & payments ›</button><button class="batch-del-btn" onclick="event.stopPropagation();deleteBatch('${bid}')">🗑</button></div>`}
+        </div>`;dl+=0.05;}
+      root.innerHTML=h;
+    };
+
+    window.renderStudent=function(){
+      const root=document.getElementById('appInner');
+      const td=totalDue(),n=new Date(),ds=n.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+      const ov=Object.keys(teachers).filter(id=>monthsDue(id)>0).length,cl=Object.keys(teachers).filter(id=>monthsDue(id)===0).length;
       let h=`
         ${!profile.className?`<div class="setup-banner" onclick="openProfileModal()"><span class="setup-banner-icon">👤</span><div class="setup-banner-text"><div class="setup-banner-title">Complete your profile</div><div class="setup-banner-sub">Add your name and class</div></div><button class="setup-banner-btn">Set up</button></div>`:''}
         <div class="total-card">
@@ -4395,55 +4149,37 @@
             <div class="total-meta-item"><div class="total-meta-val">${Object.keys(teachers).length}</div><div class="total-meta-lbl">Teachers</div></div>
           </div>
         </div>
-        <div class="search-wrap">
-          <span class="search-icon">🔍</span>
-          <input class="search-input" type="text" placeholder="Search teacher or subject…" value="${searchQ}" oninput="onSearch(this.value)"/>
-          ${searchQ?`<span class="search-clear" onclick="onSearch('')">✕</span>`:''}
-        </div>
+        <div class="search-wrap"><span class="search-icon">🔍</span><input class="search-input" type="text" placeholder="Search teacher or subject…" value="${searchQ}" oninput="onSearch(this.value)"/>${searchQ?`<span class="search-clear" onclick="onSearch('')">✕</span>`:''}</div>
         <div class="section-label"><span class="section-label-txt">Teachers</span><span class="section-label-count" id="teachers-count">${Object.keys(teachers).length}</span></div>
         <div id="cards-list">`;
-      if(!Object.keys(teachers).length){
-        h+=`<div class="empty-state"><div class="empty-icon">📚</div><div class="empty-title">No teachers yet</div><div class="empty-sub">Tap <strong>+</strong> to add your first teacher and start tracking.</div></div></div>`;
-        root.innerHTML=h; return;
-      }
-      // Sort: pinned first, then by due
-      let sorted=Object.keys(teachers).sort((a,b)=>{
-        if(teachers[a].pinned&&!teachers[b].pinned) return -1;
-        if(!teachers[a].pinned&&teachers[b].pinned) return 1;
-        return calcDue(b)-calcDue(a);
-      }).filter(id=>{ const q=searchQ.toLowerCase(); return !q||teachers[id].name.toLowerCase().includes(q)||teachers[id].subject.toLowerCase().includes(q); });
-      if(!sorted.length){ h+=`<div class="no-results">No results for "<strong>${searchQ}</strong>"</div></div>`; root.innerHTML=h; return; }
+      if(!Object.keys(teachers).length){h+=`<div class="empty-state"><div class="empty-icon">📚</div><div class="empty-title">No teachers yet</div><div class="empty-sub">Tap <strong>+</strong> to add your first teacher.</div></div></div>`;root.innerHTML=h;return;}
+      let sorted=Object.keys(teachers).sort((a,b)=>{if(teachers[a].pinned&&!teachers[b].pinned)return -1;if(!teachers[a].pinned&&teachers[b].pinned)return 1;return calcDue(b)-calcDue(a);}).filter(id=>{const q=searchQ.toLowerCase();return !q||teachers[id].name.toLowerCase().includes(q)||teachers[id].subject.toLowerCase().includes(q);});
+      if(!sorted.length){h+=`<div class="no-results">No results for "<strong>${searchQ}</strong>"</div></div>`;root.innerHTML=h;return;}
       let dl=0;
       for(const id of sorted){
         const t=teachers[id],dm=monthsDue(id),da=calcDue(id),lps=lastPaidStr(id),ov2=dm>=3,cr=dm>=6,pb=partialBal(id);
         const tpy=payments.filter(p=>p.teacherId===id).sort((a,b)=>b.timestamp-a.timestamp);
         const bdg=cr?`<span class="overdue-badge critical">🚨 ${dm}mo</span>`:ov2?`<span class="overdue-badge">⚠️ ${dm}mo</span>`:'';
-        const pinBdg=t.pinned?`<span class="pin-badge">📌 Pinned</span>`:'';
+        const pinBdg=t.pinned?'<span class="pin-badge">📌 Pinned</span>':'';
         const isSel=selItems.has(id);
         h+=`
-          <div class="teacher-card ${cr?'card-critical':ov2?'card-overdue':''} ${selMode?'sel-mode':''} ${isSel?'selected':''}" style="animation-delay:${dl}s" data-id="${id}"
-            onclick="if(selMode){selTap('${id}');return;}"
-            ontouchstart="void 0">
-            ${selMode?`<div style="display:flex;align-items:center;gap:10px;padding:10px 13px 0;">
-              <div class="sel-circle ${isSel?'checked':''}" data-sel-id="${id}" onclick="event.stopPropagation();selTap('${id}')">
-                <span class="sel-tick">✓</span></div>
-              <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text);">${t.name}</div>
-              ${pinBdg}
-            </div>`:''}
-            <div class="card-top" ${selMode?'style="padding-top:6px"':''}>
-              <div class="card-header">
-                <div class="card-left">
-                  <div class="teacher-name-row"><div class="teacher-name">${t.name}</div>${bdg}${pinBdg}</div>
-                  <div class="teacher-subject">${t.subject} · ₹${t.fee}/mo</div>
-                  ${lps?`<div class="last-paid">Last paid: ${lps}</div>`:`<div class="last-paid never">Never paid</div>`}
-                </div>
-                <div class="due-badge">
-                  <div class="due-amount ${da===0?'zero':cr?'critical':''}">₹${da.toLocaleString('en-IN')}</div>
-                  <div class="due-months">${dm===0?'All clear ✓':`${dm} month${dm>1?'s':''} due`}</div>
-                  ${pb>0?`<div class="partial-chip">+₹${pb.toLocaleString('en-IN')} partial</div>`:''}
-                </div>
+          <div class="teacher-card ${cr?'card-critical':ov2?'card-overdue':''} ${selMode?'sel-mode':''} ${isSel?'selected':''}" data-id="${id}" style="animation-delay:${dl}s"
+            onclick="if(selMode){event.stopPropagation();selTap('${id}');return;}">
+          ${selMode?`<div style="display:flex;align-items:center;gap:10px;padding:10px 13px 4px"><div class="sel-circle ${isSel?'checked':''}" onclick="event.stopPropagation();selTap('${id}')"><span class="sel-tick">✓</span></div><div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text)">${t.name}</div>${pinBdg}</div>`:''}
+          <div class="card-top">
+            <div class="card-header">
+              <div class="card-left">
+                <div class="teacher-name-row"><div class="teacher-name">${t.name}</div>${bdg}${pinBdg}</div>
+                <div class="teacher-subject">${t.subject} · ₹${t.fee}/mo</div>
+                ${lps?`<div class="last-paid">Last paid: ${lps}</div>`:`<div class="last-paid never">Never paid</div>`}
               </div>
-              ${selMode?'':`<div style="padding:0 0 1px;">
+              <div class="due-badge">
+                <div class="due-amount ${da===0?'zero':cr?'critical':''}">₹${da.toLocaleString('en-IN')}</div>
+                <div class="due-months">${dm===0?'All clear ✓':`${dm} month${dm>1?'s':''} due`}</div>
+                ${pb>0?`<div class="partial-chip">+₹${pb.toLocaleString('en-IN')} partial</div>`:''}
+              </div>
+            </div>
+            ${selMode?'':`<div style="padding:0 0 1px">
               <div class="pay-tabs">
                 <button class="pay-tab ${dm>0?'active':''}" id="ptab-full-${id}" onclick="switchPayTab('${id}','full')" ${dm===0?'disabled':''}>Full</button>
                 <button class="pay-tab" id="ptab-partial-${id}" onclick="switchPayTab('${id}','partial')" ${dm===0?'disabled':''}>Partial</button>
@@ -4461,370 +4197,246 @@
                 <input id="pay-advance-${id}" class="pay-input" type="number" min="1" max="12" placeholder="Months ahead (1–12)">
                 <button class="pay-btn pay-btn-advance" onclick="payMonths('${id}','advance')">Mark</button>
               </div>
-              </div>
-              <div class="card-actions">
-                <div class="history-toggle" id="tog-${id}" onclick="toggleHistory('${id}')">
-                  <span class="toggle-dot"></span>History (${tpy.length})<span class="h-arrow">▾</span>
-                </div>
-              </div>
-              <div class="history-panel" id="hist-${id}">
-                ${tpy.length===0?'<div class="hist-empty">No payments yet</div>':
-                  '<div class="swipe-hint">← swipe to delete</div>'+tpy.map(p=>{
-                    const hb=p.type==='partial'?`<span class="hist-badge hist-partial">Partial</span>`:p.type==='advance'?`<span class="hist-badge hist-advance">Advance</span>`:'';
-                    const lb=p.type==='partial'?`₹${p.amount.toLocaleString('en-IN')} partial`:`${p.monthsPaid} month${p.monthsPaid>1?'s':''}`;
-                    return `<div class="payment-item" ontouchstart="startSwipe(event,this)" ontouchmove="moveSwipe(event,this)" ontouchend="endSwipe(this,'${p.id}')">
-                      <div><div class="pay-months-txt">${lb}${hb}</div><div class="pay-date-txt">${p.paidOn?`${p.paidOn.day} ${MONTHS[p.paidOn.month-1]} ${p.paidOn.year}`:'—'}</div></div>
-                      <div class="pay-amt-tag">₹${p.amount.toLocaleString('en-IN')}</div></div>`;
-                  }).join('')}
-              </div>`}
             </div>
-          </div>`;
+            <div class="card-actions">
+              <div class="history-toggle" id="tog-${id}" onclick="toggleHistory('${id}')">
+                <span class="toggle-dot"></span>History (${tpy.length})<span class="h-arrow">▾</span>
+              </div>
+              <button class="sc-edit-btn" onclick="openEditTeacher('${id}')" title="Edit teacher" style="border-left:1px solid var(--border)">&#9998;</button>
+            </div>
+            <div class="history-panel" id="hist-${id}">
+              ${tpy.length===0?'<div class="hist-empty">No payments yet</div>':
+                '<div class="swipe-hint">← swipe to delete</div>'+tpy.map(p=>{
+                  const hb=p.type==='partial'?`<span class="hist-badge hist-partial">Partial</span>`:p.type==='advance'?`<span class="hist-badge hist-advance">Advance</span>`:'';
+                  const lb=p.type==='partial'?`₹${p.amount.toLocaleString('en-IN')} partial`:`${p.monthsPaid} month${p.monthsPaid>1?'s':''}`;
+                  return `<div class="payment-item" ontouchstart="startSwipe(event,this)" ontouchmove="moveSwipe(event,this)" ontouchend="endSwipe(this,'${p.id}')"><div><div class="pay-months-txt">${lb}${hb}</div><div class="pay-date-txt">${p.paidOn?`${p.paidOn.day} ${MONTHS[p.paidOn.month-1]} ${p.paidOn.year}`:'—'}</div></div><div class="pay-amt-tag">₹${p.amount.toLocaleString('en-IN')}</div></div>`;
+                }).join('')}
+            </div>`}
+          </div></div>`;
         dl+=0.05;
       }
-      h+='</div>';
-      root.innerHTML=h;
-
-    }
-
-    function _patchedRenderTeacher(){
-      const root=document.getElementById('appInner');
-      const subjs=profile.subjects||[],classes=profile.classes||[],sess=profile.session||'',bList=Object.keys(batches);
-      const subjLine=[subjs.length?subjs.join(', '):'No subjects set',classes.length?classes.join(', '):'',sess].filter(Boolean).join(' · ');
-      let h=`
-        ${!profile.displayName?`<div class="setup-banner" onclick="openProfileModal()"><span class="setup-banner-icon">👨‍🏫</span><div class="setup-banner-text"><div class="setup-banner-title">Set up your teacher profile</div><div class="setup-banner-sub">Add your subjects and session</div></div><button class="setup-banner-btn">Set up</button></div>`:''}
-        <div class="teacher-mode-header"><div class="tmh-icon">👨‍🏫</div><div class="tmh-info"><div class="tmh-title">Teacher Dashboard</div><div class="tmh-sub">${subjLine}</div></div>
-          <button onclick="openAddStandaloneStudent()" style="background:var(--accent-dim);border:1px solid var(--accent);border-radius:10px;padding:6px 11px;font-family:'Syne',sans-serif;font-size:10px;font-weight:700;color:var(--accent);cursor:pointer;white-space:nowrap;flex-shrink:0;">+ Student</button>
-        </div>
-        <div class="search-wrap"><span class="search-icon">🔍</span><input class="search-input" type="text" placeholder="Search batch…" value="${searchQ}" oninput="onSearch(this.value)"/>${searchQ?`<span class="search-clear" onclick="onSearch('')">✕</span>`:''}</div>
-        <div class="section-label"><span class="section-label-txt">My Batches</span><span class="section-label-count">${bList.length}</span></div>`;
-      if(!bList.length){ h+=`<div class="empty-state"><div class="empty-icon">👨‍🏫</div><div class="empty-title">No batches yet</div><div class="empty-sub">Tap <strong>+</strong> to create a batch, then add students and track fees.</div></div>`; root.innerHTML=h; return; }
-      const fil=bList.filter(id=>{const q=searchQ.toLowerCase();return !q||batches[id].name.toLowerCase().includes(q)||batches[id].subject?.toLowerCase().includes(q);}).sort((a,b)=>{
-        if(batches[a].pinned&&!batches[b].pinned) return -1;
-        if(!batches[a].pinned&&batches[b].pinned) return 1;
-        return 0;
-      });
-      let dl=0;
-      for(const bid of fil){const b=batches[bid];
-        const isSel=selItems.has(bid);
-        const pinBdg=b.pinned?`<span class="pin-badge" style="margin-left:6px">📌</span>`:'';
-        h+=`<div class="batch-card ${selMode?'sel-mode':''} ${isSel?'selected':''}" style="animation-delay:${dl}s" data-id="${bid}"
-          onclick="if(selMode){selTap('${bid}');return;}openBatchDetail('${bid}')" ontouchstart="void 0">
-          ${selMode?`<div style="display:flex;align-items:center;gap:10px;padding:10px 14px 0">
-            <div class="sel-circle ${isSel?'checked':''}" onclick="event.stopPropagation();selTap('${bid}')"><span class="sel-tick">✓</span></div>
-            <div class="batch-name">${b.name}</div>${pinBdg}
-          </div>`:''}
-          <div class="batch-header"><div><div class="batch-name">${b.name}${pinBdg}</div><div class="batch-meta">${b.class?b.class+' · ':''} ₹${b.fee}/mo per student${b.timing?' · '+b.timing:''}</div></div>${b.session?`<span class="batch-session-badge">${b.session}</span>`:''}</div>
-          <div class="batch-subject-list">${b.subject.split(',').map(s=>`<span class="batch-subj-chip">${s.trim()}</span>`).join('')}</div>
-          ${selMode?'':`<div class="batch-actions">
-            <button class="batch-open-btn" onclick="event.stopPropagation();openBatchDetail('${bid}')">🎓 View students & payments ›</button>
-            <button class="batch-del-btn" onclick="event.stopPropagation();deleteBatch('${bid}')">🗑</button>
-          </div>`}
-        </div>`;dl+=0.05;}
-      root.innerHTML=h;
-      // Load and render standalone students asynchronously after batches
-      loadAndRenderStandaloneStudents(root);
-    }
-
-    async function loadAndRenderStandaloneStudents(root){
-      try{
-        const snap=await getDocs(collection(db,'users',uid(),'students'));
-        if(snap.empty) return;
-        const studs=[];
-        snap.forEach(d=>studs.push({id:d.id,...d.data()}));
-        const section=document.createElement('div');
-        section.id='standaloneStudentsSection';
-        section.style.cssText='margin-top:18px';
-        const now2=new Date(),curM2=now2.getMonth()+1,curY2=now2.getFullYear();
-        let sh=`<div class="section-label" style="margin-bottom:10px"><span class="section-label-txt">Individual Students</span><span class="section-label-count">${studs.length}</span></div>`;
-        studs.sort((a,b)=>(a.name||'').localeCompare(b.name||'')).forEach((s,i)=>{
-          const fee=s.fee||0;
-          const bm=s.baselineMonth||curM2,by=s.baselineYear||curY2;
-          const lp={month:bm,year:by};
-          const mo=Math.max(mBetween(lp,{month:curM2,year:curY2}),0);
-          const due=Math.max(mo*fee,0);
-          sh+=`<div class="student-card" style="animation-delay:${i*0.05}s" data-id="${s.id}" data-standalone="1"
-            onclick="if(selMode){selTap('${s.id}');return;}">
-            <div class="sc-top">
-              <div class="sc-header">
-                <div class="sc-left">
-                  <div class="sc-name-row">
-                    <div class="sc-avatar">${(s.name||'S')[0].toUpperCase()}</div>
-                    <div class="sc-name">${s.name||'Student'}</div>
-                  </div>
-                  <div class="sc-meta">Individual · ₹${fee}/mo</div>
-                  ${s.lastPaidDate?`<div class="sc-last-paid">Last paid: ${s.lastPaidDate}</div>`:'<div class="sc-last-paid never">Never paid</div>'}
-                </div>
-                <div class="sc-due-badge">
-                  <div class="sc-due-amt ${due===0?'zero':''}">₹${due.toLocaleString('en-IN')}</div>
-                  <div class="sc-due-mo">${mo===0?'All clear ✓':`${mo} month${mo>1?'s':''} due`}</div>
-                </div>
-              </div>
-            </div>
-            <div class="sc-actions">
-              <div style="flex:1;padding:9px 13px;font-size:11px;color:var(--muted)">No batch assigned</div>
-              <button class="sc-edit-btn" onclick="event.stopPropagation();assignStandaloneToExistingBatch('${s.id}','${(s.name||'').replace(/'/g,"\'")}')">📋 Assign</button>
-              <button class="sc-del-btn" onclick="event.stopPropagation();deleteStandaloneStudent('${s.id}','${(s.name||'').replace(/'/g,"\'")}')">&#x1F5D1;</button>
-            </div>
-          </div>`;
-        });
-        section.innerHTML=sh;
-        // Remove old section if exists, then append
-        const old=root.querySelector('#standaloneStudentsSection');
-        if(old) old.remove();
-        const appInner=document.getElementById('appInner');
-        if(appInner) appInner.appendChild(section);
-      }catch(e){ console.warn('standalone load failed',e); }
-    }
-
-    window.deleteStandaloneStudent=async function(sid,name){
-      if(!await confirm2('Remove Student',`Remove <strong style="color:#f0f0f8">${name}</strong>?`,'Remove','🗑️')) return;
-      try{ await deleteDoc(doc(db,'users',uid(),'students',sid)); toast(`${name} removed`,''); loadAndRenderStandaloneStudents(document.getElementById('appInner')); }
-      catch(e){ toast('Error: '+e.message,'error'); }
+      h+='</div>'; root.innerHTML=h;
     };
 
-    window.assignStandaloneToExistingBatch=async function(sid,name){
-      const bKeys=Object.keys(batches);
-      if(!bKeys.length){ toast('Create a batch first','error'); return; }
-      const list=document.getElementById('assignBatchList');
-      let ah='';
-      bKeys.forEach(bid=>{ const b=batches[bid]; ah+=`<div class="batch-pick-item" data-bid="${bid}" onclick="toggleBatchPick(this,'${bid}')"><div class="batch-pick-icon">📋</div><div><div class="batch-pick-name">${b.name}</div><div class="batch-pick-sub">₹${b.fee}/mo per student</div></div></div>`; });
-      list.innerHTML=ah;
-      _assignStudentIds=[sid];
-      // Override confirm to handle standalone correctly
-      document.getElementById('confirmAssignBatchBtn').onclick=async()=>{
-        const sel=document.querySelector('.batch-pick-item.sel');
-        if(!sel){ toast('Select a batch','error'); return; }
-        const bid=sel.dataset.bid;
-        const btn=document.getElementById('confirmAssignBatchBtn');
-        btn.disabled=true; btn.textContent='Moving…';
-        try{
-          const snap2=await getDoc(doc(db,'users',uid(),'students',sid));
-          const sd=snap2.exists()?snap2.data():{};
-          const now3=new Date();
-          await addDoc(stuCol(bid),{name:sd.name||name,baselineMonth:sd.baselineMonth||now3.getMonth()+1,baselineYear:sd.baselineYear||now3.getFullYear(),fee:sd.fee,lastPaidDate:sd.lastPaidDate||null,createdAt:Date.now(),feeStatus:'never'});
-          await deleteDoc(doc(db,'users',uid(),'students',sid));
-          toast(`${name} moved to ${batches[bid].name} ✓`,'success');
-          document.getElementById('assignBatchModal').classList.add('hidden');
-          loadAndRenderStandaloneStudents(document.getElementById('appInner'));
-        }catch(e){ toast('Error: '+e.message,'error'); }
-        btn.disabled=false; btn.textContent='Move to Batch';
-      };
-      document.getElementById('assignBatchModal').classList.remove('hidden');
-    };
-
-    // Override render to use patched versions
-    const _origRenderStudent=renderStudent, _origRenderTeacher=renderTeacher;
-    window.renderStudent=_patchedRenderStudent;
-    window.renderTeacher=_patchedRenderTeacher;
-    window._patchedRenderStudent=_patchedRenderStudent;
-    window._patchedRenderTeacher=_patchedRenderTeacher;
-
-    // ─── add payment date field to saveAllStudents ───
-    // saveAllStudents uses pendingStudents which includes payDate via addOnePending patch
-
-    // Patch addOnePending to include pay date
-    const _origAddOne=addOnePending;
-    window.addOnePending=function(){
-      const pdv=document.getElementById('newStudentPayDateInp')?.value||'';
-      // The original reads name/date/feeStatus/lastPaid
-      // Inject payDate into the pending item after push
-      const before=pendingStudents.length;
-      _origAddOne();
-      if(pendingStudents.length>before){
-        pendingStudents[pendingStudents.length-1].payDate=pdv;
-        // Reset pay date field
-        const pdi=document.getElementById('newStudentPayDateInp');
-        if(pdi) pdi.value='';
-      }
-    };
-
-    // Patch saveAllStudents to use payDate for baseline
-    const _origSaveAllStudents=saveAllStudents;
-
-    // ═══════════════════════════════════════════════════
-    //  DASHBOARD — teacher & student
-    // ═══════════════════════════════════════════════════
-    let _tchDashCharts=[],_stuDashCharts=[];
-    function dashFmt(n){ return '₹'+Number(n).toLocaleString('en-IN'); }
-    function isDarkMode(){ return !document.documentElement.classList.contains('light'); }
-    function chartDefaults(){
-      const dark=isDarkMode(),tc=dark?'rgba(255,255,255,.55)':'rgba(30,30,60,.6)',gc=dark?'rgba(255,255,255,.04)':'rgba(0,0,0,.05)';
-      return { responsive:true, maintainAspectRatio:false, animation:{duration:700,easing:'easeInOutQuart'},
-        plugins:{ legend:{labels:{color:tc,font:{family:"'DM Sans'",size:11},padding:12}},
-          tooltip:{backgroundColor:dark?'#1c1c38':'#fff',titleColor:dark?'#ebebf5':'#18182e',bodyColor:dark?'#8e8eb8':'#4e4e82',borderColor:dark?'rgba(255,255,255,.12)':'rgba(80,80,140,.15)',borderWidth:1,cornerRadius:10,padding:10}},
-        scales:{ x:{ticks:{color:tc,font:{size:10}},grid:{color:gc}}, y:{ticks:{color:tc,font:{size:10}},grid:{color:gc}} } };
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // DASHBOARDS
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    let _tdc=[],_sdc=[];
+    function dashFmt(n){return '₹'+Number(n).toLocaleString('en-IN');}
+    function isDark(){return !document.documentElement.classList.contains('light');}
+    function chartOpts(){
+      const tc=isDark()?'rgba(255,255,255,.55)':'rgba(30,30,60,.6)',gc=isDark()?'rgba(255,255,255,.04)':'rgba(0,0,0,.05)';
+      return{responsive:true,maintainAspectRatio:false,animation:{duration:700,easing:'easeInOutQuart'},
+        plugins:{legend:{labels:{color:tc,font:{family:"'DM Sans'",size:11},padding:12}},tooltip:{backgroundColor:isDark()?'#1c1c38':'#fff',titleColor:isDark()?'#ebebf5':'#18182e',bodyColor:isDark()?'#8e8eb8':'#4e4e82',borderColor:isDark()?'rgba(255,255,255,.12)':'rgba(80,80,140,.15)',borderWidth:1,cornerRadius:10,padding:10}},
+        scales:{x:{ticks:{color:tc,font:{size:10}},grid:{color:gc}},y:{ticks:{color:tc,font:{size:10}},grid:{color:gc}}}};
     }
-    function destroyCharts(arr){ arr.forEach(c=>{try{c.destroy();}catch(e){}});arr.length=0; }
+    function destroyC(arr){arr.forEach(c=>{try{c.destroy();}catch(e){}});arr.length=0;}
 
-    window.openTeacherDash=async function(force=false){
+    window.openTeacherDash=async function(f=false){
       document.getElementById('appScreen').classList.add('hidden');
       document.getElementById('teacherDashScreen').classList.remove('hidden');
-      const btn=document.getElementById('teacherDashRefresh'); if(btn)btn.classList.add('spinning');
+      const btn=document.getElementById('teacherDashRefresh');if(btn)btn.classList.add('spinning');
       await renderTeacherDash();
       if(btn)setTimeout(()=>btn.classList.remove('spinning'),700);
     };
-    window.closeTeacherDash=function(){
-      destroyCharts(_tchDashCharts);
-      document.getElementById('teacherDashScreen').classList.add('hidden');
-      document.getElementById('appScreen').classList.remove('hidden');
-    };
-    async function fetchAllBatchStats(){
-      const stats={};
-      await Promise.all(Object.keys(batches).map(async bid=>{
-        try{ const [ss,ps]=await Promise.all([getDocs(stuCol(bid)),getDocs(bpyCol(bid))]);
-          const stus={},pays=[]; ss.forEach(d=>stus[d.id]=d.data()); ps.forEach(d=>pays.push({id:d.id,...d.data()}));
-          stats[bid]={students:stus,payments:pays}; }catch(e){stats[bid]={students:{},payments:[]};}
-      })); return stats;
-    }
+    window.closeTeacherDash=function(){destroyC(_tdc);document.getElementById('teacherDashScreen').classList.add('hidden');document.getElementById('appScreen').classList.remove('hidden');};
+    async function fetchBS(){const s={};await Promise.all(Object.keys(batches).map(async bid=>{try{const [ss,ps]=await Promise.all([getDocs(stuCol(bid)),getDocs(bpyCol(bid))]);const stus={},pays=[];ss.forEach(d=>stus[d.id]=d.data());ps.forEach(d=>pays.push({id:d.id,...d.data()}));s[bid]={students:stus,payments:pays};}catch(e){s[bid]={students:{},payments:[]};}}));return s;}
     async function renderTeacherDash(){
-      destroyCharts(_tchDashCharts);
-      const body=document.getElementById('teacherDashBody'); if(!body)return;
+      destroyC(_tdc);const body=document.getElementById('teacherDashBody');if(!body)return;
       const bKeys=Object.keys(batches);
-      if(!bKeys.length){ body.innerHTML='<div class="dash-empty"><div class="dash-empty-icon">📭</div><div class="dash-empty-txt">No batches yet.</div></div>'; return; }
-      body.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted);">Loading…</div>';
-      const allStats=await fetchAllBatchStats();
+      if(!bKeys.length){body.innerHTML='<div class="dash-empty"><div class="dash-empty-icon">📭</div><div class="dash-empty-txt">No batches yet.</div></div>';return;}
+      // Show skeleton while loading
+      body.innerHTML='<div class="dash-sk-row"><div class="dash-sk-card"></div><div class="dash-sk-card"></div></div><div class="dash-sk-row"><div class="dash-sk-card"></div><div class="dash-sk-card"></div></div><div class="dash-sk"><div class="dash-sk-line" style="width:50%"></div><div class="dash-sk-bar"></div></div><div class="dash-sk"><div class="dash-sk-line" style="width:40%"></div><div class="dash-sk-bar"></div></div>';
+      const allS=await fetchBS();
       const now=new Date(),curM=now.getMonth()+1,curY=now.getFullYear();
-      const batchSummaries=[],allPays=[];
-      let grandDue=0,grandStudents=0,grandPaid=0,grandMonthly=0;
-      for(const bid of bKeys){
-        const b=batches[bid],s=allStats[bid]||{students:{},payments:[]};
-        const stuKeys=Object.keys(s.students); let bDue=0,bPaid=0;
-        s.payments.forEach(p=>allPays.push(p));
-        stuKeys.forEach(sid=>{
-          const st=s.students[sid],fee=b.fee||0;
-          let lp={month:st.baselineMonth||curM,year:st.baselineYear||curY},rp=0;
-          s.payments.filter(p=>p.studentId===sid).sort((a,x)=>a.timestamp-x.timestamp).forEach(p=>{
-            if(p.type==='partial'){rp+=p.amount;const c=Math.floor(rp/fee);if(c>0){lp=addM(lp,c);rp%=fee;}}
-            else if(p.monthsPaid){lp=addM(lp,p.monthsPaid);rp=0;}
-          });
-          const mo=Math.max(mBetween(lp,{month:curM,year:curY}),0);
-          let pb=0; s.payments.filter(p=>p.studentId===sid).sort((a,x)=>a.timestamp-x.timestamp).forEach(p=>{if(p.type==='partial'){pb+=p.amount;pb%=fee;}else if(p.monthsPaid)pb=0;});
-          const due=Math.max(mo*fee-pb,0); bDue+=due; if(due===0)bPaid++;
-        });
-        grandDue+=bDue; grandStudents+=stuKeys.length; grandPaid+=bPaid; grandMonthly+=stuKeys.length*(b.fee||0);
-        batchSummaries.push({bid,name:b.name,stuCount:stuKeys.length,paidCount:bPaid,dueCount:stuKeys.length-bPaid,due:bDue});
+      const bs=[],ap=[];let gd=0,gs=0,gp=0,gm=0;
+      for(const bid of bKeys){const b=batches[bid],s=allS[bid]||{students:{},payments:[]};const sk=Object.keys(s.students);let bd=0,bp=0;s.payments.forEach(p=>ap.push(p));
+        sk.forEach(sid=>{const st=s.students[sid],fee=b.fee||0;let lp={month:st.baselineMonth||curM,year:st.baselineYear||curY},rp=0;s.payments.filter(p=>p.studentId===sid).sort((a,x)=>a.timestamp-x.timestamp).forEach(p=>{if(p.type==='partial'){rp+=p.amount;const c=Math.floor(rp/fee);if(c>0){lp=addM(lp,c);rp%=fee;}}else if(p.monthsPaid){lp=addM(lp,p.monthsPaid);rp=0;}});const mo=Math.max(mBetween(lp,{month:curM,year:curY}),0);let pb=0;s.payments.filter(p=>p.studentId===sid).sort((a,x)=>a.timestamp-x.timestamp).forEach(p=>{if(p.type==='partial'){pb+=p.amount;pb%=fee;}else if(p.monthsPaid)pb=0;});const due=Math.max(mo*fee-pb,0);bd+=due;if(due===0)bp++;});
+        gd+=bd;gs+=sk.length;gp+=bp;gm+=sk.length*(b.fee||0);bs.push({bid,name:b.name,stuCount:sk.length,paidCount:bp,dueCount:sk.length-bp,due:bd});
       }
-      const collRate=grandStudents>0?Math.round((grandPaid/grandStudents)*100):0;
-      const overdueStu=grandStudents-grandPaid;
-      const monthLabels=[],monthAmts=[];
-      for(let i=5;i>=0;i--){const d=new Date(curY,curM-1-i,1);monthLabels.push(['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]);monthAmts.push(allPays.filter(p=>p.paidOn&&p.paidOn.month===d.getMonth()+1&&p.paidOn.year===d.getFullYear()).reduce((s,p)=>s+(p.amount||0),0));}
-      const overdueList=[];
-      batchSummaries.forEach(bs=>{const s=allStats[bs.bid],b=batches[bs.bid],fee=b.fee||0;Object.keys(s.students).forEach(sid=>{const st=s.students[sid];let lp={month:st.baselineMonth||curM,year:st.baselineYear||curY},rp=0;s.payments.filter(p=>p.studentId===sid).sort((a,x)=>a.timestamp-x.timestamp).forEach(p=>{if(p.type==='partial'){rp+=p.amount;const c=Math.floor(rp/fee);if(c>0){lp=addM(lp,c);rp%=fee;}}else if(p.monthsPaid){lp=addM(lp,p.monthsPaid);rp=0;}});const mo=Math.max(mBetween(lp,{month:curM,year:curY}),0);let pb=0;s.payments.filter(p=>p.studentId===sid).sort((a,x)=>a.timestamp-x.timestamp).forEach(p=>{if(p.type==='partial'){pb+=p.amount;pb%=fee;}else if(p.monthsPaid)pb=0;});const due=Math.max(mo*fee-pb,0);if(due>0)overdueList.push({name:st.name,batch:b.name,due,mo});});});
-      overdueList.sort((a,b)=>b.due-a.due);
-      const dark=isDarkMode(),tc=dark?'rgba(255,255,255,.55)':'rgba(30,30,60,.6)',gc=dark?'rgba(255,255,255,.04)':'rgba(0,0,0,.05)';
+      const cr=gs>0?Math.round((gp/gs)*100):0,os=gs-gp;
+      const ml=[],ma=[];for(let i=5;i>=0;i--){const d=new Date(curY,curM-1-i,1);ml.push(['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]);ma.push(ap.filter(p=>p.paidOn&&p.paidOn.month===d.getMonth()+1&&p.paidOn.year===d.getFullYear()).reduce((s,p)=>s+(p.amount||0),0));}
+      const ol=[];bs.forEach(bss=>{const s=allS[bss.bid],b=batches[bss.bid],fee=b.fee||0;Object.keys(s.students).forEach(sid=>{const st=s.students[sid];let lp={month:st.baselineMonth||curM,year:st.baselineYear||curY},rp=0;s.payments.filter(p=>p.studentId===sid).sort((a,x)=>a.timestamp-x.timestamp).forEach(p=>{if(p.type==='partial'){rp+=p.amount;const c=Math.floor(rp/fee);if(c>0){lp=addM(lp,c);rp%=fee;}}else if(p.monthsPaid){lp=addM(lp,p.monthsPaid);rp=0;}});const mo=Math.max(mBetween(lp,{month:curM,year:curY}),0);let pb=0;s.payments.filter(p=>p.studentId===sid).sort((a,x)=>a.timestamp-x.timestamp).forEach(p=>{if(p.type==='partial'){pb+=p.amount;pb%=fee;}else if(p.monthsPaid)pb=0;});const due=Math.max(mo*fee-pb,0);if(due>0)ol.push({name:st.name,batch:b.name,due,mo});});});ol.sort((a,b)=>b.due-a.due);
+      const tc=isDark()?'rgba(255,255,255,.55)':'rgba(30,30,60,.6)',gc=isDark()?'rgba(255,255,255,.04)':'rgba(0,0,0,.05)';
       body.innerHTML=`
         <div class="dash-stat-grid">
-          <div class="dash-stat-card" style="--stat-glow:rgba(124,107,255,.08)"><div class="dash-stat-icon">🎓</div><div class="dash-stat-val">${grandStudents}</div><div class="dash-stat-label">Total Students</div></div>
+          <div class="dash-stat-card" style="--stat-glow:rgba(124,107,255,.08)"><div class="dash-stat-icon">🎓</div><div class="dash-stat-val">${gs}</div><div class="dash-stat-label">Total Students</div></div>
           <div class="dash-stat-card" style="--stat-glow:rgba(0,212,170,.08)"><div class="dash-stat-icon">📋</div><div class="dash-stat-val">${bKeys.length}</div><div class="dash-stat-label">Active Batches</div></div>
-          <div class="dash-stat-card" style="--stat-glow:rgba(255,209,102,.08)"><div class="dash-stat-icon">💰</div><div class="dash-stat-val" style="font-size:17px">${dashFmt(grandMonthly)}</div><div class="dash-stat-label">Monthly Potential</div></div>
-          <div class="dash-stat-card" style="--stat-glow:rgba(255,77,109,.08)"><div class="dash-stat-icon">⚠️</div><div class="dash-stat-val" style="font-size:17px;color:${grandDue>0?'var(--yellow)':'var(--accent3)'}">${dashFmt(grandDue)}</div><div class="dash-stat-label">Outstanding Dues</div></div>
+          <div class="dash-stat-card" style="--stat-glow:rgba(255,209,102,.08)"><div class="dash-stat-icon">💰</div><div class="dash-stat-val" style="font-size:17px">${dashFmt(gm)}</div><div class="dash-stat-label">Monthly Potential</div></div>
+          <div class="dash-stat-card" style="--stat-glow:rgba(255,77,109,.08)"><div class="dash-stat-icon">⚠️</div><div class="dash-stat-val" style="font-size:17px;color:${gd>0?'var(--yellow)':'var(--accent3)'}">${dashFmt(gd)}</div><div class="dash-stat-label">Outstanding Dues</div></div>
         </div>
         <div class="dash-chart-card"><div class="dash-chart-title">Collection Rate</div><div class="dash-chart-sub">Student headcount — paid vs pending</div>
-          <div style="display:flex;align-items:center;gap:16px">
-            <div class="dash-canvas-wrap" style="width:130px;height:130px;flex-shrink:0"><canvas id="tchDonutChart"></canvas></div>
-            <div style="flex:1"><div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:${collRate>=80?'var(--accent3)':collRate>=50?'var(--yellow)':'var(--red)'}">${collRate}%</div>
+          <div style="display:flex;align-items:center;gap:16px"><div class="dash-canvas-wrap" style="width:130px;height:130px;flex-shrink:0"><canvas id="tchDonutChart"></canvas></div>
+            <div style="flex:1"><div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:${cr>=80?'var(--accent3)':cr>=50?'var(--yellow)':'var(--red)'}">${cr}%</div>
               <div style="font-size:11px;color:var(--muted);margin-bottom:12px">of students paid</div>
-              <div style="font-size:11px;color:var(--accent3);margin-bottom:3px">✓ ${grandPaid} students paid</div>
-              <div style="font-size:11px;color:var(--red)">⚠ ${overdueStu} students pending</div>
+              <div style="font-size:11px;color:var(--accent3);margin-bottom:3px">✓ ${gp} students paid</div>
+              <div style="font-size:11px;color:var(--red)">⚠ ${os} students pending</div>
             </div>
-          </div>
-        </div>
+          </div></div>
         <div class="dash-chart-card"><div class="dash-chart-title">Per-Batch Collection</div><div class="dash-chart-sub">Paid vs pending per batch</div><div class="dash-canvas-wrap" style="height:${Math.max(160,bKeys.length*54)}px"><canvas id="tchBarChart"></canvas></div></div>
         <div class="dash-chart-card"><div class="dash-chart-title">Monthly Revenue</div><div class="dash-chart-sub">Last 6 months</div><div class="dash-canvas-wrap" style="height:160px"><canvas id="tchLineChart"></canvas></div></div>
         <div class="dash-insight-card"><div class="dash-insight-title">📋 Batch Breakdown</div>
-          ${batchSummaries.sort((a,b)=>b.due-a.due).map(bs=>{const pct=bs.stuCount>0?Math.round((bs.paidCount/bs.stuCount)*100):0;const fc=pct>=80?'var(--accent3)':pct>=50?'var(--yellow)':'var(--red)';return `<div style="margin-bottom:16px"><div class="dash-prog-header"><div class="dash-prog-label">${bs.name}</div><div style="font-size:10px;color:var(--muted)">${bs.stuCount} students · ${dashFmt(bs.due)} due</div></div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:${fc}">${pct}% paid</span><span style="font-size:10px;color:var(--muted)">${bs.paidCount}/${bs.stuCount}</span></div><div class="dash-prog-bar"><div class="dash-prog-fill" style="width:${pct}%;background:${fc}"></div></div></div>`;}).join('')}
+          ${bs.sort((a,b)=>b.due-a.due).map(bss=>{const pct=bss.stuCount>0?Math.round((bss.paidCount/bss.stuCount)*100):0;const fc=pct>=80?'var(--accent3)':pct>=50?'var(--yellow)':'var(--red)';return `<div style="margin-bottom:16px"><div class="dash-prog-header"><div class="dash-prog-label">${bss.name}</div><div style="font-size:10px;color:var(--muted)">${bss.stuCount} students · ${dashFmt(bss.due)} due</div></div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:${fc}">${pct}% paid</span><span style="font-size:10px;color:var(--muted)">${bss.paidCount}/${bss.stuCount}</span></div><div class="dash-prog-bar"><div class="dash-prog-fill" style="width:${pct}%;background:${fc}"></div></div></div>`;}).join('')}
         </div>
-        ${overdueList.length?`<div class="dash-insight-card"><div class="dash-insight-title">🚨 Top Overdue Students</div>${overdueList.slice(0,8).map((s,i)=>`<div class="dash-insight-row"><div class="dash-ins-rank ${i<3?'top':''}">${i+1}</div><div class="dash-ins-name"><div class="dash-ins-nm">${s.name}</div><div class="dash-ins-sub">${s.batch} · ${s.mo}mo due</div></div><div class="dash-ins-amt red">${dashFmt(s.due)}</div></div>`).join('')}</div>`:''}`;
-      document.getElementById('teacherDashSub').textContent=`${bKeys.length} batch${bKeys.length!==1?'es':''} · ${grandStudents} students`;
+        ${ol.length?`<div class="dash-insight-card"><div class="dash-insight-title">🚨 Top Overdue Students</div>${ol.slice(0,8).map((s,i)=>`<div class="dash-insight-row"><div class="dash-ins-rank ${i<3?'top':''}">${i+1}</div><div class="dash-ins-name"><div class="dash-ins-nm">${s.name}</div><div class="dash-ins-sub">${s.batch} · ${s.mo}mo due</div></div><div class="dash-ins-amt red">${dashFmt(s.due)}</div></div>`).join('')}</div>`:''}`;
+      document.getElementById('teacherDashSub').textContent=`${bKeys.length} batch${bKeys.length!==1?'es':''} · ${gs} students`;
       const dCtx=document.getElementById('tchDonutChart')?.getContext('2d');
-      if(dCtx){const cd=chartDefaults();_tchDashCharts.push(new Chart(dCtx,{type:'doughnut',data:{labels:['Paid','Pending'],datasets:[{data:[grandPaid,overdueStu],backgroundColor:['#00d4aa','#ff4d6d'],borderWidth:0,hoverOffset:8}]},options:{...cd,cutout:'72%',scales:{x:{display:false},y:{display:false}},plugins:{...cd.plugins,legend:{display:false}}}}));}
+      if(dCtx){const cd=chartOpts();_tdc.push(new Chart(dCtx,{type:'doughnut',data:{labels:['Paid','Pending'],datasets:[{data:[gp,os],backgroundColor:['#00d4aa','#ff4d6d'],borderWidth:0,hoverOffset:8}]},options:{...cd,cutout:'72%',scales:{x:{display:false},y:{display:false}},plugins:{...cd.plugins,legend:{display:false}}}}));}
       const bCtx=document.getElementById('tchBarChart')?.getContext('2d');
-      if(bCtx){const sorted2=[...batchSummaries].sort((a,b)=>b.stuCount-a.stuCount);const cd=chartDefaults();_tchDashCharts.push(new Chart(bCtx,{type:'bar',data:{labels:sorted2.map(bs=>bs.name.length>14?bs.name.slice(0,14)+'…':bs.name),datasets:[{label:'Paid',data:sorted2.map(bs=>bs.paidCount),backgroundColor:'rgba(0,212,170,.8)',borderRadius:5,borderSkipped:false},{label:'Pending',data:sorted2.map(bs=>bs.dueCount),backgroundColor:'rgba(255,77,109,.7)',borderRadius:5,borderSkipped:false}]},options:{...cd,indexAxis:'y',plugins:{...cd.plugins,legend:{labels:{color:tc,font:{size:10},padding:10}}},scales:{x:{stacked:false,ticks:{color:tc,font:{size:10},stepSize:1},grid:{color:gc}},y:{ticks:{color:tc,font:{size:10}},grid:{display:false}}}}}));}
+      if(bCtx){const cd=chartOpts();_tdc.push(new Chart(bCtx,{type:'bar',data:{labels:bs.map(b=>b.name.length>14?b.name.slice(0,14)+'…':b.name),datasets:[{label:'Paid',data:bs.map(b=>b.paidCount),backgroundColor:'rgba(0,212,170,.8)',borderRadius:5,borderSkipped:false},{label:'Pending',data:bs.map(b=>b.dueCount),backgroundColor:'rgba(255,77,109,.7)',borderRadius:5,borderSkipped:false}]},options:{...cd,indexAxis:'y',plugins:{...cd.plugins,legend:{labels:{color:tc,font:{size:10},padding:10}}},scores:{x:{stacked:false,ticks:{color:tc,font:{size:10},stepSize:1},grid:{color:gc}},y:{ticks:{color:tc,font:{size:10}},grid:{display:false}}}}}));}
       const lCtx=document.getElementById('tchLineChart')?.getContext('2d');
-      if(lCtx){const cd=chartDefaults();_tchDashCharts.push(new Chart(lCtx,{type:'line',data:{labels:monthLabels,datasets:[{label:'Collected (₹)',data:monthAmts,borderColor:'#7c6bff',backgroundColor:'rgba(124,107,255,.12)',tension:.4,fill:true,pointBackgroundColor:'#7c6bff',pointRadius:4,borderWidth:2}]},options:{...cd,plugins:{...cd.plugins,legend:{display:false}},scores:{x:{ticks:{color:tc,font:{size:10}},grid:{color:gc}},y:{ticks:{color:tc,font:{size:10},callback:v=>v>=1000?'₹'+(v/1000).toFixed(0)+'k':'₹'+v},grid:{color:gc}}}}}));}
+      if(lCtx){const cd=chartOpts();_tdc.push(new Chart(lCtx,{type:'line',data:{labels:ml,datasets:[{label:'Collected (₹)',data:ma,borderColor:'#7c6bff',backgroundColor:'rgba(124,107,255,.12)',tension:.4,fill:true,pointBackgroundColor:'#7c6bff',pointRadius:4,borderWidth:2}]},options:{...cd,plugins:{...cd.plugins,legend:{display:false}},scales:{x:{ticks:{color:tc,font:{size:10}},grid:{color:gc}},y:{ticks:{color:tc,font:{size:10},callback:v=>v>=1000?'₹'+(v/1000).toFixed(0)+'k':'₹'+v},grid:{color:gc}}}}}));}
     }
 
-    window.openStudentDash=function(){
-      document.getElementById('appScreen').classList.add('hidden');
-      document.getElementById('studentDashScreen').classList.remove('hidden');
-      renderStudentDash();
-    };
-    window.closeStudentDash=function(){
-      destroyCharts(_stuDashCharts);
-      document.getElementById('studentDashScreen').classList.add('hidden');
-      document.getElementById('appScreen').classList.remove('hidden');
-    };
+    window.openStudentDash=function(){document.getElementById('appScreen').classList.add('hidden');document.getElementById('studentDashScreen').classList.remove('hidden');renderStudentDash();};
+    window.closeStudentDash=function(){destroyC(_sdc);document.getElementById('studentDashScreen').classList.add('hidden');document.getElementById('appScreen').classList.remove('hidden');};
     window.renderStudentDash=function(){
-      destroyCharts(_stuDashCharts);
-      const body=document.getElementById('studentDashBody'); if(!body)return;
+      destroyC(_sdc);const body=document.getElementById('studentDashBody');if(!body)return;
       const tKeys=Object.keys(teachers);
-      if(!tKeys.length){ body.innerHTML='<div class="dash-empty"><div class="dash-empty-icon">📚</div><div class="dash-empty-txt">No teachers yet.</div></div>'; return; }
+      if(!tKeys.length){body.innerHTML='<div class="dash-empty"><div class="dash-empty-icon">📚</div><div class="dash-empty-txt">No teachers yet.</div></div>';return;}
       const now=new Date(),curM=now.getMonth()+1,curY=now.getFullYear();
-      const teacherData=tKeys.map(id=>{const t=teachers[id],dm=monthsDue(id),da=calcDue(id);return{id,name:t.name,subject:t.subject,fee:t.fee,dm,da,cr:dm>=6,ov:dm>=3};}).sort((a,b)=>b.da-a.da);
-      const totalDue2=teacherData.reduce((s,t)=>s+t.da,0);
-      const clearCount=teacherData.filter(t=>t.dm===0).length,overdueCount=teacherData.filter(t=>t.dm>0).length;
-      const totalMonthly=teacherData.reduce((s,t)=>s+t.fee,0);
-      const clearRate=tKeys.length>0?Math.round((clearCount/tKeys.length)*100):0;
-      const monthLabels2=[],monthAmts2=[];
-      for(let i=5;i>=0;i--){const d=new Date(curY,curM-1-i,1);monthLabels2.push(['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]);monthAmts2.push(payments.filter(p=>p.paidOn&&p.paidOn.month===d.getMonth()+1&&p.paidOn.year===d.getFullYear()).reduce((s,p)=>s+(p.amount||0),0));}
-      const paidThisMonth=payments.filter(p=>p.paidOn&&p.paidOn.month===curM&&p.paidOn.year===curY).reduce((s,p)=>s+(p.amount||0),0);
-      const nonZ=monthAmts2.filter(a=>a>0);const avgMonthly=nonZ.length?Math.round(nonZ.reduce((s,a)=>s+a,0)/nonZ.length):0;
-      const dark=isDarkMode(),tc=dark?'rgba(255,255,255,.55)':'rgba(30,30,60,.6)',gc=dark?'rgba(255,255,255,.04)':'rgba(0,0,0,.05)';
+      const td2=tKeys.map(id=>{const t=teachers[id],dm=monthsDue(id),da=calcDue(id);return{id,name:t.name,subject:t.subject,fee:t.fee,dm,da,cr:dm>=6,ov:dm>=3};}).sort((a,b)=>b.da-a.da);
+      const tot=td2.reduce((s,t)=>s+t.da,0),clc=td2.filter(t=>t.dm===0).length,ovc=td2.filter(t=>t.dm>0).length;
+      const tm=td2.reduce((s,t)=>s+t.fee,0),clr=tKeys.length>0?Math.round((clc/tKeys.length)*100):0;
+      const ml2=[],ma2=[];for(let i=5;i>=0;i--){const d=new Date(curY,curM-1-i,1);ml2.push(['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]);ma2.push(payments.filter(p=>p.paidOn&&p.paidOn.month===d.getMonth()+1&&p.paidOn.year===d.getFullYear()).reduce((s,p)=>s+(p.amount||0),0));}
+      const ptm=payments.filter(p=>p.paidOn&&p.paidOn.month===curM&&p.paidOn.year===curY).reduce((s,p)=>s+(p.amount||0),0);
+      const nz=ma2.filter(a=>a>0),avg=nz.length?Math.round(nz.reduce((s,a)=>s+a,0)/nz.length):0;
+      const tc=isDark()?'rgba(255,255,255,.55)':'rgba(30,30,60,.6)',gc=isDark()?'rgba(255,255,255,.04)':'rgba(0,0,0,.05)';
       body.innerHTML=`
         <div class="dash-stat-grid">
-          <div class="dash-stat-card" style="--stat-glow:rgba(255,77,109,.08)"><div class="dash-stat-icon">💸</div><div class="dash-stat-val" style="font-size:17px;color:${totalDue2>0?'var(--yellow)':'var(--accent3)'}">${dashFmt(totalDue2)}</div><div class="dash-stat-label">Total Outstanding</div></div>
-          <div class="dash-stat-card" style="--stat-glow:rgba(0,212,170,.08)"><div class="dash-stat-icon">📅</div><div class="dash-stat-val" style="font-size:17px;color:var(--accent3)">${dashFmt(paidThisMonth)}</div><div class="dash-stat-label">Paid This Month</div></div>
-          <div class="dash-stat-card" style="--stat-glow:rgba(124,107,255,.08)"><div class="dash-stat-icon">💳</div><div class="dash-stat-val" style="font-size:17px">${dashFmt(totalMonthly)}</div><div class="dash-stat-label">Monthly Expenses</div></div>
-          <div class="dash-stat-card" style="--stat-glow:rgba(255,209,102,.08)"><div class="dash-stat-icon">📈</div><div class="dash-stat-val" style="font-size:17px">${dashFmt(avgMonthly)}</div><div class="dash-stat-label">Avg Monthly Paid</div></div>
+          <div class="dash-stat-card" style="--stat-glow:rgba(255,77,109,.08)"><div class="dash-stat-icon">💸</div><div class="dash-stat-val" style="font-size:17px;color:${tot>0?'var(--yellow)':'var(--accent3)'}">${dashFmt(tot)}</div><div class="dash-stat-label">Total Outstanding</div></div>
+          <div class="dash-stat-card" style="--stat-glow:rgba(0,212,170,.08)"><div class="dash-stat-icon">📅</div><div class="dash-stat-val" style="font-size:17px;color:var(--accent3)">${dashFmt(ptm)}</div><div class="dash-stat-label">Paid This Month</div></div>
+          <div class="dash-stat-card" style="--stat-glow:rgba(124,107,255,.08)"><div class="dash-stat-icon">💳</div><div class="dash-stat-val" style="font-size:17px">${dashFmt(tm)}</div><div class="dash-stat-label">Monthly Expenses</div></div>
+          <div class="dash-stat-card" style="--stat-glow:rgba(255,209,102,.08)"><div class="dash-stat-icon">📈</div><div class="dash-stat-val" style="font-size:17px">${dashFmt(avg)}</div><div class="dash-stat-label">Avg Monthly Paid</div></div>
         </div>
-        <div class="dash-chart-card"><div class="dash-chart-title">Fee Status Overview</div><div class="dash-chart-sub">Teachers by count — clear vs pending</div>
-          <div style="display:flex;align-items:center;gap:16px">
-            <div class="dash-canvas-wrap" style="width:130px;height:130px;flex-shrink:0"><canvas id="stuDonutChart"></canvas></div>
-            <div style="flex:1"><div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:${clearRate>=80?'var(--accent3)':totalDue2>0?'var(--yellow)':'var(--accent3)'}">${clearRate}%</div>
-              <div style="font-size:11px;color:var(--muted);margin-bottom:12px">fees up to date</div>
-              <div style="font-size:11px;color:var(--accent3);margin-bottom:3px">✓ ${clearCount} teacher${clearCount!==1?'s':''} — clear</div>
-              <div style="font-size:11px;color:var(--red)">⚠ ${overdueCount} teacher${overdueCount!==1?'s':''} — pending</div>
+        <div class="dash-chart-card"><div class="dash-chart-title">Fee Status</div><div class="dash-chart-sub">Teachers by count — clear vs pending</div>
+          <div style="display:flex;align-items:center;gap:16px"><div class="dash-canvas-wrap" style="width:130px;height:130px;flex-shrink:0"><canvas id="stuDonutChart"></canvas></div>
+            <div style="flex:1"><div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:${clr>=80?'var(--accent3)':tot>0?'var(--yellow)':'var(--accent3)'}">${clr}%</div>
+              <div style="font-size:11px;color:var(--muted);margin-bottom:12px">up to date</div>
+              <div style="font-size:11px;color:var(--accent3);margin-bottom:3px">✓ ${clc} teacher${clc!==1?'s':''} clear</div>
+              <div style="font-size:11px;color:var(--red)">⚠ ${ovc} teacher${ovc!==1?'s':''} pending</div>
             </div>
-          </div>
-        </div>
+          </div></div>
         <div class="dash-chart-card"><div class="dash-chart-title">Per-Teacher Dues</div><div class="dash-chart-sub">Months outstanding per teacher</div><div class="dash-canvas-wrap" style="height:${Math.max(150,tKeys.length*52)}px"><canvas id="stuBarChart"></canvas></div></div>
-        <div class="dash-chart-card"><div class="dash-chart-title">Payment History</div><div class="dash-chart-sub">Amount paid — last 6 months</div><div class="dash-canvas-wrap" style="height:160px"><canvas id="stuLineChart"></canvas></div></div>
+        <div class="dash-chart-card"><div class="dash-chart-title">Payment History</div><div class="dash-chart-sub">Last 6 months</div><div class="dash-canvas-wrap" style="height:160px"><canvas id="stuLineChart"></canvas></div></div>
         <div class="dash-insight-card"><div class="dash-insight-title">📊 Teacher-wise Status</div>
-          ${teacherData.map(t=>{const fc=t.dm===0?'var(--accent3)':t.cr?'var(--red)':t.ov?'var(--yellow)':'var(--accent4)';return `<div style="margin-bottom:16px"><div class="dash-prog-header"><div class="dash-prog-label">${t.name}</div><div style="font-size:10px;color:var(--muted)">${t.subject} · ${dashFmt(t.fee)}/mo</div></div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:${t.dm===0?'var(--accent3)':t.cr?'var(--red)':'var(--yellow)'}">${t.dm===0?'All clear ✓':`${t.dm} month${t.dm>1?'s':''} due`}</span><span style="font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:${fc}">${dashFmt(t.da)}</span></div><div class="dash-prog-bar"><div class="dash-prog-fill" style="width:${t.dm===0?100:Math.min(100,t.dm*15)}%;background:${fc}"></div></div></div>`;}).join('')}
+          ${td2.map(t=>{const fc=t.dm===0?'var(--accent3)':t.cr?'var(--red)':t.ov?'var(--yellow)':'var(--accent4)';return `<div style="margin-bottom:16px"><div class="dash-prog-header"><div class="dash-prog-label">${t.name}</div><div style="font-size:10px;color:var(--muted)">${t.subject} · ${dashFmt(t.fee)}/mo</div></div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:${t.dm===0?'var(--accent3)':t.cr?'var(--red)':'var(--yellow)'}">${t.dm===0?'All clear ✓':`${t.dm} month${t.dm>1?'s':''} due`}</span><span style="font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:${fc}">${dashFmt(t.da)}</span></div><div class="dash-prog-bar"><div class="dash-prog-fill" style="width:${t.dm===0?100:Math.min(100,t.dm*15)}%;background:${fc}"></div></div></div>`;}).join('')}
         </div>
-        ${payments.length?`<div class="dash-insight-card"><div class="dash-insight-title">🧾 Recent Payments</div>${[...payments].sort((a,b)=>b.timestamp-a.timestamp).slice(0,6).map(p=>`<div class="dash-insight-row"><div class="dash-ins-rank">${p.type==='partial'?'P':p.type==='advance'?'A':'✓'}</div><div class="dash-ins-name"><div class="dash-ins-nm">${p.teacherName||'Teacher'}</div><div class="dash-ins-sub">${p.paidOn?`${p.paidOn.day} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][p.paidOn.month-1]} ${p.paidOn.year}`:'—'} · ${p.type}</div></div><div class="dash-ins-amt clear">${dashFmt(p.amount)}</div></div>`).join('')}</div>`:'' }`;
-      const dCtx=document.getElementById('stuDonutChart')?.getContext('2d');
-      if(dCtx){const cd=chartDefaults();_stuDashCharts.push(new Chart(dCtx,{type:'doughnut',data:{labels:['Clear','Pending'],datasets:[{data:[clearCount,overdueCount],backgroundColor:['#00d4aa','#ff4d6d'],borderWidth:0,hoverOffset:8}]},options:{...cd,cutout:'72%',scales:{x:{display:false},y:{display:false}},plugins:{...cd.plugins,legend:{display:false}}}}));}
-      const bCtx=document.getElementById('stuBarChart')?.getContext('2d');
-      if(bCtx){const cd=chartDefaults();_stuDashCharts.push(new Chart(bCtx,{type:'bar',data:{labels:teacherData.map(t=>t.name.length>14?t.name.slice(0,14)+'…':t.name),datasets:[{label:'Months Due',data:teacherData.map(t=>t.dm),backgroundColor:teacherData.map(t=>t.cr?'rgba(255,77,109,.8)':t.ov?'rgba(255,209,102,.8)':'rgba(0,212,170,.8)'),borderRadius:5,borderSkipped:false}]},options:{...cd,indexAxis:'y',plugins:{...cd.plugins,legend:{display:false}},scales:{x:{ticks:{color:tc,font:{size:10},stepSize:1},grid:{color:gc}},y:{ticks:{color:tc,font:{size:10}},grid:{display:false}}}}}));}
-      const lCtx=document.getElementById('stuLineChart')?.getContext('2d');
-      if(lCtx){const cd=chartDefaults();_stuDashCharts.push(new Chart(lCtx,{type:'line',data:{labels:monthLabels2,datasets:[{label:'Paid (₹)',data:monthAmts2,borderColor:'#ff6b9d',backgroundColor:'rgba(255,107,157,.1)',tension:.4,fill:true,pointBackgroundColor:'#ff6b9d',pointRadius:4,borderWidth:2}]},options:{...cd,plugins:{...cd.plugins,legend:{display:false}},scales:{x:{ticks:{color:tc,font:{size:10}},grid:{color:gc}},y:{ticks:{color:tc,font:{size:10},callback:v=>v>=1000?'₹'+(v/1000).toFixed(0)+'k':'₹'+v},grid:{color:gc}}}}}));}
+        ${payments.length?`<div class="dash-insight-card"><div class="dash-insight-title">🧾 Recent Payments</div>${[...payments].sort((a,b)=>b.timestamp-a.timestamp).slice(0,6).map(p=>`<div class="dash-insight-row"><div class="dash-ins-rank">${p.type==='partial'?'P':p.type==='advance'?'A':'✓'}</div><div class="dash-ins-name"><div class="dash-ins-nm">${p.teacherName||'Teacher'}</div><div class="dash-ins-sub">${p.paidOn?`${p.paidOn.day} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][p.paidOn.month-1]} ${p.paidOn.year}`:'—'} · ${p.type}</div></div><div class="dash-ins-amt clear">${dashFmt(p.amount)}</div></div>`).join('')}</div>`:''}`;
+      const dCtx=document.getElementById('stuDonutChart')?.getContext('2d');if(dCtx){const cd=chartOpts();_sdc.push(new Chart(dCtx,{type:'doughnut',data:{labels:['Clear','Pending'],datasets:[{data:[clc,ovc],backgroundColor:['#00d4aa','#ff4d6d'],borderWidth:0,hoverOffset:8}]},options:{...cd,cutout:'72%',scales:{x:{display:false},y:{display:false}},plugins:{...cd.plugins,legend:{display:false}}}}));}
+      const bCtx=document.getElementById('stuBarChart')?.getContext('2d');if(bCtx){const cd=chartOpts();_sdc.push(new Chart(bCtx,{type:'bar',data:{labels:td2.map(t=>t.name.length>14?t.name.slice(0,14)+'…':t.name),datasets:[{label:'Months Due',data:td2.map(t=>t.dm),backgroundColor:td2.map(t=>t.cr?'rgba(255,77,109,.8)':t.ov?'rgba(255,209,102,.8)':'rgba(0,212,170,.8)'),borderRadius:5,borderSkipped:false}]},options:{...cd,indexAxis:'y',plugins:{...cd.plugins,legend:{display:false}},scales:{x:{ticks:{color:tc,font:{size:10},stepSize:1},grid:{color:gc}},y:{ticks:{color:tc,font:{size:10}},grid:{display:false}}}}}));}
+      const lCtx=document.getElementById('stuLineChart')?.getContext('2d');if(lCtx){const cd=chartOpts();_sdc.push(new Chart(lCtx,{type:'line',data:{labels:ml2,datasets:[{label:'Paid (₹)',data:ma2,borderColor:'#ff6b9d',backgroundColor:'rgba(255,107,157,.1)',tension:.4,fill:true,pointBackgroundColor:'#ff6b9d',pointRadius:4,borderWidth:2}]},options:{...cd,plugins:{...cd.plugins,legend:{display:false}},scales:{x:{ticks:{color:tc,font:{size:10}},grid:{color:gc}},y:{ticks:{color:tc,font:{size:10},callback:v=>v>=1000?'₹'+(v/1000).toFixed(0)+'k':'₹'+v},grid:{color:gc}}}}}));}
     };
 
     // Wire dashboard button
-    document.getElementById('dashBtn')?.addEventListener('click',()=>{ if(isT())openTeacherDash(); else openStudentDash(); });
-
-    // dashBtn is shown by render() directly
-
-    // Sync notif on load
-    _syncNotifToggle();
+    document.getElementById('dashBtn')?.addEventListener('click',()=>{if(isT())openTeacherDash();else openStudentDash();});
 
   </script>
 
 
+
+  <!-- TEACHER ADD CHOICE SHEET -->
+  <div class="modal-overlay hidden" id="teacherAddChoiceSheet">
+    <div class="modal-sheet" style="padding-bottom:36px">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title">What would you like to add?</div>
+        <button class="modal-close" onclick="document.getElementById('teacherAddChoiceSheet').classList.add('hidden')">✕</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:4px 0 8px">
+        <button onclick="document.getElementById('teacherAddChoiceSheet').classList.add('hidden');openAddBatchModal();" style="display:flex;flex-direction:column;align-items:center;gap:10px;background:var(--surface2);border:1.5px solid var(--border2);border-radius:18px;padding:22px 12px;cursor:pointer;transition:all .18s;user-select:none;">
+          <div style="font-size:32px">📋</div>
+          <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--text)">Add Batch</div>
+          <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">Group of students with one fee structure</div>
+        </button>
+        <button onclick="document.getElementById('teacherAddChoiceSheet').classList.add('hidden');openAddStandaloneStudent();" style="display:flex;flex-direction:column;align-items:center;gap:10px;background:var(--surface2);border:1.5px solid var(--border2);border-radius:18px;padding:22px 12px;cursor:pointer;transition:all .18s;user-select:none;">
+          <div style="font-size:32px">🎓</div>
+          <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--text)">Add Student</div>
+          <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">Individual student, no batch required</div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STANDALONE STUDENT MODAL (teacher — no batch) -->
+  <div class="modal-overlay hidden" id="addStandaloneStudentModal">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title">Add Student</div>
+        <button class="modal-close" id="closeStandaloneStudentBtn">✕</button>
+      </div>
+      <div class="field-group">
+        <label>Student Name</label>
+        <input class="field-input" id="ssNameInp" placeholder="e.g. Rahul Sharma" maxlength="40">
+      </div>
+      <div class="field-group">
+        <label>Admission Date <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <input class="field-input" id="ssDateInp" type="date">
+      </div>
+      <div class="field-group">
+        <label>Payment Date <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">(optional — dues from here)</span></label>
+        <input class="field-input" id="ssPayDateInp" type="date">
+        <div class="field-hint">Leave blank to start dues from today.</div>
+      </div>
+      <div class="field-group">
+        <label>Monthly Fee (₹)</label>
+        <input class="field-input" id="ssFeeInp" type="number" placeholder="500">
+      </div>
+      <div class="field-group">
+        <label>Assign to Batch <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <select class="field-input" id="ssBatchSel">
+          <option value="">No batch — standalone</option>
+        </select>
+      </div>
+      <div class="btn-row">
+        <button class="btn-cancel" id="cancelStandaloneStudentBtn">Cancel</button>
+        <button class="btn-primary" id="confirmStandaloneStudentBtn">Add Student</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSIGN TO BATCH MODAL -->
+  <div class="modal-overlay hidden" id="assignBatchModal">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title">Add to Batch</div>
+        <button class="modal-close" id="closeAssignBatchBtn">✕</button>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Pick a batch to move the selected student(s) into.</div>
+      <div id="assignBatchList"></div>
+      <div class="btn-row">
+        <button class="btn-cancel" id="cancelAssignBatchBtn">Cancel</button>
+        <button class="btn-primary" id="confirmAssignBatchBtn">Move to Batch</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SELECTION BAR -->
+  <div class="sel-bar hidden" id="selBar">
+    <button class="sel-bar-close" id="selBarClose">✕</button>
+    <div class="sel-bar-count"><span id="selCount">0</span> selected</div>
+    <button class="sel-bar-btn pin-btn hidden" id="selPinBtn"><span class="sbi">📌</span><span>Pin</span></button>
+    <button class="sel-bar-btn hidden" id="selAssignBtn"><span class="sbi">📋</span><span>Assign</span></button>
+    <button class="sel-bar-btn danger" id="selDeleteBtn"><span class="sbi">🗑</span><span>Delete</span></button>
+  </div>
 
   <!-- TEACHER ANALYTICS DASHBOARD -->
   <div id="teacherDashScreen" class="dash-screen hidden">
     <div class="dash-topbar">
       <button class="bd-back" onclick="closeTeacherDash()">&#8592;</button>
       <div class="dash-title-wrap">
-        <div class="dash-title">📊 Analytics</div>
+        <div class="dash-title">Analytics</div>
         <div class="dash-sub" id="teacherDashSub">Teacher Dashboard</div>
       </div>
       <button class="dash-refresh" id="teacherDashRefresh" onclick="openTeacherDash(true)">&#8635;</button>
     </div>
     <div class="dash-body" id="teacherDashBody">
-      <div class="dash-empty"><div class="dash-empty-icon">📊</div><div class="dash-empty-txt">Loading…</div></div>
+      <div class="dash-sk-row"><div class="dash-sk-card"></div><div class="dash-sk-card"></div></div>
+      <div class="dash-sk-row"><div class="dash-sk-card"></div><div class="dash-sk-card"></div></div>
+      <div class="dash-sk"><div class="dash-sk-line" style="width:55%"></div><div class="dash-sk-line" style="width:35%;opacity:.5"></div><div class="dash-sk-bar"></div></div>
+      <div class="dash-sk"><div class="dash-sk-line" style="width:45%"></div><div class="dash-sk-bar"></div></div>
     </div>
   </div>
 
@@ -4833,13 +4445,16 @@
     <div class="dash-topbar">
       <button class="bd-back" onclick="closeStudentDash()">&#8592;</button>
       <div class="dash-title-wrap">
-        <div class="dash-title">📊 My Overview</div>
+        <div class="dash-title">My Overview</div>
         <div class="dash-sub">Payment Analytics</div>
       </div>
       <button class="dash-refresh" id="studentDashRefresh" onclick="renderStudentDash()">&#8635;</button>
     </div>
     <div class="dash-body" id="studentDashBody">
-      <div class="dash-empty"><div class="dash-empty-icon">📊</div><div class="dash-empty-txt">Loading…</div></div>
+      <div class="dash-sk-row"><div class="dash-sk-card"></div><div class="dash-sk-card"></div></div>
+      <div class="dash-sk-row"><div class="dash-sk-card"></div><div class="dash-sk-card"></div></div>
+      <div class="dash-sk"><div class="dash-sk-line" style="width:55%"></div><div class="dash-sk-line" style="width:35%;opacity:.5"></div><div class="dash-sk-bar"></div></div>
+      <div class="dash-sk"><div class="dash-sk-line" style="width:45%"></div><div class="dash-sk-bar"></div></div>
     </div>
   </div>
 
