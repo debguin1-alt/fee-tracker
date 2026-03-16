@@ -1620,148 +1620,125 @@
     .sk-pill    { border-radius: 50px !important; }
 
     /* ── SPLASH SKELETON ── */
-    /* ╔═══════════════════════════════════════════════════╗
-       ║          SKELETON SYSTEM — rebuilt                ║
-       ╚═══════════════════════════════════════════════════╝ */
+    #splashSkeleton          { position: fixed; inset: 0; z-index: 9; background: var(--bg); display: flex; flex-direction: column; overflow: hidden; transition: opacity .4s ease, transform .4s ease; }
+    #splashSkeleton.fade-out { opacity: 0; pointer-events: none; transform: scale(.98); }
 
-    /* Base shimmer */
-    /* Splash skeleton — covers entire screen until data ready */
-    #splashSkeleton {
-      position: fixed; inset: 0; z-index: 9; background: var(--bg);
-      display: flex; flex-direction: column; overflow: hidden;
-      transition: opacity .38s ease, transform .38s ease;
-    }
-    #splashSkeleton.fade-out {
-      opacity: 0; pointer-events: none; transform: scale(.98);
-    }
+    /* Topbar row: same padding as real .topbar */
+    .splash-topbar { display: flex; align-items: center; padding: 20px 18px 14px; width: 100%; max-width: 480px; margin: 0 auto; flex-shrink: 0; }
 
-    /* Topbar row — exactly matches .topbar padding */
-    .splash-topbar {
-      display: flex; align-items: center; gap: 12px;
-      padding: 56px 18px 14px;
-      width: 100%; max-width: 480px; margin: 0 auto; flex-shrink: 0;
-    }
+    /* Content area: same side padding as .app-inner */
+    .splash-body { flex: 1; padding: 0 16px; width: 100%; max-width: 480px; margin: 0 auto; overflow: hidden; }
 
-    /* Content body */
-    .splash-body {
-      flex: 1; padding: 0 14px; width: 100%; max-width: 480px;
-      margin: 0 auto; overflow: hidden;
-    }
-
-    /* Hero card — matches total-card height/radius/gradient */
+    /* Hero card block — matches total-card: ~148px, 28px radius, gradient */
     .sk-hero {
       width: 100%; height: 148px; border-radius: 28px; margin-bottom: 20px;
       background: linear-gradient(148deg,
-        rgba(74,53,224,.3) 0%, rgba(126,35,200,.22) 35%,
+        rgba(74,53,224,.32) 0%, rgba(126,35,200,.22) 35%,
         rgba(192,48,160,.18) 68%, rgba(236,88,120,.12) 100%);
       position: relative; overflow: hidden;
     }
-    .sk-hero::before {
-      content: '';
-      position: absolute; top: 16px; left: 18px; right: 18px;
+    .sk-hero-inner {
+      position: absolute; inset: 0; padding: 22px 22px; z-index: 1; pointer-events: none;
+      display: flex; flex-direction: column; justify-content: space-between;
     }
+    .sk-hero-label  { width: 88px; height: 8px; border-radius: 4px; background: rgba(255,255,255,.18); }
+    .sk-hero-amount { width: 150px; height: 40px; border-radius: 9px; background: rgba(255,255,255,.22); margin: 8px 0 5px; }
+    .sk-hero-sub    { width: 110px; height: 8px; border-radius: 4px; background: rgba(255,255,255,.12); }
+    .sk-hero-pills  { display: flex; gap: 9px; }
+    .sk-hero-pill   { height: 36px; border-radius: 13px; flex: 1; background: rgba(255,255,255,.14); }
     .sk-hero::after {
       content: ''; position: absolute; inset: 0;
-      background: linear-gradient(90deg,
-        transparent 20%, rgba(255,255,255,.07) 50%, transparent 80%);
-      background-size: 300% 100%;
-      animation: shimmer 2.2s ease-in-out infinite;
+      background: linear-gradient(90deg, transparent 20%, rgba(255,255,255,.07) 50%, transparent 80%);
+      background-size: 300% 100%; animation: shimmer 2.2s ease-in-out infinite;
     }
 
-    /* Hero card inner lines */
-    .sk-hero-inner {
-      position: absolute; inset: 0; padding: 22px 20px;
-      display: flex; flex-direction: column; justify-content: space-between;
-      z-index: 1; pointer-events: none;
-    }
-    .sk-hero-label { width: 90px; height: 8px; border-radius: 4px; background: rgba(255,255,255,.18); }
-    .sk-hero-amount { width: 140px; height: 38px; border-radius: 8px; background: rgba(255,255,255,.22); margin-top: 8px; }
-    .sk-hero-sub    { width: 100px; height: 8px; border-radius: 4px; background: rgba(255,255,255,.12); }
-    .sk-hero-pills  { display: flex; gap: 8px; margin-top: 16px; }
-    .sk-hero-pill   { height: 36px; border-radius: 13px; flex: 1; background: rgba(255,255,255,.14); }
-
-    /* Teacher/batch card skeleton wrapper — matches card border/radius */
+    /* Teacher/batch card skeleton — 22px radius to match actual cards */
     .sk-tc {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      margin-bottom: 12px;
-      overflow: hidden;
-      position: relative;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 22px; margin-bottom: 12px; overflow: hidden; position: relative;
     }
     .sk-tc::after {
       content: ''; position: absolute; inset: 0; pointer-events: none;
       background: linear-gradient(90deg, transparent 20%, rgba(255,255,255,.025) 50%, transparent 80%);
-      background-size: 300% 100%;
-      animation: shimmer 2s ease-in-out infinite;
+      background-size: 300% 100%; animation: shimmer 2s ease-in-out infinite;
     }
+
+    /* card-top padding replica */
     .sk-tc-body {
       display: flex; justify-content: space-between; align-items: flex-start;
       padding: 16px 16px 13px;
     }
+
+    /* pay-tabs row — grid 1:1:1, same gap */
     .sk-tc-tabs {
       display: grid; grid-template-columns: 1fr 1fr 1fr;
       gap: 8px; padding: 0 16px 12px;
     }
-    .sk-tc-pay  { display: flex; gap: 9px; padding: 0 16px 14px; }
-    .sk-tc-bar  {
+
+    /* pay input + button row */
+    .sk-tc-pay {
+      display: flex; gap: 9px;
+      padding: 0 15px 14px;
+    }
+
+    /* bottom bar — mirrors card-actions */
+    .sk-tc-bar {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 16px; border-top: 1px solid var(--border);
+      padding: 10px 16px 10px;
+      border-top: 1px solid var(--border);
     }
 
-    /* Batch card skeleton */
-    .sk-batch {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 22px; margin-bottom: 12px; overflow: hidden;
-      position: relative; padding: 15px 15px 13px;
+    /* ── LOGIN SKELETON ── */
+    #loginSkeleton          { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; gap: 0; background: var(--bg); transition: opacity .45s ease, transform .45s ease; z-index: 2; pointer-events: none; }
+    #loginSkeleton.hidden   { display: none !important; }
+    #loginSkeleton.fade-out { opacity: 0; pointer-events: none; transform: scale(.97); }
+
+    /* ₹ glyph placeholder — purple-tinted to hint at gradient text */
+    .sk-login-glyph {
+      width: 56px; height: 72px; border-radius: 14px;
+      background: linear-gradient(135deg, rgba(124,107,255,.25), rgba(255,107,157,.15));
+      position: relative; overflow: hidden;
     }
-    .sk-batch::after {
-      content: ''; position: absolute; inset: 0; pointer-events: none;
-      background: linear-gradient(90deg, transparent 20%, rgba(255,255,255,.025) 50%, transparent 80%);
-      background-size: 300% 100%; animation: shimmer 2s ease-in-out infinite;
+    .sk-login-glyph::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent 20%, rgba(255,255,255,.08) 50%, transparent 80%);
+      background-size: 300% 100%;
+      animation: shimmer 2s ease-in-out infinite;
     }
 
-    /* Student card (batch detail) */
-    .sk-student-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 22px; margin-bottom: 10px; overflow: hidden;
-      position: relative; padding: 14px 14px 12px;
+    /* Google button placeholder — white-tinted to hint at white button */
+    .sk-login-btn {
+      width: 100%; max-width: 300px; height: 52px; border-radius: 16px;
+      background: rgba(255,255,255,.07);
+      position: relative; overflow: hidden;
     }
-    .sk-student-card::after {
-      content: ''; position: absolute; inset: 0; pointer-events: none;
-      background: linear-gradient(90deg, transparent 20%, rgba(255,255,255,.025) 50%, transparent 80%);
-      background-size: 300% 100%; animation: shimmer 2s ease-in-out infinite;
+    .sk-login-btn::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent 20%, rgba(255,255,255,.06) 50%, transparent 80%);
+      background-size: 300% 100%;
+      animation: shimmer 2s ease-in-out infinite;
     }
 
-    /* Misc helpers */
+    /* ── MISC SKELETON UTILITIES (used in BD screen etc.) ── */
     .sk-mb4  { margin-bottom: 4px !important; }
     .sk-mb8  { margin-bottom: 8px !important; }
     .sk-mb12 { margin-bottom: 12px !important; }
     .sk-mb16 { margin-bottom: 16px !important; }
-    .sk-section-row  { display: flex; align-items: center; justify-content: space-between; margin-bottom: 13px; }
-    .sk-total-card   { height: 148px; border-radius: 28px; width: 100%; margin-bottom: 20px; }
-    .sk-bd-summary   { height: 116px; border-radius: 24px; width: 100%; margin-bottom: 16px; }
+    .sk-section-row  { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .sk-total-card   { height: 130px; border-radius: 20px; width: 100%; margin-bottom: 18px; }
+    .sk-bd-summary   { height: 116px; border-radius: 20px; width: 100%; margin-bottom: 16px; }
+    .sk-student-card { height: 78px; border-radius: 18px; width: 100%; margin-bottom: 9px; }
+    .sk-teacher-card { border-radius: 20px; width: 100%; background: var(--surface); border: 1px solid var(--border); margin-bottom: 10px; overflow: hidden; position: relative; }
+    .sk-teacher-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 20%, rgba(255,255,255,.03) 50%, transparent 80%); background-size: 300% 100%; animation: shimmer 2s ease-in-out infinite; }
     .sk-row   { display: flex; align-items: center; gap: 10px; }
-    .sk-tabs  { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 12px; }
-    .sk-tab-item { height: 42px; border-radius: 12px; }
-    .skeleton { width: 100%; height: 120px; border-radius: 22px; margin-bottom: 10px; }
-    .sk-pill-row { display: flex; gap: 7px; margin-top: 10px; }
+    .sk-tabs  { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 12px; }
+    .sk-tab-item { height: 36px; border-radius: 10px; }
+    .skeleton { width: 100%; height: 120px; border-radius: 20px; margin-bottom: 10px; background: linear-gradient(90deg, var(--surface2) 0%, var(--surface2) 30%, var(--surface3) 50%, var(--surface2) 70%, var(--surface2) 100%); background-size: 300% 100%; animation: shimmer 2s ease-in-out infinite; }
 
-    /* Login skeleton */
-    #loginSkeleton          { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; gap: 0; background: var(--bg); transition: opacity .45s ease, transform .45s ease; z-index: 2; pointer-events: none; }
-    #loginSkeleton.hidden   { display: none !important; }
-    #loginSkeleton.fade-out { opacity: 0; pointer-events: none; transform: scale(.97); }
-    .sk-login-glyph {
-      width: 56px; height: 72px; border-radius: 14px;
-      background: linear-gradient(135deg, rgba(124,107,255,.25), rgba(255,107,157,.15));
-      position: relative; overflow: hidden; margin-bottom: 18px;
-    }
-    .sk-login-glyph::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 20%, rgba(255,255,255,.08) 50%, transparent 80%); background-size: 300% 100%; animation: shimmer 2s ease-in-out infinite; }
-    .sk-login-btn { width: 100%; max-width: 310px; height: 54px; border-radius: 20px; background: rgba(255,255,255,.07); position: relative; overflow: hidden; }
-    .sk-login-btn::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 20%, rgba(255,255,255,.06) 50%, transparent 80%); background-size: 300% 100%; animation: shimmer 2s ease-in-out infinite; }
-
-    
-        .avatar-btn.loading { background: linear-gradient(90deg, var(--surface2) 0%, var(--surface3) 50%, var(--surface2) 100%); background-size: 300% 100%; animation: shimmer 2s ease-in-out infinite; border-color: transparent; }
+    /* Avatar loading state */
+    .avatar-btn.loading { background: linear-gradient(90deg, var(--surface2) 0%, var(--surface3) 50%, var(--surface2) 100%); background-size: 300% 100%; animation: shimmer 2s ease-in-out infinite; border-color: transparent; }
 
     /* Pull-to-refresh */
     #pull-indicator { position: fixed; top: 0; left: 0; right: 0; text-align: center; padding: 11px; font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 700; color: var(--accent); background: rgba(8,8,16,.96); transform: translateY(-100%); transition: transform .2s; z-index: 50; letter-spacing: 2.5px; text-transform: uppercase; }
@@ -3149,266 +3126,30 @@
       animation: none !important;
     }
 
-    /* ── Modal handle — wider tap target ── */
-    .modal-handle-wrap {
-      padding: 12px 0 4px;
-      display: flex; align-items: center; justify-content: center;
+    /* ── Modal handle — full-width tap zone ── */
+    .modal-sheet > .modal-handle { display: block; }
+    .modal-handle-wide {
+      width: calc(100% + 40px); margin: -16px -20px 6px;
+      padding: 12px 0 4px; display: flex; align-items: center; justify-content: center;
       cursor: grab; touch-action: none;
-      margin: -18px -20px 0; /* extend to card edges */
-      width: calc(100% + 40px);
     }
-    .modal-handle {
-      width: 44px !important;
-      height: 4px !important;
-      border-radius: 3px !important;
-      background: var(--text2) !important;
-      opacity: .22 !important;
-      pointer-events: none;
-      margin: 0 !important;
-    }
-    /* Make entire handle region draggable */
-    .modal-sheet > .modal-handle:first-child {
-      width: 100% !important;
-      height: 22px !important;
-      background: transparent !important;
-      opacity: 1 !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      margin: -16px -20px 0 !important;
-      padding: 8px 0 !important;
-      cursor: grab !important;
-      touch-action: none !important;
-    }
-    .modal-sheet > .modal-handle:first-child::after {
-      content: '';
-      display: block;
-      width: 44px; height: 4px;
-      border-radius: 3px;
-      background: var(--text2);
-      opacity: .22;
-    }
+    .modal-handle-wide .modal-handle { cursor: inherit; pointer-events: none; margin: 0; }
 
-    /* ── Selection circle — definitive fix ── */
-    .sel-circle {
-      width: 22px !important; height: 22px !important;
-      border-radius: 50% !important;
-      border: 2px solid rgba(255,255,255,.2) !important;
-      background: rgba(255,255,255,.06) !important;
-      flex-shrink: 0 !important;
-      display: flex !important; align-items: center !important; justify-content: center !important;
-      cursor: pointer !important;
-      overflow: visible !important;       /* ← critical: was hidden, clipped the scale overshoot */
-      position: relative !important;
-      transition:
-        background .2s cubic-bezier(.175,.885,.32,1.275),
-        border-color .2s ease,
-        transform .22s cubic-bezier(.175,.885,.32,1.275) !important;
-    }
-    .sel-circle::after { display: none !important; } /* kill old pseudo-element */
+    /* ── Selection circle — overflow:visible so pop-in doesn't get clipped ── */
+    .sel-circle { overflow: visible !important; }
+    .sel-circle::after { display: none !important; }
     .sel-circle.checked {
       background: var(--accent) !important;
       border-color: var(--accent) !important;
       transform: scale(1.1) !important;
     }
     .sel-tick {
-      font-size: 11px !important; font-weight: 900 !important; color: #fff !important;
-      opacity: 0 !important;
-      transform: scale(0) rotate(-20deg) !important;
-      transition:
-        opacity .15s ease .04s,
-        transform .22s cubic-bezier(.34,1.56,.64,1) !important;
-      line-height: 1 !important;
-      display: block !important;
+      opacity: 0 !important; transform: scale(0) rotate(-15deg) !important;
+      transition: opacity .15s ease, transform .22s cubic-bezier(.34,1.56,.64,1) !important;
     }
     .sel-circle.checked .sel-tick {
-      opacity: 1 !important;
-      transform: scale(1) rotate(0deg) !important;
+      opacity: 1 !important; transform: scale(1) rotate(0deg) !important;
     }
-    /* Card selected state */
-    .teacher-card.selected, .batch-card.selected,
-    .student-card.selected, .standalone-card.selected {
-      border-color: rgba(124,107,255,.45) !important;
-      background: rgba(124,107,255,.05) !important;
-    }
-
-    /* ── Wider grab bar tap target ── */
-    .modal-handle-wrap {
-      padding: 10px 0 4px;
-      cursor: grab;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      touch-action: none;
-      margin-bottom: 6px;
-    }
-    .modal-handle {
-      width: 40px !important;
-      height: 4px !important;
-      border-radius: 2px !important;
-      background: var(--border2) !important;
-      opacity: .5 !important;
-      margin: 0 auto !important;
-      pointer-events: none;
-    }
-
-    /* ╔══════════════════════════════════════════════════════════════╗
-       ║    SKELETON SYSTEM — rebuilt to match current app style     ║
-       ╚══════════════════════════════════════════════════════════════╝ */
-
-    @keyframes shimmer {
-      0%   { background-position: 200% center; }
-      100% { background-position: -200% center; }
-    }
-
-    .sk {
-      background: linear-gradient(90deg,
-        var(--surface2) 0%, var(--surface2) 25%,
-        var(--surface3) 50%,
-        var(--surface2) 75%, var(--surface2) 100%);
-      background-size: 300% 100%;
-      animation: shimmer 1.8s ease-in-out infinite;
-      border-radius: 6px;
-    }
-    .sk-circle { border-radius: 50% !important; }
-    .sk-pill   { border-radius: 50px !important; }
-
-    /* App skeleton wrapper */
-    #splashSkeleton {
-      position: fixed; inset: 0; z-index: 9; background: var(--bg);
-      display: flex; flex-direction: column; overflow: hidden;
-      transition: opacity .38s ease, transform .38s ease;
-    }
-    #splashSkeleton.fade-out {
-      opacity: 0; pointer-events: none; transform: scale(.98);
-    }
-
-    /* Topbar — matches real .topbar exactly */
-    .splash-topbar {
-      display: flex; align-items: center; gap: 10px;
-      padding: 56px 18px 14px;
-      width: 100%; max-width: 480px; margin: 0 auto; flex-shrink: 0;
-    }
-
-    /* Scrollable content area */
-    .splash-body {
-      flex: 1; padding: 0 14px; width: 100%; max-width: 480px;
-      margin: 0 auto; overflow: hidden;
-    }
-
-    /* ── Hero card — matches total-card exactly ── */
-    .sk-hero {
-      width: 100%; height: 148px; border-radius: 28px; margin-bottom: 20px;
-      background: linear-gradient(148deg,
-        rgba(74,53,224,.28) 0%, rgba(126,35,200,.2) 35%,
-        rgba(192,48,160,.16) 68%, rgba(236,88,120,.1) 100%);
-      position: relative; overflow: hidden;
-    }
-    .sk-hero::after {
-      content: ''; position: absolute; inset: 0;
-      background: linear-gradient(90deg,
-        transparent 20%, rgba(255,255,255,.06) 50%, transparent 80%);
-      background-size: 300% 100%;
-      animation: shimmer 2.2s ease-in-out infinite;
-    }
-    .sk-hero-inner {
-      position: absolute; inset: 0; padding: 22px 20px;
-      display: flex; flex-direction: column; justify-content: space-between;
-      z-index: 1; pointer-events: none;
-    }
-    .sk-hero-label  { width: 90px;  height: 8px;  border-radius: 4px; background: rgba(255,255,255,.2); }
-    .sk-hero-amount { width: 145px; height: 38px; border-radius: 8px; background: rgba(255,255,255,.24); margin-top: 8px; }
-    .sk-hero-sub    { width: 100px; height: 8px;  border-radius: 4px; background: rgba(255,255,255,.13); }
-    .sk-hero-pills  { display: flex; gap: 8px; margin-top: 16px; }
-    .sk-hero-pill   { height: 36px; border-radius: 13px; flex: 1; background: rgba(255,255,255,.15); }
-
-    /* ── Teacher / batch card skeleton ── */
-    .sk-tc {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 22px; margin-bottom: 12px; overflow: hidden; position: relative;
-    }
-    .sk-tc::after {
-      content: ''; position: absolute; inset: 0; pointer-events: none;
-      background: linear-gradient(90deg, transparent 20%, rgba(255,255,255,.025) 50%, transparent 80%);
-      background-size: 300% 100%; animation: shimmer 2s ease-in-out infinite;
-    }
-    .sk-tc-body { display: flex; justify-content: space-between; align-items: flex-start; padding: 16px 16px 12px; }
-    .sk-tc-tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 0 16px 12px; }
-    .sk-tc-pay  { display: flex; gap: 9px; padding: 0 16px 14px; }
-    .sk-tc-bar  { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-top: 1px solid var(--border); }
-    .sk-tab-item { height: 42px; border-radius: 12px; }
-
-    /* ── Batch card skeleton ── */
-    .sk-batch {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 22px; margin-bottom: 12px; overflow: hidden;
-      position: relative; padding: 15px 15px 13px;
-    }
-    .sk-batch::after {
-      content: ''; position: absolute; inset: 0; pointer-events: none;
-      background: linear-gradient(90deg, transparent 20%, rgba(255,255,255,.025) 50%, transparent 80%);
-      background-size: 300% 100%; animation: shimmer 2s ease-in-out infinite;
-    }
-
-    /* ── Student card (batch detail) ── */
-    .sk-student-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 22px; margin-bottom: 10px; overflow: hidden;
-      position: relative; padding: 14px 14px 12px;
-    }
-    .sk-student-card::after {
-      content: ''; position: absolute; inset: 0; pointer-events: none;
-      background: linear-gradient(90deg, transparent 20%, rgba(255,255,255,.025) 50%, transparent 80%);
-      background-size: 300% 100%; animation: shimmer 2s ease-in-out infinite;
-    }
-
-    /* ── Standalone card skeleton ── */
-    .sk-standalone {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 22px; margin-bottom: 10px; overflow: hidden;
-      position: relative; padding: 14px 14px 0;
-    }
-    .sk-standalone::after {
-      content: ''; position: absolute; inset: 0; pointer-events: none;
-      background: linear-gradient(90deg, transparent 20%, rgba(255,255,255,.025) 50%, transparent 80%);
-      background-size: 300% 100%; animation: shimmer 2s ease-in-out infinite;
-    }
-
-    /* ── Dashboard skeleton ── */
-    .sk-dash {
-      background: linear-gradient(90deg,
-        var(--surface2) 0%, var(--surface2) 25%,
-        var(--surface3) 50%,
-        var(--surface2) 75%, var(--surface2) 100%);
-      background-size: 300% 100%;
-      animation: shimmer 1.8s ease-in-out infinite;
-    }
-    .dash-sk-row  { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px; }
-    .dash-sk-stat { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:16px; position:relative; overflow:hidden; }
-    .dash-sk-stat::after { content:''; position:absolute; inset:0; pointer-events:none; background:linear-gradient(90deg,transparent 20%,rgba(255,255,255,.025) 50%,transparent 80%); background-size:300% 100%; animation:shimmer 1.8s ease-in-out infinite; }
-    .dash-sk-chart { background:var(--surface); border:1px solid var(--border); border-radius:22px; padding:18px; margin-bottom:14px; position:relative; overflow:hidden; }
-    .dash-sk-chart::after { content:''; position:absolute; inset:0; pointer-events:none; background:linear-gradient(90deg,transparent 20%,rgba(255,255,255,.025) 50%,transparent 80%); background-size:300% 100%; animation:shimmer 2s ease-in-out infinite; }
-
-    /* Misc helpers */
-    .sk-mb4  { margin-bottom: 4px !important; }
-    .sk-mb8  { margin-bottom: 8px !important; }
-    .sk-mb12 { margin-bottom: 12px !important; }
-    .sk-mb16 { margin-bottom: 16px !important; }
-    .sk-section-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 13px; }
-    .sk-total-card  { height: 148px; border-radius: 28px; width: 100%; margin-bottom: 20px; }
-    .sk-bd-summary  { height: 116px; border-radius: 24px; width: 100%; margin-bottom: 16px; }
-    .sk-row         { display: flex; align-items: center; gap: 10px; }
-
-    /* Light mode overrides */
-    :root.light .sk {
-      background: linear-gradient(90deg, var(--surface3) 0%, var(--surface3) 25%, var(--surface2) 50%, var(--surface3) 75%, var(--surface3) 100%);
-      background-size: 300% 100%;
-    }
-    :root.light .sk-hero        { background: linear-gradient(140deg, rgba(98,85,232,.12) 0%, rgba(208,63,160,.07) 100%); }
-    :root.light .sk-hero::after { background: linear-gradient(90deg, transparent 20%, rgba(255,255,255,.3) 50%, transparent 80%); background-size: 300% 100%; }
-    :root.light .sk-tc          { box-shadow: 0 2px 10px var(--shadow-color); }
-    :root.light .sk-login-glyph { background: linear-gradient(135deg, rgba(98,85,232,.16), rgba(232,82,122,.1)); }
-    :root.light .sk-login-btn   { background: rgba(80,80,140,.07); }
 
   </style>
 </head>
@@ -3502,68 +3243,7 @@
     </div>
   </div>
 
-  <!-- LOGIN SCREEN -->
-  <div id="loginScreen" class="screen hidden">
-    <div id="loginSkeleton">
-      <div class="sk-login-glyph"></div>
-      <div style="height:28px;"></div>
-      <div class="sk-login-btn"></div>
-    </div>
-    <div id="loginContent" style="opacity:0;pointer-events:none;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 24px;width:100%;max-width:380px;">
-      <div class="login-glyph">₹</div>
-      <div class="login-name">Fee Tracker</div>
-      <div class="login-sub">SMART · SIMPLE · PERSONAL</div>
-      <button class="google-btn" id="googleSignInBtn">
-        <svg class="google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-        Continue with Google
-      </button>
-      <div class="login-note">🔒 Your data is private. Works for students tracking fees and teachers managing batches.</div>
-    </div>
-  </div>
-
-  <!-- APP SCREEN -->
-  <div id="appScreen" class="screen hidden">
-    <div class="topbar">
-      <div class="topbar-left">
-        <div class="topbar-label" id="topbarLabel"></div>
-        <div class="topbar-title" id="topbarTitle">Fee Tracker</div>
-      </div>
-      <div class="topbar-right">
-        <button class="dash-btn hidden" id="dashBtn" title="Analytics" onclick="isT()?window.openTeacherDash():window.openStudentDash()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block">
-  <line x1="6"  y1="20" x2="6"  y2="14"/>
-  <line x1="12" y1="20" x2="12" y2="10"/>
-  <line x1="18" y1="20" x2="18" y2="4"/>
-</svg></button>
-        <button class="avatar-btn loading" id="avatarEl" title="Menu"></button>
-        <button class="add-btn" id="addBtn" title="Add"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><line x1="11" y1="4" x2="11" y2="18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><line x1="4" y1="11" x2="18" y2="11" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
-      </div>
-    </div>
-    <div class="app-inner" id="appInner">
-      <div class="sk sk-total-card"></div>
-      <div class="sk" style="width:100%;height:48px;border-radius:16px;margin-bottom:18px;opacity:.7;"></div>
-      <div class="sk-section-row">
-        <div class="sk" style="width:72px;height:8px;border-radius:4px;opacity:.4;"></div>
-        <div class="sk sk-pill" style="width:28px;height:18px;opacity:.3;"></div>
-      </div>
-      <div class="sk-tc" style="opacity:.9;"><div class="sk-tc-body"><div style="flex:1;padding-right:14px;"><div class="sk" style="width:48%;height:15px;border-radius:6px;margin-bottom:8px;"></div><div class="sk" style="width:68%;height:10px;border-radius:5px;opacity:.65;"></div></div><div style="text-align:right;"><div class="sk" style="width:72px;height:26px;border-radius:8px;margin-bottom:7px;"></div></div></div></div>
-      <div class="sk-tc" style="opacity:.5;"><div class="sk-tc-body"><div style="flex:1;padding-right:14px;"><div class="sk" style="width:42%;height:15px;border-radius:6px;margin-bottom:8px;"></div><div class="sk" style="width:60%;height:10px;border-radius:5px;opacity:.65;"></div></div><div style="text-align:right;"><div class="sk" style="width:62px;height:26px;border-radius:8px;"></div></div></div></div>
-      <div class="sk-tc" style="opacity:.2;"><div class="sk-tc-body"><div style="flex:1;padding-right:14px;"><div class="sk" style="width:36%;height:15px;border-radius:6px;"></div></div></div></div>
-    </div>
-  </div>
-
-  <!-- BATCH DETAIL SCREEN -->
-  <div id="batchDetailScreen" class="hidden">
-    <div class="bd-topbar">
-      <button class="bd-back" onclick="closeBatchDetail()" style="display:flex;align-items:center;justify-content:center;"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 4L6 9l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-      <div class="bd-title-wrap">
-        <div class="bd-title" id="bdTitle">Batch</div>
-        <div class="bd-sub" id="bdSub"></div>
-      </div>
-      <button class="bd-add-btn" id="bdAddStudentBtn" style="width:auto;padding:0 14px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;">+ Add Students</button>
-    </div>
-    <div class="bd-body" id="bdBody"></div>
-  </div>
-
+    <!-- LOGIN -->
   <!-- LOGIN -->
   <!-- SPLASH SKELETON — shown immediately while Firebase auth resolves -->
   <div id="authOverlay">
@@ -3574,25 +3254,24 @@
 
   <div id="splashSkeleton">
 
-    <!-- TOPBAR: avatar | title | analytics btn + add btn -->
+    <!-- TOPBAR: avatar-circle | "Fee Tracker" title | + button -->
     <div class="splash-topbar">
-      <div class="sk sk-circle" id="splashAvatar" style="width:36px;height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:#fff;"></div>
-      <div style="flex:1;padding:0 10px;">
+      <div class="sk sk-circle" id="splashAvatar" style="width:40px;height:40px;flex-shrink:0;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:#fff;"></div>
+      <div style="flex:1;padding:0 12px;">
         <div class="topbar-title" id="splashTitle">Fee Tracker</div>
       </div>
-      <div class="sk" style="width:42px;height:42px;border-radius:14px;flex-shrink:0;background:linear-gradient(135deg,rgba(124,107,255,.25),rgba(80,56,226,.2));"></div>
-      <div class="sk" style="width:42px;height:42px;border-radius:14px;flex-shrink:0;margin-left:8px;background:linear-gradient(135deg,rgba(124,107,255,.3),rgba(80,56,226,.25));"></div>
+      <div class="sk" style="width:40px;height:40px;border-radius:13px;flex-shrink:0;"></div>
     </div>
 
     <div class="splash-body">
 
-      <!-- HERO CARD -->
+      <!-- HERO CARD — matches total-card height/radius/gradient -->
       <div class="sk-hero">
         <div class="sk-hero-inner">
           <div>
             <div class="sk-hero-label"></div>
             <div class="sk-hero-amount"></div>
-            <div class="sk-hero-sub" style="margin-top:6px;"></div>
+            <div class="sk-hero-sub"></div>
           </div>
           <div class="sk-hero-pills">
             <div class="sk-hero-pill"></div>
@@ -3603,70 +3282,75 @@
       </div>
 
       <!-- SEARCH BAR -->
-      <div class="sk" style="width:100%;height:48px;border-radius:16px;margin-bottom:18px;opacity:.75;"></div>
+      <div class="sk" style="width:100%;height:42px;border-radius:14px;margin-bottom:18px;opacity:.8;"></div>
 
-      <!-- SECTION LABEL -->
-      <div class="sk-section-row">
-        <div class="sk" style="width:72px;height:8px;border-radius:4px;opacity:.4;"></div>
-        <div class="sk sk-pill" style="width:28px;height:18px;opacity:.3;"></div>
+      <!-- SECTION LABEL ROW -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div class="sk" style="width:68px;height:8px;border-radius:5px;opacity:.4;"></div>
+        <div class="sk sk-pill" style="width:24px;height:15px;opacity:.3;"></div>
       </div>
 
-      <!-- CARD 1 — full detail (highest opacity) -->
+      <!-- TEACHER CARD 1 — full replica of card-top + pay section + bottom bar -->
       <div class="sk-tc">
         <div class="sk-tc-body">
-          <div style="flex:1;min-width:0;padding-right:14px;">
-            <div class="sk" style="width:48%;height:15px;border-radius:6px;margin-bottom:8px;"></div>
-            <div class="sk" style="width:68%;height:10px;border-radius:5px;margin-bottom:6px;opacity:.65;"></div>
-            <div class="sk" style="width:52%;height:9px;border-radius:4px;opacity:.38;"></div>
+          <!-- Left: name + subject + last-paid -->
+          <div style="flex:1;min-width:0;padding-right:12px;">
+            <div class="sk" style="width:130px;height:15px;border-radius:6px;margin-bottom:7px;"></div>
+            <div class="sk" style="width:90px;height:10px;border-radius:5px;margin-bottom:6px;opacity:.6;"></div>
+            <div class="sk" style="width:70px;height:9px;border-radius:4px;opacity:.35;"></div>
           </div>
+          <!-- Right: due amount + months -->
           <div style="text-align:right;flex-shrink:0;">
-            <div class="sk" style="width:72px;height:26px;border-radius:8px;margin-bottom:7px;"></div>
-            <div class="sk" style="width:50px;height:9px;border-radius:4px;opacity:.42;"></div>
+            <div class="sk" style="width:68px;height:22px;border-radius:7px;margin-bottom:6px;"></div>
+            <div class="sk" style="width:44px;height:9px;border-radius:4px;opacity:.4;"></div>
           </div>
         </div>
+        <!-- Pay tabs: Full | Partial | Advance -->
         <div class="sk-tc-tabs">
-          <div class="sk sk-tab-item"></div>
-          <div class="sk sk-tab-item" style="opacity:.55;"></div>
-          <div class="sk sk-tab-item" style="opacity:.3;"></div>
+          <div class="sk" style="height:40px;border-radius:10px;"></div>
+          <div class="sk" style="height:40px;border-radius:10px;opacity:.55;"></div>
+          <div class="sk" style="height:40px;border-radius:10px;opacity:.3;"></div>
         </div>
+        <!-- Pay input + button -->
         <div class="sk-tc-pay">
-          <div class="sk" style="flex:1;height:52px;border-radius:16px;"></div>
-          <div class="sk" style="width:88px;height:52px;border-radius:16px;opacity:.7;"></div>
+          <div class="sk" style="flex:1;height:48px;border-radius:13px;"></div>
+          <div class="sk" style="width:80px;height:48px;border-radius:13px;opacity:.7;"></div>
         </div>
+        <!-- Bottom bar: History | 🗑 -->
         <div class="sk-tc-bar">
-          <div class="sk" style="width:96px;height:9px;border-radius:5px;opacity:.35;"></div>
-          <div class="sk" style="width:22px;height:22px;border-radius:7px;opacity:.25;"></div>
+          <div class="sk" style="width:90px;height:9px;border-radius:5px;opacity:.35;"></div>
+          <div class="sk" style="width:20px;height:20px;border-radius:6px;opacity:.25;"></div>
         </div>
       </div>
 
-      <!-- CARD 2 — medium opacity, no pay row -->
-      <div class="sk-tc" style="opacity:.52;">
+      <!-- TEACHER CARD 2 — dimmer, no pay section -->
+      <div class="sk-tc" style="opacity:.5;">
         <div class="sk-tc-body">
-          <div style="flex:1;min-width:0;padding-right:14px;">
-            <div class="sk" style="width:42%;height:15px;border-radius:6px;margin-bottom:8px;"></div>
-            <div class="sk" style="width:60%;height:10px;border-radius:5px;opacity:.65;"></div>
+          <div style="flex:1;min-width:0;padding-right:12px;">
+            <div class="sk" style="width:110px;height:15px;border-radius:6px;margin-bottom:7px;"></div>
+            <div class="sk" style="width:76px;height:10px;border-radius:5px;opacity:.6;"></div>
           </div>
           <div style="text-align:right;flex-shrink:0;">
-            <div class="sk" style="width:62px;height:26px;border-radius:8px;margin-bottom:7px;"></div>
-            <div class="sk" style="width:42px;height:9px;border-radius:4px;opacity:.42;"></div>
+            <div class="sk" style="width:58px;height:22px;border-radius:7px;margin-bottom:6px;"></div>
+            <div class="sk" style="width:38px;height:9px;border-radius:4px;opacity:.4;"></div>
           </div>
         </div>
         <div class="sk-tc-tabs">
-          <div class="sk sk-tab-item"></div>
-          <div class="sk sk-tab-item" style="opacity:.55;"></div>
-          <div class="sk sk-tab-item" style="opacity:.3;"></div>
+          <div class="sk" style="height:40px;border-radius:10px;"></div>
+          <div class="sk" style="height:40px;border-radius:10px;opacity:.55;"></div>
+          <div class="sk" style="height:40px;border-radius:10px;opacity:.3;"></div>
         </div>
       </div>
 
-      <!-- CARD 3 — faint ghost -->
-      <div class="sk-tc" style="opacity:.2;">
+      <!-- TEACHER CARD 3 — faintest -->
+      <div class="sk-tc" style="opacity:.22;">
         <div class="sk-tc-body">
-          <div style="flex:1;min-width:0;padding-right:14px;">
-            <div class="sk" style="width:36%;height:15px;border-radius:6px;margin-bottom:8px;"></div>
-            <div class="sk" style="width:52%;height:10px;border-radius:5px;opacity:.65;"></div>
+          <div style="flex:1;min-width:0;padding-right:12px;">
+            <div class="sk" style="width:95px;height:15px;border-radius:6px;margin-bottom:7px;"></div>
+            <div class="sk" style="width:64px;height:10px;border-radius:5px;opacity:.6;"></div>
           </div>
           <div style="text-align:right;flex-shrink:0;">
-            <div class="sk" style="width:56px;height:26px;border-radius:8px;"></div>
+            <div class="sk" style="width:52px;height:22px;border-radius:7px;"></div>
           </div>
         </div>
       </div>
@@ -3674,6 +3358,126 @@
     </div>
   </div>
 
+  <div class="screen hidden" id="loginScreen">
+    <!-- LOGIN SKELETON — shown while firebase initialises -->
+    <div id="loginSkeleton">
+      <div class="sk-login-glyph"></div>
+      <div class="sk" style="width:160px;height:28px;border-radius:8px;margin-top:14px;"></div>
+      <div class="sk" style="width:120px;height:8px;border-radius:4px;opacity:.25;margin-top:10px;"></div>
+      <div style="height:56px;"></div>
+      <div class="sk-login-btn"></div>
+      <div class="sk" style="width:190px;height:7px;border-radius:4px;opacity:.2;margin-top:20px;"></div>
+      <div class="sk" style="width:140px;height:7px;border-radius:4px;opacity:.14;margin-top:5px;"></div>
+    </div>
+
+    <!-- REAL CONTENT — fades in after skeleton -->
+    <div id="loginContent" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 28px;width:100%;max-width:420px;opacity:0;transition:opacity .5s ease;pointer-events:none;position:relative;z-index:1;">
+      <div class="login-glyph">&#8377;</div>
+      <div class="login-name">Fee Tracker</div>
+      <div class="login-sub">Smart &middot; Simple &middot; Personal</div>
+      <button class="google-btn" id="googleSignInBtn">
+        <svg class="google-icon" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Continue with Google
+      </button>
+      <p class="login-note">&#128274; Your data is private. Works for students tracking fees and teachers managing batches.</p>
+    </div>
+  </div>
+
+  <!-- APP -->
+
+
+  <div class="screen hidden" id="appScreen">
+    <div id="pull-indicator">↓ Pull to refresh</div>
+    <div class="topbar">
+      <button class="avatar-btn" id="avatarEl" title="Profile">?</button>
+      <div class="topbar-left">
+        <div class="topbar-label" id="topbarLabel">Personal Tracker</div>
+        <div class="topbar-title">Fee Tracker</div>
+      </div>
+      <div class="topbar-right">
+        <button class="search-topbar-btn" id="searchTopbarBtn" title="Search" style="width:40px;height:40px;border-radius:var(--r-lg);background:var(--surface2);border:1px solid var(--border2);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;box-shadow:0 2px 8px rgba(0,0,0,.12);flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="display:block"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.7"/><line x1="10.5" y1="10.5" x2="14.5" y2="14.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>
+        <button class="dash-btn hidden" id="dashBtn" title="Analytics" ><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block">
+  <line x1="6"  y1="20" x2="6"  y2="14"/>
+  <line x1="12" y1="20" x2="12" y2="10"/>
+  <line x1="18" y1="20" x2="18" y2="4"/>
+</svg></button>
+        <button class="add-btn" id="addBtn" title="Add"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><line x1="11" y1="4" x2="11" y2="18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><line x1="4" y1="11" x2="18" y2="11" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+      </div>
+    </div>
+    <div class="app-inner" id="appInner">
+      <div class="sk sk-total-card"></div>
+      <div class="sk" style="width:100%;height:42px;border-radius:14px;margin-bottom:18px;opacity:.8;"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div class="sk" style="width:68px;height:8px;border-radius:5px;opacity:.4;"></div>
+        <div class="sk sk-pill" style="width:24px;height:15px;opacity:.3;"></div>
+      </div>
+      <div class="sk-tc">
+        <div class="sk-tc-body">
+          <div style="flex:1;min-width:0;padding-right:12px;">
+            <div class="sk" style="width:130px;height:15px;border-radius:6px;margin-bottom:7px;"></div>
+            <div class="sk" style="width:90px;height:10px;border-radius:5px;margin-bottom:6px;opacity:.6;"></div>
+            <div class="sk" style="width:70px;height:9px;border-radius:4px;opacity:.35;"></div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;">
+            <div class="sk" style="width:68px;height:22px;border-radius:7px;margin-bottom:6px;"></div>
+            <div class="sk" style="width:44px;height:9px;border-radius:4px;opacity:.45;"></div>
+          </div>
+        </div>
+        <div class="sk-tc-tabs">
+          <div class="sk" style="height:40px;border-radius:10px;"></div>
+          <div class="sk" style="height:40px;border-radius:10px;opacity:.6;"></div>
+          <div class="sk" style="height:40px;border-radius:10px;opacity:.4;"></div>
+        </div>
+        <div class="sk-tc-pay">
+          <div class="sk" style="flex:1;height:48px;border-radius:14px;"></div>
+          <div class="sk" style="width:80px;height:48px;border-radius:14px;opacity:.7;"></div>
+        </div>
+        <div class="sk-tc-bar">
+          <div class="sk" style="width:90px;height:9px;border-radius:4px;opacity:.35;"></div>
+          <div class="sk" style="width:24px;height:24px;border-radius:8px;opacity:.3;"></div>
+        </div>
+      </div>
+      <div class="sk-tc" style="opacity:.5;">
+        <div class="sk-tc-body">
+          <div style="flex:1;min-width:0;padding-right:12px;">
+            <div class="sk" style="width:110px;height:15px;border-radius:6px;margin-bottom:7px;"></div>
+            <div class="sk" style="width:75px;height:10px;border-radius:5px;opacity:.6;"></div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;">
+            <div class="sk" style="width:55px;height:22px;border-radius:7px;margin-bottom:6px;"></div>
+          </div>
+        </div>
+        <div class="sk-tc-tabs">
+          <div class="sk" style="height:40px;border-radius:10px;"></div>
+          <div class="sk" style="height:40px;border-radius:10px;opacity:.6;"></div>
+          <div class="sk" style="height:40px;border-radius:10px;opacity:.4;"></div>
+        </div>
+      </div>
+      <div class="sk-tc" style="opacity:.22;">
+        <div class="sk-tc-body">
+          <div style="flex:1;min-width:0;padding-right:12px;">
+            <div class="sk" style="width:95px;height:15px;border-radius:6px;margin-bottom:7px;"></div>
+            <div class="sk" style="width:65px;height:10px;border-radius:5px;opacity:.6;"></div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;">
+            <div class="sk" style="width:50px;height:22px;border-radius:7px;"></div>
+          </div>
+        </div>
+        <div class="sk-tc-tabs">
+          <div class="sk" style="height:40px;border-radius:10px;"></div>
+          <div class="sk" style="height:40px;border-radius:10px;opacity:.6;"></div>
+          <div class="sk" style="height:40px;border-radius:10px;opacity:.4;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MENU BACKDROP -->
   <div class="menu-backdrop hidden" id="menuBackdrop"></div>
 
   <!-- USER MENU -->
@@ -3724,7 +3528,7 @@
   <!-- PROFILE MODAL -->
   <div class="modal-overlay hidden" id="profileModal">
     <div class="modal-sheet">
-      <div class="modal-handle-wrap"><div class="modal-handle"></div></div>
+      <div class="modal-handle"></div>
       <div class="modal-header">
         <div class="modal-title" id="profileModalTitle">Edit Profile</div>
         <button class="modal-close" id="closeProfileBtn" style="display:flex;align-items:center;justify-content:center;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><line x1="1" y1="1" x2="11" y2="11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="11" y1="1" x2="1" y2="11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
@@ -3854,7 +3658,7 @@
   <!-- ASSIGN TO BATCH MODAL (teacher role) -->
   <div class="modal-overlay hidden" id="assignBatchModal">
     <div class="modal-sheet">
-      <div class="modal-handle-wrap"><div class="modal-handle"></div></div>
+      <div class="modal-handle"></div>
       <div class="modal-header">
         <div class="modal-title">Add to Batch</div>
         <button class="modal-close" id="closeAssignBatchBtn" style="display:flex;align-items:center;justify-content:center;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><line x1="1" y1="1" x2="11" y2="11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="11" y1="1" x2="1" y2="11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
@@ -3873,7 +3677,7 @@
   <!-- TEACHER ADD CHOICE SHEET -->
   <div class="modal-overlay hidden" id="teacherAddChoiceSheet">
     <div class="modal-sheet" style="padding-bottom:36px;">
-      <div class="modal-handle-wrap"><div class="modal-handle"></div></div>
+      <div class="modal-handle"></div>
       <div class="modal-header">
         <div class="modal-title">What would you like to add?</div>
         <button class="modal-close" onclick="document.getElementById('teacherAddChoiceSheet').classList.add('hidden')" style="display:flex;align-items:center;justify-content:center;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><line x1="1" y1="1" x2="11" y2="11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="11" y1="1" x2="1" y2="11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
@@ -3904,7 +3708,7 @@
   <!-- ADD STANDALONE STUDENT MODAL (teacher role, no batch) -->
   <div class="modal-overlay hidden" id="addStandaloneStudentModal">
     <div class="modal-sheet">
-      <div class="modal-handle-wrap"><div class="modal-handle"></div></div>
+      <div class="modal-handle"></div>
       <div class="modal-header">
         <div class="modal-title">Add Student</div>
         <button class="modal-close" id="closeStandaloneStudentBtn" style="display:flex;align-items:center;justify-content:center;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><line x1="1" y1="1" x2="11" y2="11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="11" y1="1" x2="1" y2="11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
@@ -3943,7 +3747,7 @@
   <!-- EDIT TEACHER MODAL (student role) -->
   <div class="modal-overlay hidden" id="editTeacherModal">
     <div class="modal-sheet">
-      <div class="modal-handle-wrap"><div class="modal-handle"></div></div>
+      <div class="modal-handle"></div>
       <div class="modal-header">
         <div class="modal-title">Edit Teacher</div>
         <button class="modal-close" id="closeEditTeacherBtn" style="display:flex;align-items:center;justify-content:center;"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><line x1="1" y1="1" x2="11" y2="11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="11" y1="1" x2="1" y2="11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
@@ -3975,7 +3779,7 @@
   <!-- EDIT STANDALONE STUDENT MODAL -->
   <div class="modal-overlay hidden" id="editStandaloneStudentModal">
     <div class="modal-sheet">
-      <div class="modal-handle-wrap"><div class="modal-handle"></div></div>
+      <div class="modal-handle"></div>
       <div class="modal-header">
         <div class="modal-title">Edit Student</div>
         <button class="modal-close" id="closeEditSsBtn" style="display:flex;align-items:center;justify-content:center;"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><line x1="1" y1="1" x2="11" y2="11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="11" y1="1" x2="1" y2="11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
@@ -4007,7 +3811,7 @@
   <!-- ADD MODAL -->
   <div class="modal-overlay hidden" id="addModal">
     <div class="modal-sheet">
-      <div class="modal-handle-wrap"><div class="modal-handle"></div></div>
+      <div class="modal-handle"></div>
       <div class="modal-header">
         <div class="modal-title" id="addModalTitle">Add Teacher</div>
       </div>
@@ -4070,12 +3874,23 @@
     </div>
   </div>
 
-  <!-- B
+  <!-- BATCH DETAIL SCREEN -->
+  <div id="batchDetailScreen" class="hidden">
+    <div class="bd-topbar">
+      <button class="bd-back" onclick="closeBatchDetail()" style="display:flex;align-items:center;justify-content:center;"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 4L6 9l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="bd-title-wrap">
+        <div class="bd-title" id="bdTitle">Batch</div>
+        <div class="bd-sub" id="bdSub"></div>
+      </div>
+      <button class="bd-add-btn" id="bdAddStudentBtn" style="width:auto;padding:0 14px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;">+ Add Students</button>
+    </div>
+    <div class="bd-body" id="bdBody"></div>
+  </div>
 
   <!-- ADD STUDENT MODAL -->
   <div class="modal-overlay hidden" id="addStudentModal">
     <div class="modal-sheet">
-      <div class="modal-handle-wrap"><div class="modal-handle"></div></div>
+      <div class="modal-handle"></div>
       <div class="modal-header">
         <div class="modal-title">Add Students</div>
         <button class="modal-close" id="closeAddStudentBtn" style="display:flex;align-items:center;justify-content:center;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><line x1="1" y1="1" x2="11" y2="11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="11" y1="1" x2="1" y2="11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
@@ -4122,7 +3937,7 @@
   <!-- EDIT STUDENT MODAL -->
   <div class="modal-overlay hidden" id="editStudentModal">
     <div class="modal-sheet">
-      <div class="modal-handle-wrap"><div class="modal-handle"></div></div>
+      <div class="modal-handle"></div>
       <div class="modal-header">
         <div class="modal-title">Edit Student</div>
         <button class="modal-close" id="closeEditStudentBtn" style="display:flex;align-items:center;justify-content:center;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><line x1="1" y1="1" x2="11" y2="11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="11" y1="1" x2="1" y2="11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
@@ -4712,109 +4527,120 @@
     function showAppSkeleton(){
       if(appRendered) return;
       const root=document.getElementById('appInner');
-
-      // Student skeleton — total-card + search + section + 3 teacher cards
+      // Student card skeleton — exact replica of .sk-tc structure
       const studentCards=`
-        <div class="sk sk-total-card"></div>
-        <div class="sk" style="width:100%;height:48px;border-radius:16px;margin-bottom:18px;opacity:.75;"></div>
-        <div class="sk-section-row">
-          <div class="sk" style="width:72px;height:8px;border-radius:4px;opacity:.4;"></div>
-          <div class="sk sk-pill" style="width:28px;height:18px;opacity:.3;"></div>
-        </div>
         <div class="sk-tc">
           <div class="sk-tc-body">
-            <div style="flex:1;min-width:0;padding-right:14px;">
-              <div class="sk" style="width:48%;height:15px;border-radius:6px;margin-bottom:8px;"></div>
-              <div class="sk" style="width:68%;height:10px;border-radius:5px;margin-bottom:6px;opacity:.65;"></div>
-              <div class="sk" style="width:52%;height:9px;border-radius:4px;opacity:.38;"></div>
+            <div style="flex:1;min-width:0;padding-right:12px;">
+              <div class="sk" style="width:130px;height:15px;border-radius:6px;margin-bottom:7px;"></div>
+              <div class="sk" style="width:90px;height:10px;border-radius:5px;margin-bottom:6px;opacity:.6;"></div>
+              <div class="sk" style="width:70px;height:9px;border-radius:4px;opacity:.35;"></div>
             </div>
             <div style="text-align:right;flex-shrink:0;">
-              <div class="sk" style="width:72px;height:26px;border-radius:8px;margin-bottom:7px;"></div>
-              <div class="sk" style="width:50px;height:9px;border-radius:4px;opacity:.42;"></div>
+              <div class="sk" style="width:68px;height:22px;border-radius:7px;margin-bottom:6px;"></div>
+              <div class="sk" style="width:44px;height:9px;border-radius:4px;opacity:.4;"></div>
             </div>
           </div>
           <div class="sk-tc-tabs">
-            <div class="sk sk-tab-item"></div>
-            <div class="sk sk-tab-item" style="opacity:.55;"></div>
-            <div class="sk sk-tab-item" style="opacity:.3;"></div>
+            <div class="sk" style="height:40px;border-radius:10px;"></div>
+            <div class="sk" style="height:40px;border-radius:10px;opacity:.55;"></div>
+            <div class="sk" style="height:40px;border-radius:10px;opacity:.3;"></div>
           </div>
           <div class="sk-tc-pay">
-            <div class="sk" style="flex:1;height:52px;border-radius:16px;"></div>
-            <div class="sk" style="width:88px;height:52px;border-radius:16px;opacity:.7;"></div>
+            <div class="sk" style="flex:1;height:48px;border-radius:13px;"></div>
+            <div class="sk" style="width:80px;height:48px;border-radius:13px;opacity:.7;"></div>
           </div>
           <div class="sk-tc-bar">
-            <div class="sk" style="width:96px;height:9px;border-radius:5px;opacity:.35;"></div>
-            <div class="sk" style="width:22px;height:22px;border-radius:7px;opacity:.25;"></div>
+            <div class="sk" style="width:90px;height:9px;border-radius:5px;opacity:.35;"></div>
+            <div class="sk" style="width:20px;height:20px;border-radius:6px;opacity:.25;"></div>
           </div>
         </div>
-        <div class="sk-tc" style="opacity:.52;">
+        <div class="sk-tc" style="opacity:.5;">
           <div class="sk-tc-body">
-            <div style="flex:1;min-width:0;padding-right:14px;">
-              <div class="sk" style="width:42%;height:15px;border-radius:6px;margin-bottom:8px;"></div>
-              <div class="sk" style="width:60%;height:10px;border-radius:5px;opacity:.65;"></div>
+            <div style="flex:1;min-width:0;padding-right:12px;">
+              <div class="sk" style="width:110px;height:15px;border-radius:6px;margin-bottom:7px;"></div>
+              <div class="sk" style="width:76px;height:10px;border-radius:5px;opacity:.6;"></div>
             </div>
             <div style="text-align:right;flex-shrink:0;">
-              <div class="sk" style="width:62px;height:26px;border-radius:8px;margin-bottom:7px;"></div>
-              <div class="sk" style="width:42px;height:9px;border-radius:4px;opacity:.42;"></div>
+              <div class="sk" style="width:58px;height:22px;border-radius:7px;margin-bottom:6px;"></div>
+              <div class="sk" style="width:38px;height:9px;border-radius:4px;opacity:.4;"></div>
             </div>
           </div>
           <div class="sk-tc-tabs">
-            <div class="sk sk-tab-item"></div>
-            <div class="sk sk-tab-item" style="opacity:.55;"></div>
-            <div class="sk sk-tab-item" style="opacity:.3;"></div>
+            <div class="sk" style="height:40px;border-radius:10px;"></div>
+            <div class="sk" style="height:40px;border-radius:10px;opacity:.55;"></div>
+            <div class="sk" style="height:40px;border-radius:10px;opacity:.3;"></div>
           </div>
         </div>
-        <div class="sk-tc" style="opacity:.2;">
+        <div class="sk-tc" style="opacity:.22;">
           <div class="sk-tc-body">
-            <div style="flex:1;min-width:0;padding-right:14px;">
-              <div class="sk" style="width:36%;height:15px;border-radius:6px;margin-bottom:8px;"></div>
-              <div class="sk" style="width:52%;height:10px;border-radius:5px;opacity:.65;"></div>
+            <div style="flex:1;min-width:0;padding-right:12px;">
+              <div class="sk" style="width:95px;height:15px;border-radius:6px;margin-bottom:7px;"></div>
+              <div class="sk" style="width:64px;height:10px;border-radius:5px;opacity:.6;"></div>
             </div>
             <div style="text-align:right;flex-shrink:0;">
-              <div class="sk" style="width:56px;height:26px;border-radius:8px;"></div>
+              <div class="sk" style="width:52px;height:22px;border-radius:7px;"></div>
             </div>
           </div>
         </div>`;
-
-      // Teacher skeleton — header + search + 3 batch cards
+      // Teacher batch card skeleton
       const batchCards=`
-        <div class="sk-tc" style="padding:16px 16px 14px;">
+        <div class="sk-tc" style="padding:16px;">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
-            <div style="flex:1;"><div class="sk" style="width:52%;height:15px;border-radius:6px;margin-bottom:8px;"></div><div class="sk" style="width:72%;height:10px;border-radius:5px;opacity:.6;"></div></div>
-            <div class="sk sk-pill" style="width:62px;height:22px;"></div>
+            <div style="flex:1;"><div class="sk" style="width:50%;height:14px;border-radius:6px;margin-bottom:7px;"></div><div class="sk" style="width:70%;height:11px;border-radius:5px;opacity:.6;"></div></div>
+            <div class="sk sk-pill" style="width:58px;height:22px;"></div>
           </div>
-          <div class="sk-pill-row"><div class="sk sk-pill" style="width:56px;height:22px;"></div><div class="sk sk-pill" style="width:56px;height:22px;opacity:.55;"></div><div class="sk sk-pill" style="width:56px;height:22px;opacity:.3;"></div></div>
-          <div class="sk" style="width:100%;height:38px;border-radius:13px;margin-top:12px;opacity:.6;"></div>
+          <div style="display:flex;gap:6px;"><div class="sk sk-pill" style="width:52px;height:22px;opacity:.5;"></div><div class="sk sk-pill" style="width:52px;height:22px;opacity:.35;"></div><div class="sk sk-pill" style="width:52px;height:22px;opacity:.2;"></div></div>
         </div>
-        <div class="sk-tc" style="padding:16px 16px 14px;opacity:.52;">
+        <div class="sk-tc" style="padding:16px;opacity:.55;">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
-            <div style="flex:1;"><div class="sk" style="width:46%;height:15px;border-radius:6px;margin-bottom:8px;"></div><div class="sk" style="width:64%;height:10px;border-radius:5px;opacity:.6;"></div></div>
-            <div class="sk sk-pill" style="width:54px;height:22px;"></div>
+            <div style="flex:1;"><div class="sk" style="width:45%;height:14px;border-radius:6px;margin-bottom:7px;"></div><div class="sk" style="width:65%;height:11px;border-radius:5px;opacity:.6;"></div></div>
+            <div class="sk sk-pill" style="width:50px;height:22px;"></div>
           </div>
-          <div class="sk-pill-row"><div class="sk sk-pill" style="width:52px;height:22px;"></div><div class="sk sk-pill" style="width:52px;height:22px;opacity:.5;"></div></div>
         </div>
-        <div class="sk-tc" style="padding:16px;opacity:.22;">
+        <div class="sk-tc" style="padding:16px;opacity:.25;">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-            <div style="flex:1;"><div class="sk" style="width:38%;height:15px;border-radius:6px;margin-bottom:8px;"></div><div class="sk" style="width:55%;height:10px;border-radius:5px;opacity:.6;"></div></div>
+            <div style="flex:1;"><div class="sk" style="width:40%;height:14px;border-radius:6px;"></div></div>
           </div>
         </div>`;
-
-      const isTch = isT();
-      root.innerHTML = `
-        ${isTch ? `
-          <div class="teacher-mode-header" style="opacity:.5;">
-            <div class="sk sk-circle" style="width:36px;height:36px;flex-shrink:0;"></div>
-            <div style="flex:1;padding:0 10px;">
-              <div class="sk" style="width:45%;height:14px;border-radius:6px;margin-bottom:7px;"></div>
-              <div class="sk" style="width:70%;height:10px;border-radius:5px;opacity:.6;"></div>
-            </div>
-          </div>
-          <div class="sk" style="width:100%;height:48px;border-radius:16px;margin-bottom:18px;opacity:.75;"></div>
-          <div class="sk-section-row"><div class="sk" style="width:72px;height:8px;border-radius:4px;opacity:.4;"></div><div class="sk sk-pill" style="width:28px;height:18px;opacity:.3;"></div></div>
-          ${batchCards}
-        ` : studentCards}`;
+      root.innerHTML=`
+        <div class="sk-hero"></div>
+        <div class="sk" style="width:100%;height:42px;border-radius:14px;margin-bottom:18px;opacity:.8;"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div class="sk" style="width:68px;height:8px;border-radius:5px;opacity:.4;"></div>
+          <div class="sk sk-pill" style="width:24px;height:15px;opacity:.3;"></div>
+        </div>
+        ${isT()?batchCards:studentCards}`;
     }
 
+    // Track whether real content has ever been rendered — prevents skeleton flash on re-loads
+    let appRendered = false;
+
+    async function loadAll(silent=false){
+      // Only show skeleton on very first ever load — never after that
+      if (!appRendered && !silent) {
+        const hasCache = isT() ? Object.keys(batches).length > 0 : Object.keys(teachers).length > 0;
+        if (!hasCache) {
+          showAppSkeleton(); // only shown if no data at all yet
+        } else {
+          render(); // instant render from cache
+        }
+      }
+      // Sync Firestore — never touch the DOM until data arrives
+      try {
+        if(isT()){
+          const bs=await getDocs(btCol()); batches={};
+          bs.forEach(d=>{ batches[d.id]=d.data(); });
+        } else {
+          const [ts,ps]=await Promise.all([getDocs(tcCol()),getDocs(pyCol())]);
+          teachers={}; ts.forEach(d=>{ teachers[d.id]=d.data(); });
+          payments=ps.docs.map(d=>({id:d.id,...d.data()}));
+        }
+        saveToCache(); showOfflineBanner(false);
+      } catch(e){ console.warn('Firestore sync failed, using cache:',e); showOfflineBanner(true); }
+      if(isT()) { try { await loadStandaloneStudents(); } catch(e){} }
+      render(); // render with fresh Firestore data (or re-render cache on error)
+    }
 
     // PAY
     window.switchPayTab=function(id,type){
@@ -4992,10 +4818,9 @@
       } else { pu=false; }
     },{passive:true});
     document.addEventListener('touchmove',e=>{
-      if(!pu) return;
+      if(!pu||!pi) return;
       const dx=Math.abs(e.touches[0].clientX-_ptStartX);
       const dy=e.touches[0].clientY-py;
-      // Cancel if mostly horizontal (swipe-to-delete)
       if(dx>dy*0.7){ pu=false; pi.style.transform='translateY(-100%)'; return; }
       if(dy>8){
         pi.style.transform=`translateY(${Math.min(dy-8,56)}px)`;
@@ -5004,6 +4829,7 @@
     },{passive:true});
     document.addEventListener('touchend',async e=>{
       if(!pu) return; pu=false;
+      if(!pi) return;
       const dy=e.changedTouches[0].clientY-py;
       pi.style.transform='translateY(-100%)';
       if(dy>72){
@@ -6348,23 +6174,15 @@
       if(nowSelected) selItems.add(id); else selItems.delete(id);
       if(!selItems.size){ exitSelMode(); return; }
       updateSelBar();
-      // Update all cards with this data-id (could be in multiple render paths)
-      document.querySelectorAll(`[data-id="${CSS.escape(id)}"]`).forEach(card=>{
-        if(!card.classList.contains('teacher-card') &&
-           !card.classList.contains('batch-card') &&
-           !card.classList.contains('student-card') &&
-           !card.classList.contains('standalone-card')) return;
+      // Update the card that was just tapped
+      const card = document.querySelector(
+        `.teacher-card[data-id="${id}"],.batch-card[data-id="${id}"],.student-card[data-id="${id}"],.standalone-card[data-id="${id}"]`
+      );
+      if(card){
         card.classList.toggle('selected', nowSelected);
-        // Find and update the circle — it may be direct child or nested
         const circle = card.querySelector('.sel-circle');
-        if(circle){
-          circle.classList.toggle('checked', nowSelected);
-          // Force repaint so animation triggers
-          circle.style.animation='none';
-          void circle.offsetWidth;
-          circle.style.animation='';
-        }
-      });
+        if(circle) circle.classList.toggle('checked', nowSelected);
+      }
     }
     function updateSelBar(){
       document.getElementById('selCount').textContent=selItems.size;
@@ -6934,22 +6752,10 @@
       }
       const collRate=grandStudents>0?Math.round((grandPaid/grandStudents)*100):0;
       const overdueStu=grandStudents-grandPaid;
-      const overdueList=[];
       const monthLabels=[],monthAmts=[];
       for(let i=5;i>=0;i--){const d=new Date(curY,curM-1-i,1);monthLabels.push(['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]);monthAmts.push(allPays.filter(p=>p.paidOn&&p.paidOn.month===d.getMonth()+1&&p.paidOn.year===d.getFullYear()).reduce((s,p)=>s+(p.amount||0),0));}
-      // Overdue from batch students
-      batchSummaries.forEach(bs=>{const s=allStats[bs.bid],b=batches[bs.bid],fee=b.fee||0;if(!s||!b)return;Object.keys(s.students).forEach(sid=>{const st=s.students[sid];let lp={month:st.baselineMonth||curM,year:st.baselineYear||curY},rp=0;s.payments.filter(p=>p.studentId===sid).sort((a,x)=>a.timestamp-x.timestamp).forEach(p=>{if(p.type==='partial'){rp+=p.amount;const c=Math.floor(rp/fee);if(c>0){lp=addM(lp,c);rp%=fee;}}else if(p.monthsPaid){lp=addM(lp,p.monthsPaid);rp=0;}});const mo=Math.max(mBetween(lp,{month:curM,year:curY}),0);let pb=0;s.payments.filter(p=>p.studentId===sid).sort((a,x)=>a.timestamp-x.timestamp).forEach(p=>{if(p.type==='partial'){pb+=p.amount;pb%=fee;}else if(p.monthsPaid)pb=0;});const due=Math.max(mo*fee-pb,0);if(due>0)overdueList.push({name:st.name,batch:b.name,due,mo});});});
-      // ── Include standalone students in analytics ──
-      let standaloneDue=0, standaloneCount=_standaloneStudents.length, standalonePaid=0, standaloneMonthly=0;
-      _standaloneStudents.forEach(s=>{
-        const fee=s.fee||0, bm=s.baselineMonth||curM, by=s.baselineYear||curY;
-        const mo=Math.max(mBetween({month:bm,year:by},{month:curM,year:curY}),0);
-        const due=Math.max(mo*fee,0);
-        standaloneDue+=due; standaloneMonthly+=fee;
-        if(due===0) standalonePaid++; else overdueList.push({name:s.name||'Student',batch:'Individual',due,mo});
-      });
-      grandDue+=standaloneDue; grandStudents+=standaloneCount; grandPaid+=standalonePaid; grandMonthly+=standaloneMonthly;
-      if(standaloneCount>0) batchSummaries.push({bid:'__standalone__',name:'Individual Students',stuCount:standaloneCount,paidCount:standalonePaid,dueCount:standaloneCount-standalonePaid,due:standaloneDue});
+      const overdueList=[];
+      batchSummaries.forEach(bs=>{const s=allStats[bs.bid],b=batches[bs.bid],fee=b.fee||0;Object.keys(s.students).forEach(sid=>{const st=s.students[sid];let lp={month:st.baselineMonth||curM,year:st.baselineYear||curY},rp=0;s.payments.filter(p=>p.studentId===sid).sort((a,x)=>a.timestamp-x.timestamp).forEach(p=>{if(p.type==='partial'){rp+=p.amount;const c=Math.floor(rp/fee);if(c>0){lp=addM(lp,c);rp%=fee;}}else if(p.monthsPaid){lp=addM(lp,p.monthsPaid);rp=0;}});const mo=Math.max(mBetween(lp,{month:curM,year:curY}),0);let pb=0;s.payments.filter(p=>p.studentId===sid).sort((a,x)=>a.timestamp-x.timestamp).forEach(p=>{if(p.type==='partial'){pb+=p.amount;pb%=fee;}else if(p.monthsPaid)pb=0;});const due=Math.max(mo*fee-pb,0);if(due>0)overdueList.push({name:st.name,batch:b.name,due,mo});});});
       overdueList.sort((a,b)=>b.due-a.due);
       const dark=isDarkMode(),tc=dark?'rgba(255,255,255,.55)':'rgba(30,30,60,.6)',gc=dark?'rgba(255,255,255,.04)':'rgba(0,0,0,.05)';
       body.innerHTML=`
@@ -7125,17 +6931,6 @@
         <div class="dash-sk-chart"><div class="sk" style="width:40%;height:14px;border-radius:6px;margin-bottom:8px"></div><div class="sk" style="width:25%;height:10px;border-radius:5px;opacity:.5;margin-bottom:16px"></div><div class="sk" style="width:100%;height:160px;border-radius:10px"></div></div>
       </div>`;
     }
-
-    window.closeTeacherDash=function(){
-      destroyCharts(_tchDashCharts);
-      document.getElementById('teacherDashScreen').classList.add('hidden');
-      document.getElementById('appScreen').classList.remove('hidden');
-    };
-    window.closeStudentDash=function(){
-      destroyCharts(_stuDashCharts);
-      document.getElementById('studentDashScreen').classList.add('hidden');
-      document.getElementById('appScreen').classList.remove('hidden');
-    };
 
     // PATCH dashboard openers to show skeleton first
     window.openTeacherDash=async function(force=false){
