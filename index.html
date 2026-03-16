@@ -4033,7 +4033,8 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc, updateDoc }
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc, updateDoc,
+             enableIndexedDbPersistence }
       from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, browserLocalPersistence, setPersistence }
       from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -4045,6 +4046,18 @@
     const db   = getFirestore(_app);
     const auth = getAuth();
     const provider = new GoogleAuthProvider();
+
+    // ── Enable Firestore offline persistence ──────────────────────────────────
+    // This makes ALL Firestore reads/writes work offline. Writes are queued
+    // in IndexedDB and automatically synced when connection restores.
+    enableIndexedDbPersistence(db).catch(e => {
+      if (e.code === 'failed-precondition') {
+        console.warn('[Firestore] Offline persistence: multiple tabs open');
+      } else if (e.code === 'unimplemented') {
+        console.warn('[Firestore] Offline persistence not supported in this browser');
+      }
+    });
+
     // FCM — safe init (fails gracefully if SW not supported)
     let messaging = null;
     try { messaging = getMessaging(_app); } catch(e) { console.warn('[FCM] Not supported:', e); }
@@ -4075,41 +4088,72 @@
 
     // ── INDEXED-DB CACHE — permanent, per-account, survives mobile cache clears ──
     // DB is opened once per session; all reads/writes go through idbReady promise.
-    const IDB_NAME = 'fee-tracker-cache';
-    const IDB_VER  = 1;
+    const IDB_NAME  = 'fee-tracker-cache';
+    const IDB_VER   = 2;   // bumped to add new stores
     const IDB_STORE = 'kv';
 
     const idbReady = new Promise((resolve, reject) => {
       const req = indexedDB.open(IDB_NAME, IDB_VER);
-      req.onupgradeneeded = e => e.target.result.createObjectStore(IDB_STORE);
+      req.onupgradeneeded = e => {
+        const db = e.target.result;
+        // Main kv store (exists from v1)
+        if (!db.objectStoreNames.contains(IDB_STORE)) {
+          db.createObjectStore(IDB_STORE);
+        }
+        // v2: dedicated batch-detail store keyed by uid__batchId
+        if (!db.objectStoreNames.contains('batches_detail')) {
+          db.createObjectStore('batches_detail');
+        }
+      };
       req.onsuccess = e => resolve(e.target.result);
       req.onerror   = e => reject(e.target.error);
     });
 
     function idbKey(k){ return `${getCacheUid()}__${k}`; }
 
-    async function idbGet(k){
+    async function idbGet(k, store=IDB_STORE){
       try {
         const db = await idbReady;
         return new Promise((res, rej) => {
-          const tx = db.transaction(IDB_STORE, 'readonly');
-          const r  = tx.objectStore(IDB_STORE).get(idbKey(k));
+          const tx = db.transaction(store, 'readonly');
+          const r  = tx.objectStore(store).get(idbKey(k));
           r.onsuccess = () => res(r.result ?? null);
           r.onerror   = () => rej(r.error);
         });
       } catch(e){ return null; }
     }
 
-    async function idbSet(k, v){
+    async function idbSet(k, v, store=IDB_STORE){
       try {
         const db = await idbReady;
         return new Promise((res, rej) => {
-          const tx = db.transaction(IDB_STORE, 'readwrite');
-          const r  = tx.objectStore(IDB_STORE).put(v, idbKey(k));
+          const tx = db.transaction(store, 'readwrite');
+          const r  = tx.objectStore(store).put(v, idbKey(k));
           r.onsuccess = () => res();
           r.onerror   = () => rej(r.error);
         });
       } catch(e){ console.warn('IDB write failed', e); }
+    }
+
+    async function idbDel(k, store=IDB_STORE){
+      try {
+        const db = await idbReady;
+        return new Promise((res,rej)=>{
+          const tx=db.transaction(store,'readwrite');
+          const r=tx.objectStore(store).delete(idbKey(k));
+          r.onsuccess=()=>res(); r.onerror=()=>rej(r.error);
+        });
+      } catch(e){}
+    }
+
+    // Save/load batch detail (students + payments) keyed by batch ID
+    function saveBatchDetailToCache(bid){
+      if(!bid) return;
+      idbSet(bid, { students: batchStudents, payments: batchPayments }, 'batches_detail');
+    }
+    async function loadBatchDetailFromCache(bid){
+      const d = await idbGet(bid, 'batches_detail');
+      return d || null; // { students, payments } or null
     }
 
     // Sync reads for boot (fallback to localStorage for first-run migration)
@@ -4127,14 +4171,16 @@
 
     async function loadFromCacheAsync(){
       // Async: load from IDB (primary store), fall back to LS
-      const [ct,cp,cb,cpr] = await Promise.all([
-        idbGet('teachers'), idbGet('payments'), idbGet('batches'), idbGet('profile')
+      const [ct,cp,cb,cpr,css] = await Promise.all([
+        idbGet('teachers'), idbGet('payments'), idbGet('batches'),
+        idbGet('profile'), idbGet('standalone_students')
       ]);
       if(ct) teachers=ct; else { const v=LS.get('teachers'); if(v) teachers=v; }
       if(cp) payments=cp; else { const v=LS.get('payments'); if(v) payments=v; }
       if(cb) batches=cb;  else { const v=LS.get('batches');  if(v) batches=v; }
       if(cpr){ profile=cpr; updateRole(); }
       else { const v=LS.get('profile'); if(v){ profile=v; updateRole(); } }
+      if(css) _standaloneStudents=css; // restore standalone students from cache
     }
 
     function saveToCache(){
@@ -4142,6 +4188,10 @@
       idbSet('teachers', teachers);
       idbSet('payments', payments);
       idbSet('batches',  batches);
+      // Standalone students saved separately
+      if(_standaloneStudents && _standaloneStudents.length >= 0) {
+        idbSet('standalone_students', _standaloneStudents);
+      }
       // Also keep LS in sync for migration compatibility
       try { localStorage.setItem(`ft__${getCacheUid()}__teachers`, JSON.stringify(teachers)); } catch(e){}
       try { localStorage.setItem(`ft__${getCacheUid()}__payments`, JSON.stringify(payments)); } catch(e){}
@@ -4155,10 +4205,23 @@
       let b=document.getElementById('offlineBanner');
       if(!b){ b=document.createElement('div'); b.id='offlineBanner';
         b.style.cssText='position:fixed;top:0;left:0;right:0;z-index:9999;background:#ff9a3c;color:#1a1a1a;text-align:center;font-size:12px;font-weight:700;padding:7px 16px;letter-spacing:.3px;transition:transform .3s;transform:translateY(-100%);';
-        b.textContent='⚡ Offline — showing cached data'; document.body.appendChild(b); }
+        b.innerHTML='⚡ Offline &mdash; all data available from cache'; b.style.cursor='default'; document.body.appendChild(b); }
       b.style.transform=show?'translateY(0)':'translateY(-100%)';
     }
     // ──────────────────────────────────────────────────────────────────────────
+
+    // ── Network status ──────────────────────────────────────────────────────
+    window.addEventListener('online', ()=>{
+      showOfflineBanner(false);
+      toast('Back online ✓','success');
+      // Re-sync silently when connection restores
+      if(loaded && profile.role) loadAll(true);
+    });
+    window.addEventListener('offline', ()=>{
+      showOfflineBanner(true);
+    });
+    // Set initial state
+    if(!navigator.onLine) showOfflineBanner(true);
 
     // UTILS
     function mBetween(a,b){ return (b.year-a.year)*12+(b.month-a.month); }
@@ -4626,7 +4689,14 @@
           render(); // instant render from cache
         }
       }
+
+      // Snapshot data before fetch so we can diff
+      const _prevTeachers = JSON.stringify(teachers);
+      const _prevBatches  = JSON.stringify(batches);
+      const _prevPayments = JSON.stringify(payments);
+
       // Sync Firestore — never touch the DOM until data arrives
+      let fetchOk = false;
       try {
         if(isT()){
           const bs=await getDocs(btCol()); batches={};
@@ -4636,10 +4706,34 @@
           teachers={}; ts.forEach(d=>{ teachers[d.id]=d.data(); });
           payments=ps.docs.map(d=>({id:d.id,...d.data()}));
         }
-        saveToCache(); showOfflineBanner(false);
+        saveToCache(); showOfflineBanner(false); fetchOk=true;
       } catch(e){ console.warn('Firestore sync failed, using cache:',e); showOfflineBanner(true); }
+
+
+      // ── Pre-cache all batch details in background ──
+      // So teacher can open any batch offline instantly
+      if(isT() && fetchOk && Object.keys(batches).length > 0){
+        Promise.all(Object.keys(batches).map(async bid => {
+          try{
+            const [sSnap,pSnap] = await Promise.all([getDocs(stuCol(bid)),getDocs(bpyCol(bid))]);
+            const studs={}, pays=[];
+            sSnap.forEach(d=>{ studs[d.id]=d.data(); });
+            pSnap.docs.forEach(d=>{ pays.push({id:d.id,...d.data()}); });
+            await idbSet(bid, {students:studs,payments:pays}, 'batches_detail');
+          }catch(e){}
+        })).then(()=> console.log('[Cache] All batch details pre-cached'));
+      }
+
       if(isT()) { try { await loadStandaloneStudents(); } catch(e){} }
-      render(); // render with fresh Firestore data (or re-render cache on error)
+
+      // Only re-render if data actually changed — avoids the visible "reload flash"
+      // when Firestore returns the same data we already had from cache
+      const dataChanged = fetchOk && (
+        JSON.stringify(teachers) !== _prevTeachers ||
+        JSON.stringify(batches)  !== _prevBatches  ||
+        JSON.stringify(payments) !== _prevPayments
+      );
+      if(dataChanged || !appRendered) render();
     }
 
     // PAY
@@ -5089,9 +5183,27 @@
 
     async function loadBatchDetail(bid){
       currentBatchId=bid;
-      const [sSnap,pSnap]=await Promise.all([getDocs(stuCol(bid)),getDocs(bpyCol(bid))]);
-      batchStudents={};sSnap.forEach(d=>{batchStudents[d.id]=d.data();});
-      batchPayments=pSnap.docs.map(d=>({id:d.id,...d.data()}));renderBatchDetail(bid);}
+      try {
+        const [sSnap,pSnap]=await Promise.all([getDocs(stuCol(bid)),getDocs(bpyCol(bid))]);
+        batchStudents={};sSnap.forEach(d=>{batchStudents[d.id]=d.data();});
+        batchPayments=pSnap.docs.map(d=>({id:d.id,...d.data()}));
+        // Cache immediately after every successful fetch
+        saveBatchDetailToCache(bid);
+      } catch(e) {
+        // Offline or fetch failed — try IDB cache
+        console.warn('[FeeTracker] Batch detail fetch failed, trying cache:', e.message);
+        const cached = await loadBatchDetailFromCache(bid);
+        if(cached){
+          batchStudents = cached.students || {};
+          batchPayments = cached.payments || [];
+          showOfflineBanner(true);
+        } else {
+          batchStudents = {}; batchPayments = [];
+          toast('No cached data for this batch', 'error');
+        }
+      }
+      renderBatchDetail(bid);
+    }
 
     function renderBatchDetail(bid){
       // Restore pinnedId for batch students
@@ -5399,7 +5511,14 @@
         const snap=await getDocs(collection(db,'users',uid(),'students'));
         _standaloneStudents=[];
         snap.forEach(d=>_standaloneStudents.push({id:d.id,...d.data()}));
-      }catch(e){ _standaloneStudents=[]; }
+        // Cache for offline use
+        idbSet('standalone_students', _standaloneStudents);
+      }catch(e){
+        // Offline — use cached data if available
+        const cached = await idbGet('standalone_students');
+        if(cached) _standaloneStudents=cached;
+        else _standaloneStudents=[];
+      }
     }
 
     function _renderStandaloneSection(){
@@ -5715,6 +5834,52 @@
     }).catch(e => {
       if (e.code && e.code !== 'auth/no-current-user') toast('Login error: '+e.code,'error');
     });
+
+    // ── Offline-first fallback ──────────────────────────────────────────────
+    // If Firebase auth hasn't resolved after 3s AND we have a cached UID + profile,
+    // boot directly from cache so the app is fully usable offline.
+    // When auth eventually resolves (network restores), bootApp will run normally.
+    let _offlineBooted = false;
+    setTimeout(async () => {
+      if (loaded || _offlineBooted) return;
+      const cachedUid = localStorage.getItem('ft_uid');
+      if (!cachedUid) return; // never logged in — can't boot offline
+      const cachedProfile = await idbGet('profile').catch(()=>null)
+        || LS.get('profile');
+      if (!cachedProfile || !cachedProfile.role) return; // no profile cached
+      // We have enough — boot from cache without a Firebase user object
+      _offlineBooted = true;
+      console.log('[FeeTracker] Offline boot from cache');
+      // Fake minimal user from cache
+      const fakeUser = {
+        uid: cachedUid,
+        displayName: cachedProfile.displayName || 'User',
+        photoURL: null,
+        email: cachedProfile.email || '',
+      };
+      await loadFromCacheAsync();
+      profile = cachedProfile; updateRole();
+      const av = document.getElementById('avatarEl');
+      const ma = document.getElementById('menuAvatar');
+      const initial = (fakeUser.displayName||'U')[0].toUpperCase();
+      if (av) { av.textContent = initial; av.classList.remove('loading'); }
+      if (ma) ma.textContent = initial;
+      document.getElementById('menuName').textContent  = fakeUser.displayName;
+      document.getElementById('menuEmail').textContent = '(offline)';
+      document.getElementById('loginScreen')?.classList.add('hidden');
+      const hasCachedData = isT() ? Object.keys(batches).length > 0 : Object.keys(teachers).length > 0;
+      if (hasCachedData) render();
+      hideSplash();
+      document.getElementById('appScreen').classList.remove('hidden');
+      showOfflineBanner(true);
+      // Queue a sync when connection restores
+      window.addEventListener('online', async () => {
+        if (!loaded) return; // auth resolved normally, skip
+        showOfflineBanner(false);
+        toast('Back online — syncing…', '');
+        await loadAll(true);
+      }, { once: true });
+    }, 3000);
     // Fallback: if auth hasn't resolved in 4s, drop splash and show login
     setTimeout(()=>{
       const s=document.getElementById('splashSkeleton');
