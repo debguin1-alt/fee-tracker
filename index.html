@@ -2806,6 +2806,55 @@
     .dash-btn { color: #fff !important; }
     .dash-btn svg { stroke: #fff; }
 
+    /* ╔══ SEARCH BAR — DEFINITIVE FIX ══╗
+       All elements positioned inside the 48px bar */
+    .search-wrap {
+      position: relative !important;
+      margin-bottom: 18px !important;
+    }
+    .search-icon {
+      position: absolute !important;
+      left: 14px !important;
+      top: 50% !important;
+      transform: translateY(-50%) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      pointer-events: none !important;
+      color: var(--muted) !important;
+      z-index: 2 !important;
+      /* Critically: do NOT use bottom or margin — only top+transform */
+    }
+    .search-input {
+      width: 100% !important;
+      height: 48px !important;
+      border-radius: 16px !important;
+      padding: 0 48px 0 44px !important;
+      font-size: 14px !important;
+      background: var(--surface) !important;
+      border: 1.5px solid var(--border) !important;
+      display: block !important;
+      line-height: 48px !important;
+    }
+    .search-clear {
+      position: absolute !important;
+      right: 12px !important;
+      top: 50% !important;
+      transform: translateY(-50%) !important;
+      /* Remove any margin/bottom that shifts it */
+      margin: 0 !important;
+      bottom: auto !important;
+      width: 26px !important;
+      height: 26px !important;
+      border-radius: 50% !important;
+      background: var(--surface3) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      z-index: 2 !important;
+    }
+
   </style>
 </head>
 <body>
@@ -3043,7 +3092,7 @@
       </div>
       <div class="topbar-right">
         <button class="search-topbar-btn" id="searchTopbarBtn" title="Search" style="width:40px;height:40px;border-radius:var(--r-lg);background:var(--surface2);border:1px solid var(--border2);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;box-shadow:0 2px 8px rgba(0,0,0,.12);flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="display:block"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.7"/><line x1="10.5" y1="10.5" x2="14.5" y2="14.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>
-        <button class="dash-btn hidden" id="dashBtn" title="Analytics" onclick="isT()?openTeacherDash():openStudentDash()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block">
+        <button class="dash-btn hidden" id="dashBtn" title="Analytics" onclick="(window.openTeacherDash&&window.openStudentDash)?(profile.role==='teacher'?openTeacherDash():openStudentDash()):void 0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block">
   <line x1="6"  y1="20" x2="6"  y2="14"/>
   <line x1="12" y1="20" x2="12" y2="10"/>
   <line x1="18" y1="20" x2="18" y2="4"/>
@@ -4546,7 +4595,7 @@
       const cl=Object.keys(teachers).filter(id=>monthsDue(id)===0).length;
       let h=`
         ${!profile.className?`<div class="setup-banner" onclick="openProfileModal()"><span class="setup-banner-icon" style="display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;flex-shrink:0" ><circle cx="8" cy="5.5" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 14c0-3.3 2.7-5 6-5s6 1.7 6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><div class="setup-banner-text"><div class="setup-banner-title">Complete your profile</div><div class="setup-banner-sub">Add your name and class</div></div><button class="setup-banner-btn">Set up</button></div>`:''}
-        <div class="total-card" onclick="isT()?openTeacherDash():openStudentDash()" style="cursor:pointer">
+        <div class="total-card" onclick="(window.openTeacherDash&&window.openStudentDash)?(profile.role==='teacher'?openTeacherDash():openStudentDash()):void 0" style="cursor:pointer">
           <div class="total-label">Total Outstanding</div>
           <div class="total-amount"><span class="cur">₹</span>${td.toLocaleString('en-IN')}</div>
           <div class="total-sub">As of ${ds}</div>
@@ -5435,6 +5484,9 @@
     document.getElementById('editStudentNameInp')?.addEventListener('keydown', e=>{ if(e.key==='Enter'){e.preventDefault();saveEditStudent();} });
     window.obSubmit = obSubmit;
     window.openProfileModal=openProfileModal;
+    // Expose helpers for inline onclick handlers
+    window.isT = isT;
+    window.closeMenu = closeMenu;
 
     // ═══════════════════════════════════════════════════
     //  DRAG-TO-DISMISS — works on every .modal-handle
@@ -6066,7 +6118,7 @@
       const cl=Object.keys(teachers).filter(id=>monthsDue(id)===0).length;
       let h=`
         ${!profile.className?`<div class="setup-banner" onclick="openProfileModal()"><span class="setup-banner-icon" style="display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;flex-shrink:0" ><circle cx="8" cy="5.5" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 14c0-3.3 2.7-5 6-5s6 1.7 6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><div class="setup-banner-text"><div class="setup-banner-title">Complete your profile</div><div class="setup-banner-sub">Add your name and class</div></div><button class="setup-banner-btn">Set up</button></div>`:''}
-        <div class="total-card" onclick="isT()?openTeacherDash():openStudentDash()" style="cursor:pointer">
+        <div class="total-card" onclick="(window.openTeacherDash&&window.openStudentDash)?(profile.role==='teacher'?openTeacherDash():openStudentDash()):void 0" style="cursor:pointer">
           <div class="total-label">Total Outstanding</div>
           <div class="total-amount"><span class="cur">₹</span>${td.toLocaleString('en-IN')}</div>
           <div class="total-sub">As of ${ds}</div>
@@ -6079,7 +6131,7 @@
         <div class="search-wrap">
           <span class="search-icon"><svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;flex-shrink:0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/></svg></span>
           <input class="search-input" type="text" placeholder="Search teacher or subject…" value="${searchQ}" oninput="onSearch(this.value)" onkeydown="if(event.key==='Enter'){this.blur();}" />
-          ${searchQ?`<span class="search-clear" onclick="onSearch('')">✕</span>`:''}
+          ${searchQ?`<span class="search-clear" onclick="onSearch('');this.previousElementSibling.value='';this.previousElementSibling.focus();" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;background:var(--surface3);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);z-index:2;"><svg width='11' height='11' viewBox='0 0 12 12' fill='none' style='display:block'><line x1='1' y1='1' x2='11' y2='11' stroke='currentColor' stroke-width='1.8' stroke-linecap='round'/><line x1='11' y1='1' x2='1' y2='11' stroke='currentColor' stroke-width='1.8' stroke-linecap='round'/></svg></span>`:''}
         </div>
         <div class="section-label"><span class="section-label-txt">Teachers</span><span class="section-label-count" id="teachers-count">${Object.keys(teachers).length}</span></div>
         <div id="cards-list">`;
@@ -6178,7 +6230,7 @@
         <div class="teacher-mode-header"><div class="tmh-icon"><svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;flex-shrink:0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div><div class="tmh-info"><div class="tmh-title">Teacher Dashboard</div><div class="tmh-sub">${subjLine}</div></div>
 
         </div>
-        <div class="search-wrap"><span class="search-icon"><svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;flex-shrink:0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/></svg></span><input class="search-input" type="text" placeholder="Search batch…" value="${searchQ}" oninput="onSearch(this.value)" onkeydown="if(event.key==='Enter'){this.blur();}" />${searchQ?`<span class="search-clear" onclick="onSearch('')">✕</span>`:''}</div>
+        <div class="search-wrap"><span class="search-icon"><svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;flex-shrink:0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/></svg></span><input class="search-input" type="text" placeholder="Search batch…" value="${searchQ}" oninput="onSearch(this.value)" onkeydown="if(event.key==='Enter'){this.blur();}" />${searchQ?`<span class="search-clear" onclick="onSearch('');this.previousElementSibling.value='';this.previousElementSibling.focus();" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;background:var(--surface3);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);z-index:2;"><svg width='11' height='11' viewBox='0 0 12 12' fill='none' style='display:block'><line x1='1' y1='1' x2='11' y2='11' stroke='currentColor' stroke-width='1.8' stroke-linecap='round'/><line x1='11' y1='1' x2='1' y2='11' stroke='currentColor' stroke-width='1.8' stroke-linecap='round'/></svg></span>`:''}</div>
         <div class="section-label"><span class="section-label-txt">My Batches</span><span class="section-label-count">${bList.length}</span></div>`;
       if(!bList.length){ h+=`<div class="empty-state"><div class="empty-icon"><svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;flex-shrink:0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div><div class="empty-title">No batches yet</div><div class="empty-sub">Tap <strong>+</strong> to create a batch, then add students and track fees.</div></div>`; root.innerHTML=h; return; }
       const fil=bList.filter(id=>{const q=searchQ.toLowerCase();return !q||batches[id].name.toLowerCase().includes(q)||batches[id].subject?.toLowerCase().includes(q);}).sort((a,b)=>{
