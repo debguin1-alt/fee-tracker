@@ -241,19 +241,7 @@
     .sel-bar-close:active { background: var(--surface); }
 
     /* Selection checkbox circle on card */
-    .sel-circle {
-      width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border2);
-      background: var(--surface2); flex-shrink: 0; display: flex; align-items: center;
-      justify-content: center; transition: all .2s cubic-bezier(.34,1.4,.64,1);
-      cursor: pointer; position: relative; overflow: hidden;
-    }
-    .sel-circle::after {
-      content: ''; position: absolute; inset: 0; border-radius: 50%;
-      background: var(--accent); transform: scale(0); transition: transform .22s cubic-bezier(.34,1.4,.64,1);
-    }
-    .sel-circle.checked { border-color: var(--accent); }
-    .sel-circle.checked::after { transform: scale(1); }
-    .sel-circle.checked .sel-tick { opacity: 1; z-index: 1; }
+
     .sel-tick { opacity: 0; font-size: 11px; color: #fff; font-weight: 800; z-index: 1; transition: opacity .15s; }
 
     /* Card selection state */
@@ -434,10 +422,7 @@
     .sel-bar-btn.danger:active { background:rgba(255,77,109,.08); }
     .sel-bar-btn.pin-btn { border-color:rgba(255,209,102,.2); color:var(--yellow); }
     .sel-bar-close { width:30px; height:30px; border-radius:50%; background:var(--surface3); border:1px solid var(--border); color:var(--text2); font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:background .15s; }
-    .sel-circle { width:22px; height:22px; border-radius:50%; border:2px solid var(--border2); background:var(--surface2); flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all .2s cubic-bezier(.34,1.4,.64,1); cursor:pointer; overflow:visible; }
-    .sel-circle.checked { border-color:var(--accent); background:var(--accent); }
-    .sel-tick { opacity:0; font-size:11px; color:#fff; font-weight:800; transition:opacity .15s; }
-    .sel-circle.checked .sel-tick { opacity:1; }
+
     .teacher-card.selected,.batch-card.selected,.student-card.selected { border-color:rgba(124,107,255,.4); background:rgba(124,107,255,.04); }
     .pin-badge { display:inline-flex; align-items:center; gap:3px; font-size:9px; font-weight:700; color:var(--yellow); background:rgba(255,209,102,.12); border:1px solid rgba(255,209,102,.25); border-radius:20px; padding:2px 8px; flex-shrink:0; letter-spacing:.2px; }
 
@@ -2438,82 +2423,6 @@
     }
     .menu-item-label { flex: 1 !important; }
 
-    /* ── Selection circle — instant, no animation lag ── */
-    .sel-circle {
-      width: 22px !important;
-      height: 22px !important;
-      border-radius: 50% !important;
-      border: 2px solid var(--border2) !important;
-      background: transparent !important;
-      flex-shrink: 0 !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      cursor: pointer !important;
-      overflow: visible !important;
-      transition: background .18s cubic-bezier(.175,.885,.32,1.275),
-                  border-color .18s !important;
-    }
-    .sel-circle::after { display: none !important; } /* Remove old pseudo-element */
-    .sel-circle.checked {
-      background: var(--accent) !important;
-      border-color: var(--accent) !important;
-    }
-    .sel-tick {
-      opacity: 0 !important;
-      transform: scale(.5) !important;
-      transition: opacity .15s ease, transform .18s cubic-bezier(.175,.885,.32,1.275) !important;
-      color: #fff !important;
-      font-size: 11px !important;
-      font-weight: 800 !important;
-      line-height: 1 !important;
-    }
-    .sel-circle.checked .sel-tick {
-      opacity: 1 !important;
-      transform: scale(1) !important;
-    }
-
-    /* ── 1. Selection circle — spring pop-in ── */
-    .sel-circle {
-      width: 22px !important;
-      height: 22px !important;
-      border-radius: 50% !important;
-      border: 2px solid var(--border2) !important;
-      background: transparent !important;
-      flex-shrink: 0 !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      cursor: pointer !important;
-      overflow: visible !important;
-      transform: scale(1) !important;
-      transition:
-        background .22s cubic-bezier(.175,.885,.32,1.275),
-        border-color .2s ease,
-        transform .25s cubic-bezier(.175,.885,.32,1.275) !important;
-    }
-    .sel-circle::after { display: none !important; }
-    .sel-circle.checked {
-      background: var(--accent) !important;
-      border-color: var(--accent) !important;
-      transform: scale(1.12) !important;
-    }
-    .sel-tick {
-      opacity: 0 !important;
-      transform: scale(0) !important;
-      font-size: 11px !important;
-      font-weight: 800 !important;
-      color: #fff !important;
-      line-height: 1 !important;
-      transition:
-        opacity .15s ease,
-        transform .22s cubic-bezier(.34,1.56,.64,1) !important;
-    }
-    .sel-circle.checked .sel-tick {
-      opacity: 1 !important;
-      transform: scale(1) !important;
-    }
-
     /* ── 2. Menu icon alignment — fixed 24px container ── */
     .menu-item {
       display: flex !important;
@@ -3135,20 +3044,70 @@
     }
     .modal-handle-wide .modal-handle { cursor: inherit; pointer-events: none; margin: 0; }
 
-    /* ── Selection circle — overflow:visible so pop-in doesn't get clipped ── */
-    .sel-circle { overflow: visible !important; }
+
+
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       SELECTION CIRCLE + TICK — single source of truth
+       Works for both teacher and student roles.
+       overflow:visible is critical — allows scale overshoot
+       without clipping the tick pop-in animation.
+       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .sel-circle {
+      width: 22px !important;
+      height: 22px !important;
+      border-radius: 50% !important;
+      border: 2px solid rgba(255,255,255,.22) !important;
+      background: rgba(255,255,255,.07) !important;
+      flex-shrink: 0 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      overflow: visible !important;        /* must be visible for scale overshoot */
+      position: relative !important;
+      z-index: 1 !important;
+      transition:
+        background   .18s cubic-bezier(.175,.885,.32,1.275),
+        border-color .18s ease,
+        transform    .2s  cubic-bezier(.175,.885,.32,1.275) !important;
+    }
+    /* Kill every old pseudo-element approach */
+    .sel-circle::before,
     .sel-circle::after { display: none !important; }
     .sel-circle.checked {
-      background: var(--accent) !important;
+      background:   var(--accent) !important;
       border-color: var(--accent) !important;
       transform: scale(1.1) !important;
     }
+    /* The tick character */
     .sel-tick {
-      opacity: 0 !important; transform: scale(0) rotate(-15deg) !important;
-      transition: opacity .15s ease, transform .22s cubic-bezier(.34,1.56,.64,1) !important;
+      display: block !important;
+      font-size: 12px !important;
+      font-weight: 900 !important;
+      color: #fff !important;
+      line-height: 1 !important;
+      user-select: none !important;
+      pointer-events: none !important;
+      /* Hidden by default */
+      opacity: 0 !important;
+      transform: scale(0) rotate(-15deg) !important;
+      transition:
+        opacity   .12s ease                        !important,
+        transform .22s cubic-bezier(.34,1.56,.64,1) !important;
     }
+    /* Show and spring-in when checked */
     .sel-circle.checked .sel-tick {
-      opacity: 1 !important; transform: scale(1) rotate(0deg) !important;
+      opacity: 1 !important;
+      transform: scale(1) rotate(0deg) !important;
+    }
+    /* Selected card highlight */
+    .teacher-card.selected,
+    .batch-card.selected,
+    .student-card.selected,
+    .standalone-card.selected {
+      border-color: rgba(124,107,255,.4) !important;
+      background:   rgba(124,107,255,.05) !important;
     }
 
   </style>
@@ -7106,11 +7065,21 @@
       await renderTeacherDash();
       if(btn)setTimeout(()=>btn.classList.remove('spinning'),600);
     };
+    window.closeTeacherDash=function(){
+      destroyCharts(_tchDashCharts);
+      document.getElementById('teacherDashScreen').classList.add('hidden');
+      document.getElementById('appScreen').classList.remove('hidden');
+    };
     window.openStudentDash=function(){
       document.getElementById('appScreen').classList.add('hidden');
       document.getElementById('studentDashScreen').classList.remove('hidden');
       document.getElementById('studentDashBody').innerHTML=dashSkeleton();
       renderStudentDash();
+    };
+    window.closeStudentDash=function(){
+      destroyCharts(_stuDashCharts);
+      document.getElementById('studentDashScreen').classList.add('hidden');
+      document.getElementById('appScreen').classList.remove('hidden');
     };
 
 
