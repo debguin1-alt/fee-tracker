@@ -2362,6 +2362,204 @@
     /* ── Fix duplicate animation declarations ── */
     @keyframes spin360 { to { transform: rotate(360deg); } }
 
+    /* ── Search bar: icon inside bar, no separate button ── */
+    #searchTopbarBtn { display: none !important; }
+    .search-wrap { position: relative !important; margin-bottom: 18px !important; }
+    .search-icon {
+      position: absolute !important;
+      left: 14px !important;
+      top: 50% !important;
+      transform: translateY(-50%) !important;
+      color: var(--muted) !important;
+      pointer-events: none !important;
+      display: flex !important;
+      align-items: center !important;
+      z-index: 2 !important;
+    }
+    .search-input {
+      width: 100% !important;
+      padding: 0 44px 0 44px !important;
+      height: 48px !important;
+      border-radius: 16px !important;
+      background: var(--surface) !important;
+      border: 1.5px solid var(--border) !important;
+      font-size: 14px !important;
+      font-family: 'DM Sans', sans-serif !important;
+      color: var(--text) !important;
+      outline: none !important;
+      transition: border-color .2s, box-shadow .2s, background .2s !important;
+    }
+    .search-input:focus {
+      background: var(--surface2) !important;
+      border-color: rgba(124,107,255,.35) !important;
+      box-shadow: 0 0 0 4px rgba(124,107,255,.07) !important;
+    }
+    .search-clear {
+      position: absolute !important;
+      right: 12px !important;
+      top: 50% !important;
+      transform: translateY(-50%) !important;
+      width: 26px !important;
+      height: 26px !important;
+      border-radius: 50% !important;
+      background: var(--surface3) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      color: var(--muted) !important;
+      transition: background .15s, color .15s !important;
+    }
+    .search-clear:active { background: var(--surface); color: var(--text) !important; }
+
+    /* ── Menu icon alignment — fixed 24px container ── */
+    .menu-item {
+      display: flex !important;
+      align-items: center !important;
+      gap: 14px !important;
+      padding: 12px 13px !important;
+      border-radius: 14px !important;
+      cursor: pointer !important;
+      font-size: 13.5px !important;
+      color: var(--text) !important;
+      font-weight: 500 !important;
+      transition: background .12s !important;
+    }
+    .menu-item-icon, #menuNotifIcon, #menuThemeIcon {
+      width: 24px !important;
+      height: 24px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex-shrink: 0 !important;
+      font-size: 18px !important;
+    }
+    .menu-item-label { flex: 1 !important; }
+
+    /* ── Selection circle — instant, no animation lag ── */
+    .sel-circle {
+      width: 22px !important;
+      height: 22px !important;
+      border-radius: 50% !important;
+      border: 2px solid var(--border2) !important;
+      background: transparent !important;
+      flex-shrink: 0 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      overflow: visible !important;
+      transition: background .18s cubic-bezier(.175,.885,.32,1.275),
+                  border-color .18s !important;
+    }
+    .sel-circle::after { display: none !important; } /* Remove old pseudo-element */
+    .sel-circle.checked {
+      background: var(--accent) !important;
+      border-color: var(--accent) !important;
+    }
+    .sel-tick {
+      opacity: 0 !important;
+      transform: scale(.5) !important;
+      transition: opacity .15s ease, transform .18s cubic-bezier(.175,.885,.32,1.275) !important;
+      color: #fff !important;
+      font-size: 11px !important;
+      font-weight: 800 !important;
+      line-height: 1 !important;
+    }
+    .sel-circle.checked .sel-tick {
+      opacity: 1 !important;
+      transform: scale(1) !important;
+    }
+
+    /* ── 1. Selection circle — spring pop-in ── */
+    .sel-circle {
+      width: 22px !important;
+      height: 22px !important;
+      border-radius: 50% !important;
+      border: 2px solid var(--border2) !important;
+      background: transparent !important;
+      flex-shrink: 0 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      overflow: visible !important;
+      transform: scale(1) !important;
+      transition:
+        background .22s cubic-bezier(.175,.885,.32,1.275),
+        border-color .2s ease,
+        transform .25s cubic-bezier(.175,.885,.32,1.275) !important;
+    }
+    .sel-circle::after { display: none !important; }
+    .sel-circle.checked {
+      background: var(--accent) !important;
+      border-color: var(--accent) !important;
+      transform: scale(1.12) !important;
+    }
+    .sel-tick {
+      opacity: 0 !important;
+      transform: scale(0) !important;
+      font-size: 11px !important;
+      font-weight: 800 !important;
+      color: #fff !important;
+      line-height: 1 !important;
+      transition:
+        opacity .15s ease,
+        transform .22s cubic-bezier(.34,1.56,.64,1) !important;
+    }
+    .sel-circle.checked .sel-tick {
+      opacity: 1 !important;
+      transform: scale(1) !important;
+    }
+
+    /* ── 2. Menu icon alignment — fixed 24px container ── */
+    .menu-item {
+      display: flex !important;
+      align-items: center !important;
+      gap: 14px !important;
+      padding: 12px 13px !important;
+      border-radius: 14px !important;
+      cursor: pointer !important;
+      font-size: 13.5px !important;
+      color: var(--text) !important;
+      font-weight: 500 !important;
+      transition: background .12s !important;
+      position: relative !important;
+    }
+    .menu-item-icon,
+    #menuNotifIcon,
+    #menuThemeIcon {
+      width: 24px !important;
+      height: 24px !important;
+      min-width: 24px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex-shrink: 0 !important;
+      font-size: 18px !important;
+    }
+    .menu-item-label { flex: 1 !important; min-width: 0 !important; }
+
+    /* ── 3. Profile modal scrollable ── */
+    #profileModal .modal-sheet {
+      overflow-y: auto !important;
+      max-height: 90vh !important;
+    }
+
+    /* ── 4. Analytics icon button pulse on click ── */
+    .dash-btn {
+      transition: transform .18s cubic-bezier(.34,1.56,.64,1), opacity .15s, box-shadow .2s !important;
+    }
+    .dash-btn:active { transform: scale(.84) !important; }
+
+    /* ── 5. Consistent card gap ── */
+    .teacher-card, .batch-card { margin-bottom: 12px !important; }
+    .student-card, .standalone-card { margin-bottom: 10px !important; }
+    .dash-stat-grid { gap: 10px !important; }
+    .dash-chart-card { margin-bottom: 14px !important; }
+    .dash-insight-card { margin-bottom: 14px !important; }
+    .batch-subject-list { gap: 6px !important; }
+
   </style>
 </head>
 <body>
@@ -2599,10 +2797,10 @@
       </div>
       <div class="topbar-right">
         <button class="search-topbar-btn" id="searchTopbarBtn" title="Search" style="width:40px;height:40px;border-radius:var(--r-lg);background:var(--surface2);border:1px solid var(--border2);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;box-shadow:0 2px 8px rgba(0,0,0,.12);flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="display:block"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.7"/><line x1="10.5" y1="10.5" x2="14.5" y2="14.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>
-        <button class="dash-btn hidden" id="dashBtn" title="Analytics" style="color:#fff"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block">
-  <rect x="1" y="6" width="5" height="13" rx="1.5" fill="currentColor"/>
-  <rect x="7.5" y="10" width="5" height="9" rx="1.5" fill="currentColor" opacity=".75"/>
-  <rect x="14" y="13" width="5" height="6" rx="1.5" fill="currentColor" opacity=".5"/>
+        <button class="dash-btn hidden" id="dashBtn" title="Analytics" style="color:#fff" onclick="isT()?openTeacherDash():openStudentDash()"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block">
+  <rect x="1"  y="5"  width="5" height="14" rx="1.5" fill="currentColor"/>
+  <rect x="7.5" y="11" width="5" height="5"  rx="1.5" fill="currentColor" opacity=".8"/>
+  <rect x="14" y="2"  width="5" height="17" rx="1.5" fill="currentColor"/>
 </svg></button>
         <button class="add-btn" id="addBtn" title="Add"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><line x1="11" y1="4" x2="11" y2="18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><line x1="4" y1="11" x2="18" y2="11" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
       </div>
@@ -2733,12 +2931,17 @@
       </div>
       <div id="roleSwitchNote" class="hidden" style="background:rgba(255,154,60,.08);border:1px solid rgba(255,154,60,.22);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--accent4);line-height:1.5;">&#x26A0;&#xFE0F; Switching roles will reload your dashboard.</div>
 
-      <!-- Avatar -->
+      <!-- Avatar — tappable to focus name field -->
       <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:22px;">
-        <div style="width:76px;height:76px;border-radius:50%;padding:3px;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 4px 24px rgba(124,107,255,.4);">
-          <div id="profileAvatar" style="width:100%;height:100%;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:28px;font-weight:700;overflow:hidden;">?</div>
+        <div style="position:relative;width:76px;height:76px;cursor:pointer;" onclick="document.getElementById('profileName')?.focus()">
+          <div style="width:76px;height:76px;border-radius:50%;padding:3px;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 4px 24px rgba(124,107,255,.4);">
+            <div id="profileAvatar" style="width:100%;height:100%;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:28px;font-weight:700;overflow:hidden;">?</div>
+          </div>
+          <div style="position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;border:2px solid var(--surface);box-shadow:0 2px 8px rgba(124,107,255,.4);">
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M8 1l3 3-7 7H1V8L8 1z" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
         </div>
-        <div style="font-size:12px;color:var(--muted);letter-spacing:.4px;font-weight:500;">Tell us about you</div>
+        <div style="font-size:12px;color:var(--muted);letter-spacing:.4px;font-weight:500;">Tap to edit profile</div>
       </div>
 
       <!-- Role -->
@@ -5279,26 +5482,34 @@
       const off=localStorage.getItem('ft_reminders_off')==='1';
       const on=perm==='granted'&&!off;
       if(on){
+        // Turn off — animate toggle but keep menu open so user sees the change
         localStorage.setItem('ft_reminders_off','1');
         _applyNotifToggle(false);
-        toast('Reminders turned off 🔕','');
-        setTimeout(()=>closeMenu(),320);
+        toast('Reminders turned off','');
+        // No closeMenu() — let user see the toggle state
       } else if(perm==='denied'){
         _applyNotifToggle(false);
-        setTimeout(()=>{ closeMenu(); toast('Enable notifications in browser settings ⚙️','error'); },320);
+        toast('Enable notifications in browser settings ⚙️','error');
+        // No closeMenu() — user sees the blocked state
       } else if(perm==='granted'&&off){
+        // Turn back on
         localStorage.removeItem('ft_reminders_off');
         _applyNotifToggle(true);
         toast('Reminders back on 🔔','success');
-        setTimeout(()=>closeMenu(),320);
+        // No closeMenu()
       } else {
+        // Request permission — animate toggle optimistically, then request
         _applyNotifToggle(true);
         setTimeout(async()=>{
-          closeMenu();
           await initNotifications();
-          if(Notification.permission==='granted'){ localStorage.removeItem('ft_reminders_off'); toast('Reminders enabled 🔔','success'); }
-          else _syncNotifToggle();
+          if(Notification.permission==='granted'){
+            localStorage.removeItem('ft_reminders_off');
+            toast('Reminders enabled 🔔','success');
+          } else {
+            _syncNotifToggle(); // revert animation if denied
+          }
         },340);
+        // No closeMenu()
       }
     });
 
@@ -5342,16 +5553,19 @@
       else render(); // render() calls renderTeacher or renderStudent based on role
     }
     function toggleSelItem(id){
-      if(selItems.has(id)) selItems.delete(id);
-      else selItems.add(id);
+      const nowSelected = !selItems.has(id);
+      if(nowSelected) selItems.add(id); else selItems.delete(id);
       if(!selItems.size){ exitSelMode(); return; }
       updateSelBar();
-      // update visual
-      document.querySelectorAll(`[data-sel-id="${id}"]`).forEach(el=>{
-        el.closest('.teacher-card,.batch-card,.student-card')?.classList.toggle('selected', selItems.has(id));
-        const circle=el.querySelector('.sel-circle');
-        if(circle) circle.classList.toggle('checked', selItems.has(id));
-      });
+      // Update the card that was just tapped
+      const card = document.querySelector(
+        `.teacher-card[data-id="${id}"],.batch-card[data-id="${id}"],.student-card[data-id="${id}"],.standalone-card[data-id="${id}"]`
+      );
+      if(card){
+        card.classList.toggle('selected', nowSelected);
+        const circle = card.querySelector('.sel-circle');
+        if(circle) circle.classList.toggle('checked', nowSelected);
+      }
     }
     function updateSelBar(){
       document.getElementById('selCount').textContent=selItems.size;
