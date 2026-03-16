@@ -4078,8 +4078,6 @@
       document.getElementById('confirmOverlay').classList.add('hidden');
       if(_confirmResolve){ _confirmResolve(v); _confirmResolve=null; }
     }
-    // Wire up confirm buttons once — they call _confirmDone
-    // (inline script: DOM is already parsed, wire directly)
     document.getElementById('confirmOkBtn').addEventListener('click', ()=>_confirmDone(true));
     document.getElementById('confirmCancelBtn').addEventListener('click', ()=>_confirmDone(false));
     document.getElementById('confirmOverlay').addEventListener('click', e=>{
@@ -4857,6 +4855,13 @@
         dl+=0.05;
       }
       container.innerHTML=h;
+      // Re-apply active status filter after card rebuild (search path)
+      const activeFilter = window._activeStatusFilter;
+      if(activeFilter && activeFilter !== 'all') {
+        window.filterByStatus(activeFilter);
+      } else if(typeof _applyMetaHighlight === 'function') {
+        _applyMetaHighlight('all');
+      }
     }
 
     function renderStudent(){
@@ -5753,7 +5758,6 @@
     document.getElementById('closeAddStudentBtn')?.addEventListener('click', closeAddStudentModal);
     document.getElementById('addStudentModal')?.addEventListener('click', e=>{ if(e.target===document.getElementById('addStudentModal')) closeAddStudentModal(); });
 
-    // (add student modal listeners registered above — no duplicates)
     // Edit student modal
     document.getElementById('closeEditStudentBtn')?.addEventListener('click', closeEditStudentModal);
     document.getElementById('cancelEditStudentBtn')?.addEventListener('click', closeEditStudentModal);
@@ -5890,7 +5894,6 @@
       }
     });
 
-    // ─── Menu theme toggle — single source of truth ───────────────────
     function _applyMenuToggle(goingDark) {
       // goingDark = the NEW state we're going TO
       const icon   = document.getElementById('menuThemeIcon');
@@ -6096,11 +6099,7 @@
       _origCheckDue(force);
     };
 
-    // (dashBtn is shown directly inside render() above — no wrapper needed)
-
-    // ═══════════════════════════════════════════════════
-    //  SELECTION MODE
-    // ═══════════════════════════════════════════════════
+    // SELECTION MODE
     let selMode=false, selItems=new Set(), selContext=''; // context: 'teacher','batch','student'
     let pinnedId=null; // only one pinned item at a time
 
@@ -6902,17 +6901,7 @@
       btn.disabled=false; btn.textContent='Save Changes';
     });
 
-    // ═══════════════════════════════════════════════════
-    // EDIT BUTTON on teacher cards (student role)
-    // ═══════════════════════════════════════════════════
-    // (called from rendered HTML via openEditTeacher)
-
-    // ═══════════════════════════════════════════════════
-    // confirmAssignBatchBtn: unified handler above handles both batch and standalone
-
-    // ═══════════════════════════════════════════════════
     // PATCH loadAll to also load standalone students
-    // ═══════════════════════════════════════════════════
     const _origLoadAll=loadAll;
     window.loadAll=async function(silent=false){
       await _origLoadAll(silent);
@@ -6920,9 +6909,7 @@
     };
 
 
-    // ═══════════════════════════════════════════════════
     // DASHBOARD SKELETON helper
-    // ═══════════════════════════════════════════════════
     function dashSkeleton(){
       return `<div style="padding:0">
         <div class="dash-sk-row">
@@ -6937,9 +6924,7 @@
       </div>`;
     }
 
-    // ═══════════════════════════════════════════════════
     // PATCH dashboard openers to show skeleton first
-    // ═══════════════════════════════════════════════════
     window.openTeacherDash=async function(force=false){
       document.getElementById('appScreen').classList.add('hidden');
       document.getElementById('teacherDashScreen').classList.remove('hidden');
@@ -6956,35 +6941,6 @@
     };
 
 
-    // ── Count-up animation on total overview card ──────────────────────────
-    function _runCountUp(targetVal){
-      const el=document.getElementById('totalAmtDisplay');
-      if(!el) return;
-      // Already the right value? Only animate if we just rendered
-      const duration=900; // ms
-      const fps=60;
-      const steps=Math.round(duration/(1000/fps));
-      let frame=0;
-      // Easing: ease-out cubic
-      const easeOut=t=>1-Math.pow(1-t,3);
-      const start=performance.now();
-      function tick(now){
-        const elapsed=now-start;
-        const progress=Math.min(elapsed/duration,1);
-        const eased=easeOut(progress);
-        const current=Math.round(eased*targetVal);
-        el.textContent=current.toLocaleString('en-IN');
-        if(progress<1) requestAnimationFrame(tick);
-        else el.textContent=targetVal.toLocaleString('en-IN');
-      }
-      requestAnimationFrame(tick);
-    }
-
-    // Patch render() so count-up fires after every renderStudent call
-    // Count-up is called from render() directly (see render function above)
-
-
-    // ── Total Amount Count-Up Animation ─────────────────────────────────
     let _countUpRaf = null;
     function runTotalCountUp(){
       if(isT()) return;
@@ -7009,7 +6965,6 @@
       _countUpRaf = requestAnimationFrame(tick);
     }
 
-    // ── updateTotalCard — reactive patch without full re-render ──────────
     window._activeStatusFilter = 'all';
     function _applyMetaHighlight(filter){
       const items = {
@@ -7017,13 +6972,14 @@
         clear:   document.getElementById('metaClear'),
         all:     document.getElementById('metaAll')
       };
+      const noFilter = (filter === 'all');
       Object.entries(items).forEach(([k, el])=>{
         if(!el) return;
-        const active = (k === filter);
-        el.style.transform  = active ? 'scale(1.06)' : 'scale(1)';
-        el.style.opacity    = active ? '1' : '0.72';
-        el.style.background = active ? 'rgba(255,255,255,0.28)' : '';
-        el.style.outline    = active ? '2px solid rgba(255,255,255,0.45)' : '';
+        const active = !noFilter && (k === filter);
+        el.style.transform     = active ? 'scale(1.06)' : 'scale(1)';
+        el.style.opacity       = (noFilter || active) ? '1' : '0.62';
+        el.style.background    = active ? 'rgba(255,255,255,0.28)' : '';
+        el.style.outline       = active ? '2px solid rgba(255,255,255,0.45)' : 'none';
         el.style.outlineOffset = '2px';
       });
     }
@@ -7039,7 +6995,7 @@
       if(dateSub) dateSub.textContent = 'As of ' + ds;
       function flashUpdate(id, val){
         const el = document.getElementById(id);
-        if(!el || el.textContent == String(val)) return;
+        if(!el || el.textContent === String(val) || el.textContent === val.toLocaleString('en-IN')) return;
         el.style.transition = 'transform .18s cubic-bezier(.34,1.5,.64,1),opacity .14s';
         el.style.transform = 'scale(1.22)'; el.style.opacity = '0.7';
         setTimeout(()=>{ el.textContent = val; el.style.transform='scale(1)'; el.style.opacity='1'; },90);
@@ -7051,8 +7007,6 @@
       _applyMetaHighlight(window._activeStatusFilter || 'all');
     }
 
-    // ── Dashboard card filter logic ─────────────────────────────────────
-    // filterByStatus: filters the teacher cards list by pending / clear / all
     window.filterByStatus = function(status){
       window._activeStatusFilter = status;
       _applyMetaHighlight(status);
@@ -7092,24 +7046,20 @@
         noRes.remove();
       }
 
-      // Update count badge
       const countEl = document.getElementById('teachers-count');
-      if(countEl) countEl.textContent = shownCount > 0 || status==='all'
-        ? Object.keys(teachers).length : shownCount;
+      if(countEl) countEl.textContent = status === 'all'
+        ? Object.keys(teachers).length
+        : shownCount;
 
       // Haptic feedback on mobile (best-effort)
       try{ if(navigator.vibrate) navigator.vibrate(10); } catch(e){}
 
-      // Toast hint
       if(status==='pending' && shownCount > 0)
         toast(`${shownCount} pending fee${shownCount>1?'s':''}`, '');
       else if(status==='clear' && shownCount > 0)
         toast(`${shownCount} all-clear ✓`, 'success');
-      else if(status==='all')
-        toast('Showing all teachers', '');
     };
 
-    // handleTotalCardClick — tap the card body to clear filter / open dash
     window.handleTotalCardClick = function(e){
       // If a meta item was tapped, its own onclick handles it
       if(e.target.closest('.total-meta-item')) return;
@@ -7121,18 +7071,14 @@
       }
     };
 
-    // Patch render() to call updateTotalCard reactively after every render
-    const _origRenderStudent = renderStudent;
-    function renderStudent(){
-      _origRenderStudent.apply(this, arguments);
-      // Reset active filter on full re-render, then re-apply highlight
-      window._activeStatusFilter = window._activeStatusFilter || 'all';
+    window._patchedRenderStudent = function(){
+      window._activeStatusFilter = 'all';
+      renderStudent();
       setTimeout(()=>{
         runTotalCountUp();
-        _applyMetaHighlight(window._activeStatusFilter);
+        _applyMetaHighlight('all');
       }, 60);
-    }
-    window._patchedRenderStudent = renderStudent;
+    };
 
     // Sync notif on load
     _syncNotifToggle();
@@ -7152,8 +7098,6 @@
       const tag = e.target.tagName;
       if (tag !== 'INPUT' && tag !== 'TEXTAREA') return;
       const type = (e.target.type || '').toLowerCase();
-      // Always blur to close soft keyboard; don't submit forms
-      // Specific listeners that need Enter to act (e.g. addOnePending) prevent default themselves
       e.target.blur();
     }, false);
 
