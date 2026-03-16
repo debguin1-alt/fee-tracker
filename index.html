@@ -439,7 +439,7 @@
     .sel-tick { opacity:0; font-size:11px; color:#fff; font-weight:800; transition:opacity .15s; }
     .sel-circle.checked .sel-tick { opacity:1; }
     .teacher-card.selected,.batch-card.selected,.student-card.selected { border-color:rgba(124,107,255,.4); background:rgba(124,107,255,.04); }
-    .pin-badge { display:inline-flex; align-items:center; gap:3px; font-size:9px; font-weight:700; color:var(--yellow); background:rgba(255,209,102,.1); border:1px solid rgba(255,209,102,.2); border-radius:20px; padding:2px 7px; flex-shrink:0; }
+    .pin-badge { display:inline-flex; align-items:center; gap:3px; font-size:9px; font-weight:700; color:var(--yellow); background:rgba(255,209,102,.12); border:1px solid rgba(255,209,102,.25); border-radius:20px; padding:2px 8px; flex-shrink:0; letter-spacing:.2px; }
 
     /* ═══════════════════════════════════════════
        NOTIFICATION TOGGLE
@@ -2560,6 +2560,245 @@
     .dash-insight-card { margin-bottom: 14px !important; }
     .batch-subject-list { gap: 6px !important; }
 
+    /* ── Modern thin-stroke delete buttons ── */
+    .del-teacher-btn, .sc-del-btn, .batch-del-btn, .standalone-action-btn.del {
+      transition: color .15s, background .15s !important;
+    }
+    .del-teacher-btn:active, .sc-del-btn:active, .batch-del-btn:active,
+    .standalone-action-btn.del:active {
+      color: var(--red) !important;
+      background: rgba(255,77,109,.06) !important;
+    }
+
+    /* ── Profile modal scrollable (belt+suspenders) ── */
+    #profileModal .modal-sheet {
+      overflow-y: auto !important;
+      max-height: 88vh !important;
+    }
+
+    /* ── Total card tappable cursor ── */
+    .total-card { cursor: pointer !important; }
+    .total-card:active { opacity: .94 !important; transform: scale(.992) !important; transition: opacity .12s, transform .12s !important; }
+
+    /* ── Keyboard dismiss visual feedback ── */
+    .search-input:focus { caret-color: var(--accent) !important; }
+
+    /* ── Pin badge — prominent yellow ── */
+    .pin-badge {
+      color: var(--yellow) !important;
+      background: rgba(255,209,102,.12) !important;
+      border-color: rgba(255,209,102,.28) !important;
+      font-size: 9.5px !important;
+      font-weight: 700 !important;
+    }
+
+    /* ── Selection bar with improved delete state ── */
+    .sel-bar-btn.danger:active {
+      background: rgba(255,77,109,.12) !important;
+      color: var(--red) !important;
+    }
+
+    /* ── Profile modal scrollable ── */
+    #profileModal .modal-sheet {
+      overflow-y: auto !important;
+      max-height: 88vh !important;
+    }
+    #profileModal .modal-sheet::-webkit-scrollbar { display: none; }
+
+    /* ── Edit teacher / standalone modals scrollable ── */
+    #editTeacherModal .modal-sheet,
+    #editStandaloneStudentModal .modal-sheet,
+    #addStandaloneStudentModal .modal-sheet,
+    #addStudentModal .modal-sheet {
+      overflow-y: auto !important;
+      max-height: 90vh !important;
+    }
+
+    /* ── Trash/delete icon modern style ── */
+    .del-teacher-btn, .sc-del-btn, .batch-del-btn {
+      transition: color .15s, background .15s !important;
+    }
+    .del-teacher-btn:active, .sc-del-btn:active, .batch-del-btn:active {
+      color: var(--red) !important;
+      background: rgba(255,77,109,.06) !important;
+    }
+
+    /* ── Pin badge — yellow brand color, sharper ── */
+    .pin-badge {
+      background: rgba(255,209,102,.14) !important;
+      border: 1px solid rgba(255,209,102,.32) !important;
+      color: var(--yellow) !important;
+      border-radius: 8px !important;
+      padding: 2px 8px !important;
+      font-size: 9.5px !important;
+      font-weight: 700 !important;
+      letter-spacing: .3px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 3px !important;
+    }
+
+    /* ── Total card clickable ── */
+    .total-card {
+      cursor: pointer !important;
+      transition: opacity .14s, transform .14s !important;
+    }
+    .total-card:active {
+      opacity: .93 !important;
+      transform: scale(.992) !important;
+    }
+
+    /* ── Search icon perfect centering ── */
+    .search-icon {
+      position: absolute !important;
+      left: 14px !important;
+      top: 50% !important;
+      transform: translateY(-50%) !important;
+      pointer-events: none !important;
+      display: flex !important;
+      align-items: center !important;
+      z-index: 2 !important;
+      color: var(--muted) !important;
+    }
+    .search-input { padding-left: 44px !important; padding-right: 40px !important; }
+
+    /* ── Profile avatar edit badge ── */
+    .profile-avatar-wrap { position: relative; width: 76px; height: 76px; cursor: pointer; }
+    .profile-edit-badge {
+      position: absolute; bottom: 0; right: 0;
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid var(--surface);
+      box-shadow: 0 2px 10px rgba(124,107,255,.4);
+      transition: transform .18s cubic-bezier(.34,1.5,.64,1) !important;
+    }
+    .profile-avatar-wrap:active .profile-edit-badge { transform: scale(.88) !important; }
+
+    /* ╔══════════════════════════════════════════════════════╗
+       ║     UNIVERSAL ENTRANCE ANIMATION SYSTEM             ║
+       ╚══════════════════════════════════════════════════════╝ */
+
+    /* Core keyframes */
+    @keyframes screenSlideIn {
+      from { opacity: 0; transform: translateX(32px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes screenSlideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes sheetRise {
+      from { opacity: 0; transform: translateY(48px) scale(.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes overlayFadeIn {
+      from { opacity: 0; backdrop-filter: blur(0px); }
+      to   { opacity: 1; backdrop-filter: blur(16px); }
+    }
+    @keyframes menuDrop {
+      from { opacity: 0; transform: translateY(-10px) scale(.95); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes confirmPop {
+      0%   { opacity: 0; transform: scale(.84) translateY(12px); }
+      65%  { transform: scale(1.03) translateY(-2px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes barSlideUp {
+      from { transform: translateY(100%); opacity: 0; }
+      to   { transform: translateY(0);   opacity: 1; }
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes dashCardIn {
+      from { opacity: 0; transform: translateY(20px) scale(.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ── Full-screen side-swipe screens ── */
+    #batchDetailScreen:not(.hidden),
+    #teacherDashScreen:not(.hidden),
+    #studentDashScreen:not(.hidden) {
+      animation: screenSlideIn .3s cubic-bezier(.25,.85,.35,1) both !important;
+    }
+
+    /* ── Onboarding full-screen ── */
+    #onboardScreen:not(.hidden) {
+      animation: screenSlideUp .35s cubic-bezier(.25,.85,.35,1) both !important;
+    }
+
+    /* ── Modal overlays — backdrop fades in ── */
+    .modal-overlay:not(.hidden) {
+      animation: overlayFadeIn .22s ease both !important;
+    }
+    .confirm-overlay:not(.hidden) {
+      animation: overlayFadeIn .18s ease both !important;
+    }
+
+    /* ── Modal sheets — rise up with spring ── */
+    .modal-sheet {
+      animation: sheetRise .34s cubic-bezier(.22,1,.36,1) both !important;
+    }
+    /* Stagger modals that open often */
+    #addModal .modal-sheet,
+    #addStudentModal .modal-sheet,
+    #editStudentModal .modal-sheet { animation-duration: .32s !important; }
+    #profileModal .modal-sheet { animation-duration: .36s !important; }
+    #teacherAddChoiceSheet .modal-sheet { animation-duration: .3s !important; }
+    #assignBatchModal .modal-sheet,
+    #addStandaloneStudentModal .modal-sheet,
+    #editTeacherModal .modal-sheet,
+    #editStandaloneStudentModal .modal-sheet { animation-duration: .3s !important; }
+
+    /* ── Confirm box ── */
+    .confirm-box {
+      animation: confirmPop .28s cubic-bezier(.22,1,.36,1) both !important;
+    }
+
+    /* ── User menu drop ── */
+    .user-menu:not(.hidden) {
+      animation: menuDrop .22s cubic-bezier(.22,1,.36,1) both !important;
+    }
+
+    /* ── Selection bar ── */
+    .sel-bar:not(.hidden) {
+      animation: barSlideUp .32s cubic-bezier(.22,1,.36,1) both !important;
+    }
+
+    /* ── Cards — stagger on render ── */
+    .teacher-card  { animation: cardIn .28s cubic-bezier(.22,1,.36,1) both; }
+    .batch-card    { animation: cardIn .28s cubic-bezier(.22,1,.36,1) both; }
+    .student-card  { animation: cardIn .24s cubic-bezier(.22,1,.36,1) both; }
+    .standalone-card { animation: cardIn .26s cubic-bezier(.22,1,.36,1) both; }
+    .total-card    { animation: cardIn .36s cubic-bezier(.22,1,.36,1) both; }
+
+    /* ── Dashboard stat/chart cards stagger ── */
+    .dash-stat-card  { animation: dashCardIn .3s cubic-bezier(.22,1,.36,1) both; }
+    .dash-chart-card { animation: dashCardIn .32s cubic-bezier(.22,1,.36,1) both; }
+    .dash-insight-card { animation: dashCardIn .34s cubic-bezier(.22,1,.36,1) both; }
+
+    /* ── Batch summary card ── */
+    .bd-summary-card { animation: dashCardIn .28s cubic-bezier(.22,1,.36,1) both; }
+
+    /* ── History panels slide down ── */
+    .history-panel.open, .sc-hist-panel.open {
+      animation: screenSlideUp .2s cubic-bezier(.22,1,.36,1) both !important;
+    }
+
+    /* ── Section label fade ── */
+    .section-label {
+      animation: overlayFadeIn .4s ease both;
+    }
+
+    /* ── Topbar ── */
+    .topbar { animation: screenSlideUp .3s ease both; }
+
+    /* ── Dragging disables animations ── */
+    .modal-sheet.dragging { animation: none !important; transition: none !important; }
+
   </style>
 </head>
 <body>
@@ -2797,10 +3036,10 @@
       </div>
       <div class="topbar-right">
         <button class="search-topbar-btn" id="searchTopbarBtn" title="Search" style="width:40px;height:40px;border-radius:var(--r-lg);background:var(--surface2);border:1px solid var(--border2);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;box-shadow:0 2px 8px rgba(0,0,0,.12);flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="display:block"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.7"/><line x1="10.5" y1="10.5" x2="14.5" y2="14.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>
-        <button class="dash-btn hidden" id="dashBtn" title="Analytics" style="color:#fff" onclick="isT()?openTeacherDash():openStudentDash()"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block">
-  <rect x="1"  y="5"  width="5" height="14" rx="1.5" fill="currentColor"/>
-  <rect x="7.5" y="11" width="5" height="5"  rx="1.5" fill="currentColor" opacity=".8"/>
-  <rect x="14" y="2"  width="5" height="17" rx="1.5" fill="currentColor"/>
+        <button class="dash-btn hidden" id="dashBtn" title="Analytics" style="color:#fff" onclick="isT()?openTeacherDash():openStudentDash()"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="display:block">
+  <rect x="1"   y="6"  width="5" height="13" rx="1.5" fill="currentColor"/>
+  <rect x="7.5" y="11" width="5" height="5"  rx="1.5" fill="currentColor" opacity=".85"/>
+  <rect x="14"  y="2"  width="5" height="17" rx="1.5" fill="currentColor"/>
 </svg></button>
         <button class="add-btn" id="addBtn" title="Add"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><line x1="11" y1="4" x2="11" y2="18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><line x1="4" y1="11" x2="18" y2="11" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
       </div>
@@ -4300,7 +4539,7 @@
       const cl=Object.keys(teachers).filter(id=>monthsDue(id)===0).length;
       let h=`
         ${!profile.className?`<div class="setup-banner" onclick="openProfileModal()"><span class="setup-banner-icon" style="display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;flex-shrink:0" ><circle cx="8" cy="5.5" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 14c0-3.3 2.7-5 6-5s6 1.7 6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><div class="setup-banner-text"><div class="setup-banner-title">Complete your profile</div><div class="setup-banner-sub">Add your name and class</div></div><button class="setup-banner-btn">Set up</button></div>`:''}
-        <div class="total-card">
+        <div class="total-card" onclick="isT()?openTeacherDash():openStudentDash()" style="cursor:pointer">
           <div class="total-label">Total Outstanding</div>
           <div class="total-amount"><span class="cur">₹</span>${td.toLocaleString('en-IN')}</div>
           <div class="total-sub">As of ${ds}</div>
@@ -4312,7 +4551,7 @@
         </div>
         <div class="search-wrap">
           <span class="search-icon"><svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;flex-shrink:0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/></svg></span>
-          <input class="search-input" type="text" placeholder="Search teacher or subject\u2026" value="${searchQ}" oninput="onSearch(this.value)"/>
+          <input class="search-input" type="text" placeholder="Search teacher or subject\u2026" value="${searchQ}" oninput="onSearch(this.value)" onkeydown="if(event.key==='Enter'){this.blur();}" />
           ${searchQ?`<span class="search-clear" onclick="onSearch('');document.querySelector('.search-input').value='';" style="display:flex;align-items:center;justify-content:center;cursor:pointer;"><svg width='11' height='11' viewBox='0 0 12 12' fill='none' style='display:block'><line x1='1' y1='1' x2='11' y2='11' stroke='currentColor' stroke-width='1.8' stroke-linecap='round'/><line x1='11' y1='1' x2='1' y2='11' stroke='currentColor' stroke-width='1.8' stroke-linecap='round'/></svg></span>`:''}
         <div class="section-label"><span class="section-label-txt">Teachers</span><span class="section-label-count" id="teachers-count">${Object.keys(teachers).length}</span></div>
         <div id="cards-list">`;
@@ -4734,7 +4973,7 @@
         <div class="teacher-mode-header" onclick="openTeacherDash()" style="cursor:pointer" title="Open Analytics"><div class="tmh-icon" style="display:flex;align-items:center;justify-content:center;"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;flex-shrink:0" ><path d="M12 13v-1a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M15 8v4M13 10h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div><div class="tmh-info"><div class="tmh-title">Teacher Dashboard</div><div class="tmh-sub">${subjLine}</div></div><div style="display:flex;align-items:center;color:var(--accent);opacity:.8;transition:opacity .2s;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;flex-shrink:0" ><rect x="1" y="9" width="4" height="6" rx="1" fill="currentColor" opacity=".45"/><rect x="6" y="5" width="4" height="10" rx="1" fill="currentColor" opacity=".72"/><rect x="11" y="1" width="4" height="14" rx="1" fill="currentColor"/></svg></div></div>
         <div class="search-wrap">
           <span class="search-icon" style="display:flex;align-items:center;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="display:block"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.7"/><line x1="10.5" y1="10.5" x2="14.5" y2="14.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span>
-          <input class="search-input" type="text" placeholder="Search batch…" id="teacherSearchInp" value="${searchQ}" oninput="onSearch(this.value)"/>
+          <input class="search-input" type="text" placeholder="Search batch…" id="teacherSearchInp" value="${searchQ}" oninput="onSearch(this.value)" onkeydown="if(event.key==='Enter'){this.blur();}" />
           ${searchQ?`<span class="search-clear" onclick="onSearch('');const s=document.getElementById('teacherSearchInp');if(s){s.value='';s.focus();}" style="display:flex;align-items:center;justify-content:center;cursor:pointer;"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" style="display:block"><line x1="1" y1="1" x2="11" y2="11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="11" y1="1" x2="1" y2="11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>`:''}
         </div>
         <div class="section-label"><span class="section-label-txt">My Batches</span><span class="section-label-count">${bList.length}</span></div>`;
@@ -4813,7 +5052,7 @@
               <svg width="13" height="13" viewBox="0 0 16 16" fill="none" style="display:block;flex-shrink:0"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><line x1="5" y1="7.5" x2="11" y2="7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="5" x2="8" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Add to Batch
             </button>
             <button class="standalone-action-btn del" onclick="event.stopPropagation();deleteStandaloneStudent('${s.id}','${(s.name||'').replace(/'/g,"\'")}')" style="color:var(--red)">
-              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" style="display:block;flex-shrink:0"><path d="M2 4h12M6 4V2h4v2M5 4l1 9h4l1-9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Delete
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" style="display:block;flex-shrink:0"><path d="M2.5 4.5h11M6.5 2.5h3M5.5 4.5l.5 9M10.5 4.5l-.5 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Delete
             </button>
           </div>`}
         </div>`;
@@ -5820,7 +6059,7 @@
       const cl=Object.keys(teachers).filter(id=>monthsDue(id)===0).length;
       let h=`
         ${!profile.className?`<div class="setup-banner" onclick="openProfileModal()"><span class="setup-banner-icon" style="display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;flex-shrink:0" ><circle cx="8" cy="5.5" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 14c0-3.3 2.7-5 6-5s6 1.7 6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><div class="setup-banner-text"><div class="setup-banner-title">Complete your profile</div><div class="setup-banner-sub">Add your name and class</div></div><button class="setup-banner-btn">Set up</button></div>`:''}
-        <div class="total-card">
+        <div class="total-card" onclick="isT()?openTeacherDash():openStudentDash()" style="cursor:pointer">
           <div class="total-label">Total Outstanding</div>
           <div class="total-amount"><span class="cur">₹</span>${td.toLocaleString('en-IN')}</div>
           <div class="total-sub">As of ${ds}</div>
@@ -5832,7 +6071,7 @@
         </div>
         <div class="search-wrap">
           <span class="search-icon"><svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;flex-shrink:0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/></svg></span>
-          <input class="search-input" type="text" placeholder="Search teacher or subject…" value="${searchQ}" oninput="onSearch(this.value)"/>
+          <input class="search-input" type="text" placeholder="Search teacher or subject…" value="${searchQ}" oninput="onSearch(this.value)" onkeydown="if(event.key==='Enter'){this.blur();}" />
           ${searchQ?`<span class="search-clear" onclick="onSearch('')">✕</span>`:''}
         </div>
         <div class="section-label"><span class="section-label-txt">Teachers</span><span class="section-label-count" id="teachers-count">${Object.keys(teachers).length}</span></div>
@@ -5932,7 +6171,7 @@
         <div class="teacher-mode-header"><div class="tmh-icon"><svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;flex-shrink:0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div><div class="tmh-info"><div class="tmh-title">Teacher Dashboard</div><div class="tmh-sub">${subjLine}</div></div>
 
         </div>
-        <div class="search-wrap"><span class="search-icon"><svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;flex-shrink:0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/></svg></span><input class="search-input" type="text" placeholder="Search batch…" value="${searchQ}" oninput="onSearch(this.value)"/>${searchQ?`<span class="search-clear" onclick="onSearch('')">✕</span>`:''}</div>
+        <div class="search-wrap"><span class="search-icon"><svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;flex-shrink:0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/></svg></span><input class="search-input" type="text" placeholder="Search batch…" value="${searchQ}" oninput="onSearch(this.value)" onkeydown="if(event.key==='Enter'){this.blur();}" />${searchQ?`<span class="search-clear" onclick="onSearch('')">✕</span>`:''}</div>
         <div class="section-label"><span class="section-label-txt">My Batches</span><span class="section-label-count">${bList.length}</span></div>`;
       if(!bList.length){ h+=`<div class="empty-state"><div class="empty-icon"><svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;flex-shrink:0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div><div class="empty-title">No batches yet</div><div class="empty-sub">Tap <strong>+</strong> to create a batch, then add students and track fees.</div></div>`; root.innerHTML=h; return; }
       const fil=bList.filter(id=>{const q=searchQ.toLowerCase();return !q||batches[id].name.toLowerCase().includes(q)||batches[id].subject?.toLowerCase().includes(q);}).sort((a,b)=>{
@@ -6404,13 +6643,68 @@
 
     // Search topbar button — focuses the search input (renders it if needed)
     document.getElementById('searchTopbarBtn')?.addEventListener('click',()=>{
-      // Find visible search input and focus it
       const inp = document.querySelector('#appInner .search-input');
       if(inp){
         inp.scrollIntoView({behavior:'smooth',block:'center'});
         setTimeout(()=>inp.focus(),180);
       }
     });
+
+    // ── Global Enter → blur (dismiss soft keyboard) on all text/number inputs ──
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Enter') return;
+      const tag = e.target.tagName;
+      if (tag !== 'INPUT' && tag !== 'TEXTAREA') return;
+      const type = (e.target.type || '').toLowerCase();
+      // Always blur to close soft keyboard; don't submit forms
+      // Specific listeners that need Enter to act (e.g. addOnePending) prevent default themselves
+      e.target.blur();
+    }, false);
+
+    // ── Hardware/browser back button — close active layers first ──
+    (function initBackHandler(){
+      // Push a state so we can intercept the first back press
+      history.pushState({ ftLayer: 0 }, '');
+
+      window.addEventListener('popstate', e => {
+        // Check screens/modals from outermost to innermost
+        const layers = [
+          // Dashboard screens
+          { el: ()=>document.getElementById('teacherDashScreen'), close: ()=>{ destroyCharts(_tchDashCharts); document.getElementById('teacherDashScreen').classList.add('hidden'); document.getElementById('appScreen').classList.remove('hidden'); } },
+          { el: ()=>document.getElementById('studentDashScreen'),  close: ()=>{ destroyCharts(_stuDashCharts);  document.getElementById('studentDashScreen').classList.add('hidden');  document.getElementById('appScreen').classList.remove('hidden'); } },
+          // Batch detail
+          { el: ()=>{ const s=document.getElementById('batchDetailScreen'); return s&&!s.classList.contains('hidden')?s:null; }, close: ()=>closeBatchDetail() },
+          // Modal overlays
+          { el: ()=>{ const m=document.getElementById('addModal'); return m&&!m.classList.contains('hidden')?m:null; }, close: ()=>closeAddModal() },
+          { el: ()=>{ const m=document.getElementById('addStudentModal'); return m&&!m.classList.contains('hidden')?m:null; }, close: ()=>closeAddStudentModal() },
+          { el: ()=>{ const m=document.getElementById('editStudentModal'); return m&&!m.classList.contains('hidden')?m:null; }, close: ()=>closeEditStudentModal() },
+          { el: ()=>{ const m=document.getElementById('profileModal'); return m&&!m.classList.contains('hidden')?m:null; }, close: ()=>closeProfileModal() },
+          { el: ()=>{ const m=document.getElementById('teacherAddChoiceSheet'); return m&&!m.classList.contains('hidden')?m:null; }, close: ()=>m.classList.add('hidden') },
+          { el: ()=>{ const m=document.getElementById('assignBatchModal'); return m&&!m.classList.contains('hidden')?m:null; }, close: ()=>document.getElementById('assignBatchModal').classList.add('hidden') },
+          { el: ()=>{ const m=document.getElementById('addStandaloneStudentModal'); return m&&!m.classList.contains('hidden')?m:null; }, close: ()=>document.getElementById('addStandaloneStudentModal').classList.add('hidden') },
+          { el: ()=>{ const m=document.getElementById('editTeacherModal'); return m&&!m.classList.contains('hidden')?m:null; }, close: ()=>document.getElementById('editTeacherModal').classList.add('hidden') },
+          { el: ()=>{ const m=document.getElementById('editStandaloneStudentModal'); return m&&!m.classList.contains('hidden')?m:null; }, close: ()=>document.getElementById('editStandaloneStudentModal').classList.add('hidden') },
+          // User menu
+          { el: ()=>{ const m=document.getElementById('userMenu'); return m&&!m.classList.contains('hidden')?m:null; }, close: ()=>closeMenu() },
+          // Selection mode
+          { el: ()=>selMode?true:null, close: ()=>exitSelMode() },
+        ];
+
+        let handled = false;
+        for (const layer of layers) {
+          try {
+            if (layer.el()) {
+              layer.close();
+              handled = true;
+              break;
+            }
+          } catch(err){}
+        }
+
+        // Always re-push a state so the next back press is also intercepted
+        history.pushState({ ftLayer: 0 }, '');
+      });
+    })();
 
   </script>
 
@@ -6527,9 +6821,18 @@
     // PWA INSTALL POPUP -- one-time, dismissed via localStorage flag
     let deferredInstallPrompt = null;
 
+    // Hide install UI if already running as installed PWA
+    const _isStandalone = window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone === true;
+
     function setMenuInstallVisible(show) {
       const btn = document.getElementById('menuInstallBtn');
-      if (btn) btn.classList.toggle('hidden', !show);
+      if (btn) btn.classList.toggle('hidden', !show || _isStandalone);
+    }
+    // Also hide install banner if already installed
+    if (_isStandalone) {
+      document.getElementById('installBanner')?.remove();
+      document.getElementById('pwaBanner')?.remove();
     }
 
     window.addEventListener('beforeinstallprompt', e => {
