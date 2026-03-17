@@ -230,6 +230,8 @@
     .sel-bar-btn .sbi  { font-size: 18px; line-height: 1; }
     .sel-bar-btn.danger { border-color: rgba(255,77,109,.2); color: var(--red); }
     .sel-bar-btn.danger:active { background: rgba(255,77,109,.08); }
+    .sel-bar-btn.pin-btn { border-color: rgba(255,209,102,.2); color: var(--yellow); }
+    .sel-bar-btn.pin-btn:active { background: rgba(255,209,102,.08); }
     .sel-bar-close {
       width: 32px; height: 32px; border-radius: 50%; background: var(--surface3);
       border: 1px solid var(--border); color: var(--text2); font-size: 15px; cursor: pointer;
@@ -249,6 +251,14 @@
     .teacher-card.selected { border-color: rgba(124,107,255,.4); background: rgba(124,107,255,.04); }
     .batch-card.selected   { border-color: rgba(124,107,255,.4); background: rgba(124,107,255,.04); }
     .student-card.selected { border-color: rgba(124,107,255,.4); background: rgba(124,107,255,.04); }
+
+    /* Pin indicator on card */
+    .pin-badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 9px; font-weight: 700; color: var(--yellow); letter-spacing: .3px;
+      background: rgba(255,209,102,.1); border: 1px solid rgba(255,209,102,.2);
+      border-radius: 20px; padding: 2px 7px; flex-shrink: 0;
+    }
 
     /* Assign-to-batch modal */
     .batch-pick-item {
@@ -410,10 +420,11 @@
     .sel-bar-btn .sbi { line-height:1; }
     .sel-bar-btn.danger { border-color:rgba(255,77,109,.2); color:var(--red); }
     .sel-bar-btn.danger:active { background:rgba(255,77,109,.08); }
-
+    .sel-bar-btn.pin-btn { border-color:rgba(255,209,102,.2); color:var(--yellow); }
     .sel-bar-close { width:30px; height:30px; border-radius:50%; background:var(--surface3); border:1px solid var(--border); color:var(--text2); font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:background .15s; }
 
     .teacher-card.selected,.batch-card.selected,.student-card.selected { border-color:rgba(124,107,255,.4); background:rgba(124,107,255,.04); }
+    .pin-badge { display:inline-flex; align-items:center; gap:3px; font-size:9px; font-weight:700; color:var(--yellow); background:rgba(255,209,102,.12); border:1px solid rgba(255,209,102,.25); border-radius:20px; padding:2px 8px; flex-shrink:0; letter-spacing:.2px; }
 
     /* ═══════════════════════════════════════════
        NOTIFICATION TOGGLE
@@ -1072,6 +1083,7 @@
     /* PAYMENT HISTORY */
     .history-panel          { max-height: 0; overflow: hidden; padding: 0 10px; opacity: 0; transition: max-height .28s cubic-bezier(.22,1,.36,1), opacity .22s ease, padding .22s ease; }
     .history-panel.open     { max-height: 600px; opacity: 1; padding: 0 10px 12px; }
+    /* Alternate payment rows — odd: accent purple tint, even: accent pink tint */
     .payment-item:nth-child(odd)  { background: var(--surface3); border-left: 3px solid rgba(124,107,255,.5); }
     .payment-item:nth-child(even) { background: rgba(124,107,255,.07); border-left: 3px solid rgba(255,107,157,.5); }
     .hist-empty             { font-size: 12px; color: var(--muted); padding: 10px 0 2px; text-align: center; }
@@ -1566,6 +1578,8 @@
     ═══════════════════════════════════════════════════ */
     @keyframes shimmer { 0% { background-position: 200% 0 } 100% { background-position: -200% 0 } }
     @keyframes spin    { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
+
+    /* Spinners */
     .spinner-ring { display: inline-block; width: 48px; height: 48px; border-radius: 50%; border: 4px solid rgba(124,107,255,.1); border-top-color: #7c6bff; border-right-color: #a855f7; animation: spin .75s linear infinite; }
     .spinner-sm   { width: 18px !important; height: 18px !important; border-width: 2px !important; }
     .btn-spinner  { display: inline-flex; align-items: center; gap: 8px; }
@@ -1764,6 +1778,8 @@
 
     /* Onboarding step enter animation */
     .ob-step-enter { animation: fadeSlideUp .32s cubic-bezier(.34,1.2,.64,1) both; }
+
+    /* Theme button spin */
 
     /* Batch detail topbar elements */
     .bd-topbar .bd-title-wrap { animation: fadeSlideDown .3s ease both; }
@@ -2256,6 +2272,7 @@
     .partial-chip { border-radius: 9px !important; }
     .sc-partial-chip { border-radius: 9px !important; }
     .sc-overdue-badge { border-radius: 9px !important; padding: 3px 9px !important; }
+    .pin-badge { border-radius: 9px !important; padding: 2px 8px !important; font-size: 9px !important; }
     .hist-badge { border-radius: 6px !important; }
     .menu-role-pill { border-radius: 20px !important; }
 
@@ -2479,6 +2496,15 @@
     /* ── Keyboard dismiss visual feedback ── */
     .search-input:focus { caret-color: var(--accent) !important; }
 
+    /* ── Pin badge — prominent yellow ── */
+    .pin-badge {
+      color: var(--yellow) !important;
+      background: rgba(255,209,102,.12) !important;
+      border-color: rgba(255,209,102,.28) !important;
+      font-size: 9.5px !important;
+      font-weight: 700 !important;
+    }
+
     /* ── Selection bar with improved delete state ── */
     .sel-bar-btn.danger:active {
       background: rgba(255,77,109,.12) !important;
@@ -2508,6 +2534,21 @@
     .del-teacher-btn:active, .sc-del-btn:active, .batch-del-btn:active {
       color: var(--red) !important;
       background: rgba(255,77,109,.06) !important;
+    }
+
+    /* ── Pin badge — yellow brand color, sharper ── */
+    .pin-badge {
+      background: rgba(255,209,102,.14) !important;
+      border: 1px solid rgba(255,209,102,.32) !important;
+      color: var(--yellow) !important;
+      border-radius: 8px !important;
+      padding: 2px 8px !important;
+      font-size: 9.5px !important;
+      font-weight: 700 !important;
+      letter-spacing: .3px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 3px !important;
     }
 
     /* ── Total card clickable ── */
@@ -2747,6 +2788,8 @@
         0 2px 12px rgba(124,107,255,.08) !important;
       outline: none !important;
     }
+
+    /* Number inputs — no spinners */
     .field-input[type="number"]::-webkit-inner-spin-button,
     .field-input[type="number"]::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
     .field-input[type="number"] { -moz-appearance: textfield; }
@@ -3002,6 +3045,16 @@
       cursor: grab; touch-action: none;
     }
     .modal-handle-wide .modal-handle { cursor: inherit; pointer-events: none; margin: 0; }
+
+
+
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       SELECTION CIRCLE + TICK — single source of truth
+       Works for both teacher and student roles.
+       overflow:visible is critical — allows scale overshoot
+       without clipping the tick pop-in animation.
+       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
     /* sel-circle/sel-tick — defined once in selection mode section below */
     /* Selected card highlight */
     .teacher-card.selected,
@@ -3404,7 +3457,7 @@
         </svg>
         Continue with Google
       </button>
-      <p class="login-note"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="display:inline-block;vertical-align:middle;margin-right:4px;opacity:.7"><rect x="2" y="5.5" width="8" height="5.5" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4 5.5V4a2 2 0 0 1 4 0v1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> Your data is private. Works for students tracking fees and teachers managing batches.</p>
+      <p class="login-note">&#128274; Your data is private. Works for students tracking fees and teachers managing batches.</p>
     </div>
   </div>
 
@@ -3421,7 +3474,11 @@
       </div>
       <div class="topbar-right">
         <button class="search-topbar-btn" id="searchTopbarBtn" title="Search" style="width:40px;height:40px;border-radius:var(--r-lg);background:var(--surface2);border:1px solid var(--border2);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;box-shadow:0 2px 8px rgba(0,0,0,.12);flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="display:block"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.7"/><line x1="10.5" y1="10.5" x2="14.5" y2="14.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>
-        <button class="dash-btn hidden" id="dashBtn" title="Analytics"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block"><line x1="3" y1="19" x2="3" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="19" x2="20" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="5,15 8,9 12,12 16,6 19,8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="19" cy="8" r="2" fill="currentColor" opacity=".8"/></svg></button>
+        <button class="dash-btn hidden" id="dashBtn" title="Analytics" ><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block">
+  <line x1="6"  y1="20" x2="6"  y2="14"/>
+  <line x1="12" y1="20" x2="12" y2="10"/>
+  <line x1="18" y1="20" x2="18" y2="4"/>
+</svg></button>
         <button class="add-btn" id="addBtn" title="Add"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><line x1="11" y1="4" x2="11" y2="18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><line x1="4" y1="11" x2="18" y2="11" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
       </div>
     </div>
@@ -3665,6 +3722,7 @@
   <div class="sel-bar hidden" id="selBar">
     <button class="sel-bar-close" id="selBarClose" style="display:flex;align-items:center;justify-content:center;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><line x1="1" y1="1" x2="11" y2="11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="11" y1="1" x2="1" y2="11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
     <div class="sel-bar-count"><span id="selCount">0</span> selected</div>
+    <button class="sel-bar-btn pin-btn hidden" id="selPinBtn"><span class="sbi" style="display:flex;align-items:center;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 2l4 4-2 2-1-1-3 3v4H7l-1-4-3-1 3-3-1-1L7 3l3-1z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><line x1="6" y1="10" x2="3" y2="13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span><span>Pin</span></button>
     <button class="sel-bar-btn hidden" id="selAssignBtn"><span class="sbi" style="display:flex;align-items:center;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><line x1="5" y1="7.5" x2="8" y2="7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="10.5" y1="5" x2="10.5" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="7.5" x2="10.5" y2="7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span>Assign</span></button>
     <button class="sel-bar-btn danger" id="selDeleteBtn"><span class="sbi" style="display:flex;align-items:center;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M6 4V2h4v2M5 4l1 9h4l1-9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Delete</span></button>
   </div>
@@ -4218,8 +4276,8 @@
     function showOfflineBanner(show){
       let b=document.getElementById('offlineBanner');
       if(!b){ b=document.createElement('div'); b.id='offlineBanner';
-        b.style.cssText='position:fixed;top:0;left:0;right:0;z-index:9999;background:rgba(255,154,60,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#1a1009;text-align:center;font-size:11px;font-weight:700;padding:8px 16px;letter-spacing:.2px;display:flex;align-items:center;justify-content:center;gap:4px;transition:transform .3s cubic-bezier(.34,1.2,.64,1);transform:translateY(-100%);box-shadow:0 2px 12px rgba(0,0,0,.2);';
-        b.innerHTML='<svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="display:inline-block;vertical-align:middle;margin-right:5px;flex-shrink:0"><path d="M1 1l14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M10.6 7.4A6 6 0 0 1 13 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".5"/><path d="M3.2 9A6 6 0 0 1 5.7 7.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".5"/><path d="M6 11a3 3 0 0 1 4 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="14" r="1.2" fill="currentColor"/></svg> Offline — cached data loaded'; b.style.cursor='default'; document.body.appendChild(b); }
+        b.style.cssText='position:fixed;top:0;left:0;right:0;z-index:9999;background:#ff9a3c;color:#1a1a1a;text-align:center;font-size:12px;font-weight:700;padding:7px 16px;letter-spacing:.3px;transition:transform .3s;transform:translateY(-100%);';
+        b.innerHTML='⚡ Offline &mdash; all data available from cache'; b.style.cursor='default'; document.body.appendChild(b); }
       b.style.transform=show?'translateY(0)':'translateY(-100%)';
     }
     // ──────────────────────────────────────────────────────────────────────────
@@ -4227,7 +4285,7 @@
     // ── Network status ──────────────────────────────────────────────────────
     window.addEventListener('online', ()=>{
       showOfflineBanner(false);
-      toast('Back online','success');
+      toast('Back online ✓','success');
       // Re-sync silently when connection restores
       if(loaded && profile.role) loadAll(true);
     });
@@ -4262,11 +4320,11 @@
     document.getElementById('confirmOverlay').addEventListener('click', e=>{
       if(e.target===document.getElementById('confirmOverlay')) _confirmDone(false);
     });
-    function confirm2(title,msg,ok='Confirm',icon=`<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="17" fill="rgba(255,154,60,.12)" stroke="rgba(255,154,60,.35)" stroke-width="1.5"/><path d="M18 10L8 27h20L18 10z" fill="rgba(255,154,60,.15)" stroke="#ff9a3c" stroke-width="1.8" stroke-linejoin="round"/><line x1="18" y1="17" x2="18" y2="22" stroke="#ff9a3c" stroke-width="2" stroke-linecap="round"/><circle cx="18" cy="25" r="1.2" fill="#ff9a3c"/></svg>`){
+    function confirm2(title,msg,ok='Confirm',icon='⚠️'){
       return new Promise(res=>{
         if(_confirmResolve) _confirmResolve(false); // cancel any pending
         _confirmResolve=res;
-        document.getElementById('confirmIcon').innerHTML=icon;
+        document.getElementById('confirmIcon').textContent=icon;
         document.getElementById('confirmTitle').textContent=title;
         document.getElementById('confirmMsg').innerHTML=msg;
         document.getElementById('confirmOkBtn').textContent=ok;
@@ -4767,7 +4825,7 @@
         const v=parseInt(document.getElementById('pay-'+id).value);
         if(!v||v<1||v>max) return toast(`Enter 1\u2013${max}`,'error');
         const amt=v*t.fee;
-        if(!await confirm2('Confirm Payment',`Mark <strong style="color:#f0f0f8">₹${amt.toLocaleString('en-IN')}</strong> for <strong style="color:#f0f0f8">${v} month${v>1?'s':''}</strong> to ${t.name}?`,'Mark',`<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="17" fill="rgba(0,212,170,.1)" stroke="rgba(0,212,170,.3)" stroke-width="1.5"/><rect x="9" y="13" width="18" height="12" rx="2.5" fill="rgba(0,212,170,.12)" stroke="#00d4aa" stroke-width="1.6"/><line x1="9" y1="18" x2="27" y2="18" stroke="#00d4aa" stroke-width="1.6"/><rect x="11" y="21" width="6" height="2" rx="1" fill="#00d4aa" opacity=".7"/></svg>`)) return;
+        if(!await confirm2('Confirm Payment',`Mark <strong style="color:#f0f0f8">₹${amt.toLocaleString('en-IN')}</strong> for <strong style="color:#f0f0f8">${v} month${v>1?'s':''}</strong> to ${t.name}?`,'Mark','💸')) return;
         const newPay={teacherId:id,teacherName:t.name,subject:t.subject,monthsPaid:v,amount:amt,type:'full',paidOn:po,timestamp:Date.now()};
         const fref=await addDoc(pyCol(),newPay); newPay.id=fref.id; payments.push(newPay); saveToCache();
         toast(`Paid ₹${amt.toLocaleString('en-IN')} ✓`,'success');
@@ -4779,7 +4837,7 @@
         const ex=partialBal(id), tot=ex+amt;
         if(tot>=t.fee) return toast(`Total ₹${tot} covers full month — use Full tab`,'error');
         const rem=t.fee-tot;
-        if(!await confirm2('Partial Payment',`Record <strong style="color:#f0f0f8">₹${amt.toLocaleString('en-IN')}</strong> partial to ${t.name}?<br><small style="color:var(--muted)">Still owed: ₹${rem.toLocaleString('en-IN')}</small>`,'Record',`<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="17" fill="rgba(255,154,60,.1)" stroke="rgba(255,154,60,.3)" stroke-width="1.5"/><rect x="9" y="13" width="18" height="12" rx="2.5" fill="rgba(255,154,60,.1)" stroke="#ff9a3c" stroke-width="1.6"/><line x1="9" y1="18" x2="27" y2="18" stroke="#ff9a3c" stroke-width="1.6"/><path d="M14 21.5h5" stroke="#ff9a3c" stroke-width="2" stroke-linecap="round"/></svg>`)) return;
+        if(!await confirm2('Partial Payment',`Record <strong style="color:#f0f0f8">₹${amt.toLocaleString('en-IN')}</strong> partial to ${t.name}?<br><small style="color:var(--muted)">Still owed: ₹${rem.toLocaleString('en-IN')}</small>`,'Record','🧾')) return;
         const newPay2={teacherId:id,teacherName:t.name,subject:t.subject,amount:amt,type:'partial',paidOn:po,timestamp:Date.now()};
         const fref2=await addDoc(pyCol(),newPay2); newPay2.id=fref2.id; payments.push(newPay2); saveToCache();
         toast(`Partial ₹${amt.toLocaleString('en-IN')} recorded`,'success');
@@ -4789,7 +4847,7 @@
         const v=parseInt(document.getElementById('pay-advance-'+id).value);
         if(!v||v<1||v>12) return toast('Enter 1\u201312 months','error');
         const amt=v*t.fee;
-        if(!await confirm2('Advance Payment',`Pay <strong style="color:#f0f0f8">₹${amt.toLocaleString('en-IN')}</strong> advance for <strong style="color:#f0f0f8">${v} month${v>1?'s':''}</strong> to ${t.name}?<br><small style="color:var(--muted)">No dues for next ${v} month${v>1?'s':''}</small>`,'Pay',`<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="17" fill="rgba(124,107,255,.1)" stroke="rgba(124,107,255,.3)" stroke-width="1.5"/><path d="M11 23l7-10 7 10" stroke="#7c6bff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 20h6" stroke="#7c6bff" stroke-width="1.6" stroke-linecap="round"/></svg>`)) return;
+        if(!await confirm2('Advance Payment',`Pay <strong style="color:#f0f0f8">₹${amt.toLocaleString('en-IN')}</strong> advance for <strong style="color:#f0f0f8">${v} month${v>1?'s':''}</strong> to ${t.name}?<br><small style="color:var(--muted)">No dues for next ${v} month${v>1?'s':''}</small>`,'Pay','🚀')) return;
         const newPay3={teacherId:id,teacherName:t.name,subject:t.subject,monthsPaid:v,advanceMonths:v,amount:amt,type:'advance',paidOn:po,timestamp:Date.now()};
         const fref3=await addDoc(pyCol(),newPay3); newPay3.id=fref3.id; payments.push(newPay3); saveToCache();
         toast(`Advance ₹${amt.toLocaleString('en-IN')} paid ✓`,'success');
@@ -4799,18 +4857,18 @@
     };
 
     window.deletePayment=async function(id){
-      if(!await confirm2('Delete Payment','This cannot be undone.','Delete',`<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="17" fill="rgba(255,77,109,.12)" stroke="rgba(255,77,109,.35)" stroke-width="1.5"/><path d="M11 13h14M15 13v-2h6v2M14 13l1 12h6l1-12" stroke="#ff4d6d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`)) return;
+      if(!await confirm2('Delete Payment','This cannot be undone.','Delete','🗑️')) return;
       await deleteDoc(pyDoc(id)); payments=payments.filter(p=>p.id!==id); saveToCache(); toast('Deleted',''); render();
     };
     window.deleteTeacher=async function(id){
       const t=teachers[id];
-      if(!await confirm2('Remove Teacher',`Remove <strong style="color:#f0f0f8">${t.name}</strong> and all history?`,'Remove',`<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="17" fill="rgba(255,77,109,.1)" stroke="rgba(255,77,109,.3)" stroke-width="1.5"/><circle cx="18" cy="14" r="3.5" stroke="#ff4d6d" stroke-width="1.6"/><path d="M10 27c0-4.4 3.6-7 8-7s8 2.6 8 7" stroke="#ff4d6d" stroke-width="1.6" stroke-linecap="round"/><path d="M22 11l3 3M25 11l-3 3" stroke="#ff4d6d" stroke-width="1.5" stroke-linecap="round"/></svg>`)) return;
+      if(!await confirm2('Remove Teacher',`Remove <strong style="color:#f0f0f8">${t.name}</strong> and all history?`,'Remove','🗑️')) return;
       await Promise.all(payments.filter(p=>p.teacherId===id).map(p=>deleteDoc(pyDoc(p.id))));
       await deleteDoc(tcDoc(id)); payments=payments.filter(p=>p.teacherId!==id); delete teachers[id]; saveToCache(); toast(`${t.name} removed`,''); render();
     };
     window.deleteBatch=async function(id){
       const b=batches[id];
-      if(!await confirm2('Remove Batch',`Remove <strong style="color:#f0f0f8">${b.name}</strong>?`,'Remove',`<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="17" fill="rgba(255,77,109,.1)" stroke="rgba(255,77,109,.3)" stroke-width="1.5"/><circle cx="18" cy="14" r="3.5" stroke="#ff4d6d" stroke-width="1.6"/><path d="M10 27c0-4.4 3.6-7 8-7s8 2.6 8 7" stroke="#ff4d6d" stroke-width="1.6" stroke-linecap="round"/><path d="M22 11l3 3M25 11l-3 3" stroke="#ff4d6d" stroke-width="1.5" stroke-linecap="round"/></svg>`)) return;
+      if(!await confirm2('Remove Batch',`Remove <strong style="color:#f0f0f8">${b.name}</strong>?`,'Remove','🗑️')) return;
       await deleteDoc(btDoc(id)); toast(`${b.name} removed`,''); render();
     };
 
@@ -4969,6 +5027,16 @@
     // RENDER
     function render(){
       appRendered = true;
+      // Restore pinnedId from data (survives refresh)
+      if(isT()){
+        const pinned=Object.keys(batches).find(id=>batches[id].pinned);
+        pinnedId=pinned||null;
+      } else {
+        const pinned=Object.keys(teachers).find(id=>teachers[id].pinned);
+        pinnedId=pinned||null;
+      }
+      // batchStudents pin restored inside renderBatchDetail
+      // Use patched render functions if available (include selection UI, pin sort)
       if(isT()){ if(typeof window.renderTeacher==="function") window.renderTeacher(); else renderTeacher(); }
       else { if(typeof window.renderStudent==="function") window.renderStudent(); else renderStudent(); }
       // Always show analytics button after any render
@@ -5013,7 +5081,7 @@
               </div>
               <div class="due-badge">
                 <div class="due-amount ${da===0?'zero':cr?'critical':''}">₹${da.toLocaleString('en-IN')}</div>
-                <div class="due-months">${dm===0?'<svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="display:inline-block;vertical-align:middle;margin-right:2px"><polyline points="1.5,5.5 4,8 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>All clear':`${dm} month${dm>1?'s':''} due`}</div>
+                <div class="due-months">${dm===0?'All clear ✓':`${dm} month${dm>1?'s':''} due`}</div>
                 ${pb>0?`<div class="partial-chip">+₹${pb.toLocaleString('en-IN')} partial</div>`:''}
               </div>
             </div>
@@ -5092,7 +5160,7 @@
               </div>
               <div class="due-badge">
                 <div class="due-amount ${da===0?'zero':cr?'critical':''}">₹${da.toLocaleString('en-IN')}</div>
-                <div class="due-months">${dm===0?'<svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="display:inline-block;vertical-align:middle;margin-right:2px"><polyline points="1.5,5.5 4,8 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>All clear':`${dm} month${dm>1?'s':''} due`}</div>
+                <div class="due-months">${dm===0?'All clear ✓':`${dm} month${dm>1?'s':''} due`}</div>
                 ${pb>0?`<div class="partial-chip">+₹${pb.toLocaleString('en-IN')} partial</div>`:''}
               </div>
             </div>
@@ -5149,32 +5217,32 @@
         const v=parseInt(document.getElementById('spay-'+sid).value);
         if(!v||v<1||v>max)return toast('Enter 1\u2013'+max,'error');
         const amt=v*fee;
-        if(!await confirm2('Mark Payment',`<strong style="color:#f0f0f8">${st.name}</strong><br>\u20b9${amt.toLocaleString('en-IN')} \u00b7 ${v} month${v>1?'s':''}?`,'Mark',`<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="17" fill="rgba(0,212,170,.1)" stroke="rgba(0,212,170,.3)" stroke-width="1.5"/><rect x="9" y="13" width="18" height="12" rx="2.5" fill="rgba(0,212,170,.12)" stroke="#00d4aa" stroke-width="1.6"/><line x1="9" y1="18" x2="27" y2="18" stroke="#00d4aa" stroke-width="1.6"/><rect x="11" y="21" width="6" height="2" rx="1" fill="#00d4aa" opacity=".7"/></svg>`))return;
+        if(!await confirm2('Mark Payment',`<strong style="color:#f0f0f8">${st.name}</strong><br>\u20b9${amt.toLocaleString('en-IN')} \u00b7 ${v} month${v>1?'s':''}?`,'Mark','💸'))return;
         await addDoc(bpyCol(bid),{studentId:sid,studentName:st.name,monthsPaid:v,amount:amt,type:'full',paidOn:po,timestamp:Date.now()});
         document.getElementById('spay-'+sid).value='';toast('\u20b9'+amt.toLocaleString('en-IN')+' marked \u2713','success');
       }else if(type==='partial'){
         const amt=parseInt(document.getElementById('spay-partial-'+sid).value);
         if(!amt||amt<1)return toast('Enter amount','error');if(amt>=fee)return toast('Use Full tab','error');
         const tot=sPartialBal(bid,sid)+amt;if(tot>=fee)return toast('Use Full tab instead','error');
-        if(!await confirm2('Partial Payment',`<strong style="color:#f0f0f8">${st.name}</strong><br>\u20b9${amt.toLocaleString('en-IN')} partial<br><small style="color:var(--muted)">Still owed: \u20b9${(fee-tot).toLocaleString('en-IN')}</small>`,'Mark',`<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="17" fill="rgba(255,154,60,.1)" stroke="rgba(255,154,60,.3)" stroke-width="1.5"/><rect x="9" y="13" width="18" height="12" rx="2.5" fill="rgba(255,154,60,.1)" stroke="#ff9a3c" stroke-width="1.6"/><line x1="9" y1="18" x2="27" y2="18" stroke="#ff9a3c" stroke-width="1.6"/><path d="M14 21.5h5" stroke="#ff9a3c" stroke-width="2" stroke-linecap="round"/></svg>`))return;
+        if(!await confirm2('Partial Payment',`<strong style="color:#f0f0f8">${st.name}</strong><br>\u20b9${amt.toLocaleString('en-IN')} partial<br><small style="color:var(--muted)">Still owed: \u20b9${(fee-tot).toLocaleString('en-IN')}</small>`,'Mark','&#x1F9FE;'))return;
         await addDoc(bpyCol(bid),{studentId:sid,studentName:st.name,amount:amt,type:'partial',paidOn:po,timestamp:Date.now()});
         document.getElementById('spay-partial-'+sid).value='';toast('Partial \u20b9'+amt.toLocaleString('en-IN')+' recorded','success');
       }else if(type==='advance'){
         if(sMonthsDue(bid,sid)>0)return toast('Clear dues first','error');
         const v=parseInt(document.getElementById('spay-advance-'+sid).value);
         if(!v||v<1||v>12)return toast('Enter 1\u201312','error');const amt=v*fee;
-        if(!await confirm2('Advance Payment',`<strong style="color:#f0f0f8">${st.name}</strong><br>\u20b9${amt.toLocaleString('en-IN')} \u00b7 ${v} month${v>1?'s':''} ahead?`,'Mark',`<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="17" fill="rgba(124,107,255,.1)" stroke="rgba(124,107,255,.3)" stroke-width="1.5"/><path d="M11 23l7-10 7 10" stroke="#7c6bff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 20h6" stroke="#7c6bff" stroke-width="1.6" stroke-linecap="round"/></svg>`))return;
+        if(!await confirm2('Advance Payment',`<strong style="color:#f0f0f8">${st.name}</strong><br>\u20b9${amt.toLocaleString('en-IN')} \u00b7 ${v} month${v>1?'s':''} ahead?`,'Mark','&#x1F680;'))return;
         await addDoc(bpyCol(bid),{studentId:sid,studentName:st.name,monthsPaid:v,advanceMonths:v,amount:amt,type:'advance',paidOn:po,timestamp:Date.now()});
         document.getElementById('spay-advance-'+sid).value='';toast('Advance \u20b9'+amt.toLocaleString('en-IN')+' \u2713','success');
       }
       await loadBatchDetail(bid);};
 
     window.deleteStudentPayment=async function(bid,pid){
-      if(!await confirm2('Delete Payment','Cannot be undone.','Delete',`<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="17" fill="rgba(255,77,109,.12)" stroke="rgba(255,77,109,.35)" stroke-width="1.5"/><path d="M11 13h14M15 13v-2h6v2M14 13l1 12h6l1-12" stroke="#ff4d6d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`))return;
+      if(!await confirm2('Delete Payment','Cannot be undone.','Delete','&#x1F5D1;&#xFE0F;'))return;
       await deleteDoc(bpyDoc(bid,pid));toast('Deleted','');await loadBatchDetail(bid);};
     window.deleteStudent=async function(bid,sid){
       const st=batchStudents[sid];
-      if(!await confirm2('Remove Student',`Remove <strong style="color:#f0f0f8">${st.name}</strong>?`,'Remove',`<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="17" fill="rgba(255,77,109,.12)" stroke="rgba(255,77,109,.35)" stroke-width="1.5"/><path d="M11 13h14M15 13v-2h6v2M14 13l1 12h6l1-12" stroke="#ff4d6d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`))return;
+      if(!await confirm2('Remove Student',`Remove <strong style="color:#f0f0f8">${st.name}</strong>?`,'Remove','&#x1F5D1;&#xFE0F;'))return;
       await Promise.all(batchPayments.filter(p=>p.studentId===sid).map(p=>deleteDoc(bpyDoc(bid,p.id))));
       await deleteDoc(stuDoc(bid,sid));toast(st.name+' removed','');await loadBatchDetail(bid);};
     window.toggleStudentHist=function(sid){
@@ -5210,6 +5278,17 @@
     }
 
     function renderBatchDetail(bid){
+      // Restore pinnedId for batch students
+      const pinStu=Object.keys(batchStudents).find(sid=>batchStudents[sid].pinned);
+      if(pinStu) pinnedId=pinStu; else if(!Object.keys(batchStudents).some(s=>batchStudents[s].pinned)) pinnedId=null;
+      const b=batches[bid],root=document.getElementById('bdBody');
+      document.getElementById('bdTitle').textContent=b.name;
+      document.getElementById('bdSub').textContent=(b.class?b.class+' \u00b7 ':'')+b.subject+(b.session?' \u00b7 '+b.session:'');
+      const sIds=Object.keys(batchStudents),totalOut=sTotalDue(bid);
+      const pending=sIds.filter(s=>sMonthsDue(bid,s)>0).length;
+      let h=`<div class="bd-summary-card">
+        <div class="bd-sum-label">Total Outstanding \u00b7 ${b.name}</div>
+        <div class="bd-sum-amount"><span class="cur">\u20b9</span>${totalOut.toLocaleString('en-IN')}</div>
         <div class="bd-sum-meta">
           <div class="bd-sum-pill"><div class="bd-sum-pill-val">${sIds.length}</div><div class="bd-sum-pill-lbl">Students</div></div>
           <div class="bd-sum-pill"><div class="bd-sum-pill-val">${pending}</div><div class="bd-sum-pill-lbl">Pending</div></div>
@@ -5401,7 +5480,7 @@
             <div class="slp-date" style="color:${s.feeStatus==='date'?'var(--accent3)':'var(--red)'};">${feeLabel}</div>
           </div>
           <div class="slp-actions">
-            <button class="slp-edit" onclick="editPending(${i})"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M8 2l2 2-6 6H2V8L8 2z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Edit</button>
+            <button class="slp-edit" onclick="editPending(${i})">&#9998; Edit</button>
             <button class="slp-rm" onclick="rmPending(${i})">&#x2715;</button>
           </div>
         </div>`;
@@ -5474,15 +5553,18 @@
       }
       if(bList.length){
         const fil=bList.filter(id=>{const q=searchQ.toLowerCase();return !q||batches[id].name.toLowerCase().includes(q)||batches[id].subject?.toLowerCase().includes(q);}).sort((a,b)=>{
+          if(batches[a].pinned&&!batches[b].pinned) return -1;
+          if(!batches[a].pinned&&batches[b].pinned) return 1;
           return 0;
         });
         let dl=0;
         for(const bid of fil){const b=batches[bid];
-          const isSel=selMode&&selContext==='batch'&&selItems.has(bid);display:inline-flex;align-items:center;gap:3px;"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;flex-shrink:0" ><path d="M9 2l5 5-2 2-1-1-4 4v4H6l-1-4-4-1 4-4-1-1 2-2 3-2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><line x1="5" y1="11" x2="2" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg> Pinned</span>`:'';
+          const isSel=selMode&&selContext==='batch'&&selItems.has(bid);
+          const pinBdg=b.pinned?`<span class="pin-badge" style="margin-left:6px;display:inline-flex;align-items:center;gap:3px;"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;flex-shrink:0" ><path d="M9 2l5 5-2 2-1-1-4 4v4H6l-1-4-4-1 4-4-1-1 2-2 3-2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><line x1="5" y1="11" x2="2" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg> Pinned</span>`:'';
           h+=`<div class="batch-card ${isSel?'selected':''}" data-id="${bid}" style="animation-delay:${dl}s"
             onclick="if(selMode&&selContext==='batch'){selTap('${bid}');return;}openBatchDetail('${bid}')">
 
-            <div class="batch-header"><div><div class="batch-name">${b.name}</div><div class="batch-meta">${b.class?b.class+' · ':''} ₹${b.fee}/mo per student${b.timing?' · '+b.timing:''}</div></div>${b.session?`<span class="batch-session-badge">${b.session}</span>`:''}</div>
+            <div class="batch-header"><div><div class="batch-name">${b.name}${pinBdg}</div><div class="batch-meta">${b.class?b.class+' · ':''} ₹${b.fee}/mo per student${b.timing?' · '+b.timing:''}</div></div>${b.session?`<span class="batch-session-badge">${b.session}</span>`:''}</div>
             <div class="batch-subject-list">${b.subject.split(',').map(s=>`<span class="batch-subj-chip">${s.trim()}</span>`).join('')}</div>
             ${selMode&&selContext==='batch'?'':`<div class="batch-actions">
               <button class="batch-open-btn" onclick="event.stopPropagation();openBatchDetail('${bid}')" style="display:flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;flex-shrink:0" ><path d="M11 13v-1a3 3 0 0 0-3-3H5a3 3 0 0 0-3 3v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="6" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M14 13v-1a3 3 0 0 0-2-2.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M10.5 3.2a2.5 2.5 0 0 1 0 4.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> View students ›</button>
@@ -5536,7 +5618,7 @@
             </div>
             <div class="standalone-due">
               <div class="standalone-due-amt" style="color:${dueCol}">₹${due.toLocaleString('en-IN')}</div>
-              <div style="font-size:10px;color:var(--muted);margin-top:2px">${mo===0?'<svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="display:inline-block;vertical-align:middle;margin-right:2px"><polyline points="1.5,5.5 4,8 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Clear':mo+'mo due'}</div>
+              <div style="font-size:10px;color:var(--muted);margin-top:2px">${mo===0?'Clear ✓':mo+'mo due'}</div>
             </div>
           </div>
           ${selMode&&selContext==='standalone'?'':`<div class="standalone-actions">
@@ -5575,7 +5657,7 @@
       document.getElementById('assignBatchModal').classList.remove('hidden');
     };
     window.deleteStandaloneStudent=async function(sid,name){
-      if(!await confirm2('Remove Student',`Remove <strong style="color:#f0f0f8">${name}</strong>?`,'Remove',`<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="17" fill="rgba(255,77,109,.1)" stroke="rgba(255,77,109,.3)" stroke-width="1.5"/><circle cx="18" cy="14" r="3.5" stroke="#ff4d6d" stroke-width="1.6"/><path d="M10 27c0-4.4 3.6-7 8-7s8 2.6 8 7" stroke="#ff4d6d" stroke-width="1.6" stroke-linecap="round"/><path d="M22 11l3 3M25 11l-3 3" stroke="#ff4d6d" stroke-width="1.5" stroke-linecap="round"/></svg>`)) return;
+      if(!await confirm2('Remove Student',`Remove <strong style="color:#f0f0f8">${name}</strong>?`,'Remove','🗑️')) return;
       try{
         await deleteDoc(doc(db,'users',uid(),'students',sid));
         _standaloneStudents=_standaloneStudents.filter(s=>s.id!==sid);
@@ -5725,7 +5807,7 @@
       if(obRole==='student'){
         d.className=document.getElementById('obClass').value.trim();
       } else {
-        if(!obSubjects.length){ if(btn){btn.disabled=false;btn.textContent='Get Started →';} return toast('Add at least one subject','error'); }
+        if(!obSubjects.length){ if(btn){btn.disabled=false;btn.textContent='Get Started ✓';} return toast('Add at least one subject','error'); }
         d.subjects=[...obSubjects];
         d.classes=[...obClasses];
         d.session=document.getElementById('obSession').value.trim();
@@ -5739,7 +5821,7 @@
         await loadAll();
         toast('Welcome, '+name.split(' ')[0]+'! 🎉','success');
       } catch(e){ console.error(e); toast('Save failed: '+e.message,'error'); }
-      if(btn){ btn.disabled=false; btn.textContent='Get Started →'; }
+      if(btn){ btn.disabled=false; btn.textContent='Get Started ✓'; }
     }
 
     // AUTH
@@ -6191,11 +6273,11 @@
       const arrow = document.getElementById('menuNotifArrow');
       if (!label) return;
       if (Notification.permission === 'granted') {
-        label.textContent = 'Reminders On';
+        label.textContent = 'Reminders On ✓';
         if (arrow) arrow.style.color = 'var(--accent3)';
       } else if (Notification.permission === 'denied') {
         label.textContent = 'Notifications Blocked';
-        if (arrow) arrow.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="display:block"><path d="M7 2L1 12h12L7 2z" fill="rgba(255,77,109,.15)" stroke="#ff4d6d" stroke-width="1.4" stroke-linejoin="round"/><line x1="7" y1="6" x2="7" y2="9" stroke="#ff4d6d" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="11" r=".8" fill="#ff4d6d"/></svg>';
+        if (arrow) arrow.textContent = '⚠️';
       } else {
         label.textContent = 'Enable Reminders';
         if (arrow) arrow.style.color = '';
@@ -6299,6 +6381,7 @@
 
     // SELECTION MODE
     let selMode=false, selItems=new Set(), selContext=''; // context: 'teacher','batch','student'
+    let pinnedId=null; // only one pinned item at a time
 
     function _allCards(){
       return document.querySelectorAll(
@@ -6374,7 +6457,26 @@
     }
     function updateSelBar(){
       document.getElementById('selCount').textContent=selItems.size;
+      const pinBtn=document.getElementById('selPinBtn');
       const assignBtn=document.getElementById('selAssignBtn');
+      // Pin only when exactly one selected
+      pinBtn.classList.toggle('hidden', selItems.size!==1);
+      if(selItems.size===1){
+        const id=[...selItems][0];
+        // Check pinned state from actual data, not just pinnedId variable (survives refresh)
+        let isAlreadyPinned = pinnedId===id;
+        if(!isAlreadyPinned){
+          if(selContext==='teacher') isAlreadyPinned=!!teachers[id]?.pinned;
+          else if(selContext==='batch') isAlreadyPinned=!!batches[id]?.pinned;
+          else if(selContext==='student') isAlreadyPinned=!!batchStudents[id]?.pinned;
+          if(isAlreadyPinned) pinnedId=id; // sync the variable
+        }
+        pinBtn.textContent='';
+        const pinIcon=`<svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="display:block"><path d="M9 2l5 5-2 2-1-1-4 4v4H6l-1-4-4-1 4-4-1-1 2-2 3-2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><line x1="5" y1="11" x2="2" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`;
+        pinBtn.innerHTML=`<span class="sbi" style="display:flex;align-items:center;">${pinIcon}</span><span>${isAlreadyPinned?'Unpin':'Pin'}</span>`;
+        pinBtn.style.color = isAlreadyPinned ? 'var(--yellow)' : '';
+        pinBtn.classList.toggle('active-pin', isAlreadyPinned);
+      }
       // Assign batch only for student context (teacher role, standalone students)
       assignBtn.classList.toggle('hidden', selContext!=='student');
     }
@@ -6447,12 +6549,49 @@
     // Selection bar buttons
     document.getElementById('selBarClose')?.addEventListener('click',exitSelMode);
 
+    document.getElementById('selPinBtn')?.addEventListener('click',async()=>{
+      if(selItems.size!==1) return;
+      const id=[...selItems][0];
+      if(pinnedId===id){
+        // Unpin
+        pinnedId=null;
+        if(selContext==='teacher'||selContext==='batch'){
+          await updateDoc(selContext==='teacher'?tcDoc(id):btDoc(id),{pinned:false});
+          if(selContext==='teacher') teachers[id].pinned=false;
+          else batches[id].pinned=false;
+        } else {
+          await updateDoc(stuDoc(currentBatchId,id),{pinned:false});
+          batchStudents[id].pinned=false;
+        }
+        toast('Unpinned','');
+      } else {
+        // Unpin previous if any
+        if(pinnedId){
+          if(selContext==='teacher'){ try{await updateDoc(tcDoc(pinnedId),{pinned:false});}catch(e){} if(teachers[pinnedId]) teachers[pinnedId].pinned=false; }
+          else if(selContext==='batch'){ try{await updateDoc(btDoc(pinnedId),{pinned:false});}catch(e){} if(batches[pinnedId]) batches[pinnedId].pinned=false; }
+          else{ try{await updateDoc(stuDoc(currentBatchId,pinnedId),{pinned:false});}catch(e){} if(batchStudents[pinnedId]) batchStudents[pinnedId].pinned=false; }
+        }
+        pinnedId=id;
+        if(selContext==='teacher'||selContext==='batch'){
+          await updateDoc(selContext==='teacher'?tcDoc(id):btDoc(id),{pinned:true});
+          if(selContext==='teacher') teachers[id].pinned=true;
+          else batches[id].pinned=true;
+        } else {
+          await updateDoc(stuDoc(currentBatchId,id),{pinned:true});
+          batchStudents[id].pinned=true;
+        }
+        toast('Pinned to top 📌','success');
+      }
+      exitSelMode();
+    });
 
     document.getElementById('selDeleteBtn')?.addEventListener('click',async()=>{
       const ids=[...selItems];
       const label=ids.length===1?'this item':`${ids.length} items`;
-      if(!await confirm2('Delete',`Remove ${label}? This cannot be undone.`,'Delete',`<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="17" fill="rgba(255,77,109,.12)" stroke="rgba(255,77,109,.35)" stroke-width="1.5"/><path d="M11 13h14M15 13v-2h6v2M14 13l1 12h6l1-12" stroke="#ff4d6d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`)) return;
+      if(!await confirm2('Delete',`Remove ${label}? This cannot be undone.`,'Delete','🗑️')) return;
       for(const id of ids){
+        // Clear pinnedId if this item was pinned
+        if(pinnedId===id) pinnedId=null;
         if(selContext==='teacher'){
           await Promise.all(payments.filter(p=>p.teacherId===id).map(p=>deleteDoc(pyDoc(p.id))));
           await deleteDoc(tcDoc(id));
@@ -6629,6 +6768,8 @@
       }
       // Sort: pinned first, then by due
       let sorted=Object.keys(teachers).sort((a,b)=>{
+        if(teachers[a].pinned&&!teachers[b].pinned) return -1;
+        if(!teachers[a].pinned&&teachers[b].pinned) return 1;
         return calcDue(b)-calcDue(a);
       }).filter(id=>{ const q=searchQ.toLowerCase(); return !q||teachers[id].name.toLowerCase().includes(q)||teachers[id].subject.toLowerCase().includes(q); });
       if(!sorted.length){ h+=`<div class="no-results">No results for "<strong>${searchQ}</strong>"</div></div>`; root.innerHTML=h; return; }
@@ -6636,20 +6777,21 @@
       for(const id of sorted){
         const t=teachers[id],dm=monthsDue(id),da=calcDue(id),lps=lastPaidStr(id),ov2=dm>=3,cr=dm>=6,pb=partialBal(id);
         const tpy=payments.filter(p=>p.teacherId===id).sort((a,b)=>b.timestamp-a.timestamp);
-        const bdg=cr?`<span class="overdue-badge critical"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M7 2L0.5 13h13L7 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><line x1="7" y1="6.5" x2="7" y2="9.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="11.2" r=".7" fill="currentColor"/></svg>${dm}mo</span>`:ov2?`<span class="overdue-badge"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M7 2L0.5 13h13L7 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><line x1="7" y1="6.5" x2="7" y2="9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="7" cy="11.2" r=".65" fill="currentColor"/></svg>${dm}mo</span>`:'';align-items:center;gap:3px;"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;flex-shrink:0" ><path d="M9 2l5 5-2 2-1-1-4 4v4H6l-1-4-4-1 4-4-1-1 2-2 3-2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><line x1="5" y1="11" x2="2" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg> Pinned</span>`:'';
+        const bdg=cr?`<span class="overdue-badge critical"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M7 2L0.5 13h13L7 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><line x1="7" y1="6.5" x2="7" y2="9.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="11.2" r=".7" fill="currentColor"/></svg>${dm}mo</span>`:ov2?`<span class="overdue-badge"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M7 2L0.5 13h13L7 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><line x1="7" y1="6.5" x2="7" y2="9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="7" cy="11.2" r=".65" fill="currentColor"/></svg>${dm}mo</span>`:'';
+        const pinBdg=t.pinned?`<span class="pin-badge" style="display:inline-flex;align-items:center;gap:3px;"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;flex-shrink:0" ><path d="M9 2l5 5-2 2-1-1-4 4v4H6l-1-4-4-1 4-4-1-1 2-2 3-2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><line x1="5" y1="11" x2="2" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg> Pinned</span>`:'';
         const isSel=selItems.has(id);
         h+=`<div class="teacher-card ${cr?'card-critical':ov2?'card-overdue':''}" data-id="${id}" style="animation-delay:${dl}s"
             onclick="if(selMode){event.stopPropagation();selTap('${id}');return;}openTeacherDetail('${id}')">
             <div class="card-top">
               <div class="card-header">
                 <div class="card-left">
-                  <div class="teacher-name-row"><div class="teacher-name">${t.name}</div>${bdg}</div>
+                  <div class="teacher-name-row"><div class="teacher-name">${t.name}</div>${bdg}${pinBdg}</div>
                   <div class="teacher-subject">${t.subject} · ₹${t.fee}/mo</div>
                   ${lps?`<div class="last-paid">Last paid: ${lps}</div>`:`<div class="last-paid never">Never paid</div>`}
                 </div>
                 <div class="due-badge">
                   <div class="due-amount ${da===0?'zero':cr?'critical':''}">₹${da.toLocaleString('en-IN')}</div>
-                  <div class="due-months">${dm===0?'<svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="display:inline-block;vertical-align:middle;margin-right:2px"><polyline points="1.5,5.5 4,8 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>All clear':`${dm} month${dm>1?'s':''} due`}</div>
+                  <div class="due-months">${dm===0?'All clear ✓':`${dm} month${dm>1?'s':''} due`}</div>
                   ${pb>0?`<div class="partial-chip">+₹${pb.toLocaleString('en-IN')} partial</div>`:''}
                 </div>
               </div>
@@ -6679,14 +6821,17 @@
         <div class="section-label"><span class="section-label-txt">My Batches</span><span class="section-label-count">${bList.length}</span></div>`;
       if(!bList.length){ h+=`<div class="empty-state"><div class="empty-icon"><svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;flex-shrink:0"><path d="M26 9L5 21l21 12 21-12L26 9z" fill="currentColor" opacity=".1" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M5 30l21 12 21-12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/><path d="M5 39l21 12 21-12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".28"/></svg></div><div class="empty-title">No batches yet</div><div class="empty-sub">Tap <strong>+</strong> to create a batch, then add students and track fees.</div></div>`; root.innerHTML=h; return; }
       const fil=bList.filter(id=>{const q=searchQ.toLowerCase();return !q||batches[id].name.toLowerCase().includes(q)||batches[id].subject?.toLowerCase().includes(q);}).sort((a,b)=>{
+        if(batches[a].pinned&&!batches[b].pinned) return -1;
+        if(!batches[a].pinned&&batches[b].pinned) return 1;
         return 0;
       });
       let dl=0;
       for(const bid of fil){const b=batches[bid];
-        const isSel=selItems.has(bid);display:inline-flex;align-items:center;gap:3px;"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;flex-shrink:0" ><path d="M9 2l5 5-2 2-1-1-4 4v4H6l-1-4-4-1 4-4-1-1 2-2 3-2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><line x1="5" y1="11" x2="2" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg> Pinned</span>`:'';
+        const isSel=selItems.has(bid);
+        const pinBdg=b.pinned?`<span class="pin-badge" style="margin-left:6px;display:inline-flex;align-items:center;gap:3px;"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;flex-shrink:0" ><path d="M9 2l5 5-2 2-1-1-4 4v4H6l-1-4-4-1 4-4-1-1 2-2 3-2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><line x1="5" y1="11" x2="2" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg> Pinned</span>`:'';
         h+=`<div class="batch-card" data-id="${bid}" style="animation-delay:${dl}s"
           onclick="if(selMode){event.stopPropagation();selTap('${bid}');return;}openBatchDetail('${bid}')" ontouchstart="void 0">
-          <div class="batch-header"><div><div class="batch-name">${b.name}</div><div class="batch-meta">${b.class?b.class+' · ':''} ₹${b.fee}/mo per student${b.timing?' · '+b.timing:''}</div></div>${b.session?`<span class="batch-session-badge">${b.session}</span>`:''}</div>
+          <div class="batch-header"><div><div class="batch-name">${b.name}${pinBdg}</div><div class="batch-meta">${b.class?b.class+' · ':''} ₹${b.fee}/mo per student${b.timing?' · '+b.timing:''}</div></div>${b.session?`<span class="batch-session-badge">${b.session}</span>`:''}</div>
           <div class="batch-subject-list">${b.subject.split(',').map(s=>`<span class="batch-subj-chip">${s.trim()}</span>`).join('')}</div>
           ${selMode?'':`<div class="batch-actions">
             <button class="batch-open-btn" onclick="event.stopPropagation();openBatchDetail('${bid}')" style="display:flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;flex-shrink:0" ><path d="M11 13v-1a3 3 0 0 0-3-3H5a3 3 0 0 0-3 3v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="6" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M14 13v-1a3 3 0 0 0-2-2.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M10.5 3.2a2.5 2.5 0 0 1 0 4.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> View students ›</button>
@@ -6729,7 +6874,7 @@
                 </div>
                 <div class="sc-due-badge">
                   <div class="sc-due-amt ${due===0?'zero':''}">₹${due.toLocaleString('en-IN')}</div>
-                  <div class="sc-due-mo">${mo===0?'<svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="display:inline-block;vertical-align:middle;margin-right:2px"><polyline points="1.5,5.5 4,8 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>All clear':`${mo} month${mo>1?'s':''} due`}</div>
+                  <div class="sc-due-mo">${mo===0?'All clear ✓':`${mo} month${mo>1?'s':''} due`}</div>
                 </div>
               </div>
             </div>
@@ -6750,7 +6895,7 @@
     }
 
     window.deleteStandaloneStudent=async function(sid,name){
-      if(!await confirm2('Remove Student',`Remove <strong style="color:#f0f0f8">${name}</strong>?`,'Remove',`<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="17" fill="rgba(255,77,109,.1)" stroke="rgba(255,77,109,.3)" stroke-width="1.5"/><circle cx="18" cy="14" r="3.5" stroke="#ff4d6d" stroke-width="1.6"/><path d="M10 27c0-4.4 3.6-7 8-7s8 2.6 8 7" stroke="#ff4d6d" stroke-width="1.6" stroke-linecap="round"/><path d="M22 11l3 3M25 11l-3 3" stroke="#ff4d6d" stroke-width="1.5" stroke-linecap="round"/></svg>`)) return;
+      if(!await confirm2('Remove Student',`Remove <strong style="color:#f0f0f8">${name}</strong>?`,'Remove','🗑️')) return;
       try{ await deleteDoc(doc(db,'users',uid(),'students',sid)); toast(`${name} removed`,''); loadAndRenderStandaloneStudents(document.getElementById('appInner')); }
       catch(e){ toast('Error: '+e.message,'error'); }
     };
@@ -6886,7 +7031,7 @@
             <div class="dash-canvas-wrap" style="width:130px;height:130px;flex-shrink:0"><canvas id="tchDonutChart"></canvas></div>
             <div style="flex:1"><div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:${collRate>=80?'var(--accent3)':collRate>=50?'var(--yellow)':'var(--red)'}">${collRate}%</div>
               <div style="font-size:11px;color:var(--muted);margin-bottom:12px">of students paid</div>
-              <div style="font-size:11px;color:var(--accent3);margin-bottom:3px"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="display:inline-block;vertical-align:middle;margin-right:2px"><polyline points="1.5,5.5 4,8 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>${grandPaid} students paid</div>
+              <div style="font-size:11px;color:var(--accent3);margin-bottom:3px">✓ ${grandPaid} students paid</div>
               <div style="font-size:11px;color:var(--red)">⚠ ${overdueStu} students pending</div>
             </div>
           </div>
@@ -6935,7 +7080,7 @@
             <div class="dash-canvas-wrap" style="width:130px;height:130px;flex-shrink:0"><canvas id="stuDonutChart"></canvas></div>
             <div style="flex:1"><div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:${clearRate>=80?'var(--accent3)':totalDue2>0?'var(--yellow)':'var(--accent3)'}">${clearRate}%</div>
               <div style="font-size:11px;color:var(--muted);margin-bottom:12px">fees up to date</div>
-              <div style="font-size:11px;color:var(--accent3);margin-bottom:3px"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="display:inline-block;vertical-align:middle;margin-right:2px"><polyline points="1.5,5.5 4,8 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>${clearCount} teacher${clearCount!==1?'s':''} — clear</div>
+              <div style="font-size:11px;color:var(--accent3);margin-bottom:3px">✓ ${clearCount} teacher${clearCount!==1?'s':''} — clear</div>
               <div style="font-size:11px;color:var(--red)">⚠ ${overdueCount} teacher${overdueCount!==1?'s':''} — pending</div>
             </div>
           </div>
@@ -6943,7 +7088,7 @@
         <div class="dash-chart-card"><div class="dash-chart-title">Per-Teacher Dues</div><div class="dash-chart-sub">Months outstanding per teacher</div><div class="dash-canvas-wrap" style="height:${Math.max(150,tKeys.length*52)}px"><canvas id="stuBarChart"></canvas></div></div>
         <div class="dash-chart-card"><div class="dash-chart-title">Payment History</div><div class="dash-chart-sub">Amount paid — last 6 months</div><div class="dash-canvas-wrap" style="height:160px"><canvas id="stuLineChart"></canvas></div></div>
         <div class="dash-insight-card"><div class="dash-insight-title" style="display:flex;align-items:center;gap:6px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;flex-shrink:0"><rect x="1" y="9" width="4" height="7" rx="1.2" fill="currentColor" opacity=".4"/><rect x="6" y="5" width="4" height="11" rx="1.2" fill="currentColor" opacity=".68"/><rect x="11" y="1" width="4" height="15" rx="1.2" fill="currentColor"/><line x1="1" y1="15.5" x2="15" y2="15.5" stroke="currentColor" stroke-width="1" opacity=".3"/></svg> Teacher-wise Status</div>
-          ${teacherData.map(t=>{const fc=t.dm===0?'var(--accent3)':t.cr?'var(--red)':t.ov?'var(--yellow)':'var(--accent4)';return `<div style="margin-bottom:16px"><div class="dash-prog-header"><div class="dash-prog-label">${t.name}</div><div style="font-size:10px;color:var(--muted)">${t.subject} · ${dashFmt(t.fee)}/mo</div></div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:${t.dm===0?'var(--accent3)':t.cr?'var(--red)':'var(--yellow)'}">${t.dm===0?'<svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="display:inline-block;vertical-align:middle;margin-right:2px"><polyline points="1.5,5.5 4,8 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>All clear':`${t.dm} month${t.dm>1?'s':''} due`}</span><span style="font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:${fc}">${dashFmt(t.da)}</span></div><div class="dash-prog-bar"><div class="dash-prog-fill" style="width:${t.dm===0?100:Math.min(100,t.dm*15)}%;background:${fc}"></div></div></div>`;}).join('')}
+          ${teacherData.map(t=>{const fc=t.dm===0?'var(--accent3)':t.cr?'var(--red)':t.ov?'var(--yellow)':'var(--accent4)';return `<div style="margin-bottom:16px"><div class="dash-prog-header"><div class="dash-prog-label">${t.name}</div><div style="font-size:10px;color:var(--muted)">${t.subject} · ${dashFmt(t.fee)}/mo</div></div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:${t.dm===0?'var(--accent3)':t.cr?'var(--red)':'var(--yellow)'}">${t.dm===0?'All clear ✓':`${t.dm} month${t.dm>1?'s':''} due`}</span><span style="font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:${fc}">${dashFmt(t.da)}</span></div><div class="dash-prog-bar"><div class="dash-prog-fill" style="width:${t.dm===0?100:Math.min(100,t.dm*15)}%;background:${fc}"></div></div></div>`;}).join('')}
         </div>
         ${payments.length?`<div class="dash-insight-card"><div class="dash-insight-title" style="display:flex;align-items:center;gap:6px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;flex-shrink:0"><circle cx="8" cy="8" r="6.5" fill="currentColor" opacity=".08" stroke="currentColor" stroke-width="1.5"/><polyline points="8,4.5 8,8.5 11,10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Recent Payments</div>${[...payments].sort((a,b)=>b.timestamp-a.timestamp).slice(0,6).map(p=>`<div class="dash-insight-row"><div class="dash-ins-rank">${p.type==='partial'?'P':p.type==='advance'?'A':'✓'}</div><div class="dash-ins-name"><div class="dash-ins-nm">${p.teacherName||'Teacher'}</div><div class="dash-ins-sub">${p.paidOn?`${p.paidOn.day} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][p.paidOn.month-1]} ${p.paidOn.year}`:'—'} · ${p.type}</div></div><div class="dash-ins-amt clear">${dashFmt(p.amount)}</div></div>`).join('')}</div>`:'' }`;
       const dCtx=document.getElementById('stuDonutChart')?.getContext('2d');
@@ -7293,7 +7438,7 @@
         const v = parseInt(document.getElementById('tds-pay-full')?.value);
         if(!v||v<1||v>dm) return toast('Enter 1\u2013'+dm,'error');
         const amt = v*t.fee;
-        if(!await confirm2('Confirm Payment',`Mark <strong style="color:#f0f0f8">\u20b9${amt.toLocaleString('en-IN')}</strong> for <strong style="color:#f0f0f8">${v} month${v>1?'s':''}</strong> to ${t.name}?`,'Mark',`<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="17" fill="rgba(0,212,170,.1)" stroke="rgba(0,212,170,.3)" stroke-width="1.5"/><rect x="9" y="13" width="18" height="12" rx="2.5" fill="rgba(0,212,170,.12)" stroke="#00d4aa" stroke-width="1.6"/><line x1="9" y1="18" x2="27" y2="18" stroke="#00d4aa" stroke-width="1.6"/><rect x="11" y="21" width="6" height="2" rx="1" fill="#00d4aa" opacity=".7"/></svg>`)) return;
+        if(!await confirm2('Confirm Payment',`Mark <strong style="color:#f0f0f8">\u20b9${amt.toLocaleString('en-IN')}</strong> for <strong style="color:#f0f0f8">${v} month${v>1?'s':''}</strong> to ${t.name}?`,'Mark','💸')) return;
         const p={teacherId:id,teacherName:t.name,subject:t.subject,monthsPaid:v,amount:amt,type:'full',paidOn:po,timestamp:Date.now()};
         const ref=await addDoc(pyCol(),p); p.id=ref.id; payments.push(p); saveToCache();
         toast(`Paid \u20b9${amt.toLocaleString('en-IN')} \u2713`,'success');
@@ -7303,7 +7448,7 @@
         if(amt>=t.fee) return toast('Use Full tab for \u20b9'+t.fee+'+','error');
         const tot = partialBal(id)+amt;
         if(tot>=t.fee) return toast('Total covers full month — use Full tab','error');
-        if(!await confirm2('Partial Payment',`Record <strong style="color:#f0f0f8">\u20b9${amt.toLocaleString('en-IN')}</strong> partial to ${t.name}?<br><small style="color:var(--muted)">Still owed: \u20b9${(t.fee-tot).toLocaleString('en-IN')}</small>`,'Record',`<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="17" fill="rgba(255,154,60,.1)" stroke="rgba(255,154,60,.3)" stroke-width="1.5"/><rect x="9" y="13" width="18" height="12" rx="2.5" fill="rgba(255,154,60,.1)" stroke="#ff9a3c" stroke-width="1.6"/><line x1="9" y1="18" x2="27" y2="18" stroke="#ff9a3c" stroke-width="1.6"/><path d="M14 21.5h5" stroke="#ff9a3c" stroke-width="2" stroke-linecap="round"/></svg>`)) return;
+        if(!await confirm2('Partial Payment',`Record <strong style="color:#f0f0f8">\u20b9${amt.toLocaleString('en-IN')}</strong> partial to ${t.name}?<br><small style="color:var(--muted)">Still owed: \u20b9${(t.fee-tot).toLocaleString('en-IN')}</small>`,'Record','🧾')) return;
         const p={teacherId:id,teacherName:t.name,subject:t.subject,amount:amt,type:'partial',paidOn:po,timestamp:Date.now()};
         const ref=await addDoc(pyCol(),p); p.id=ref.id; payments.push(p); saveToCache();
         toast('Partial \u20b9'+amt.toLocaleString('en-IN')+' recorded','success');
@@ -7312,7 +7457,7 @@
         const v = parseInt(document.getElementById('tds-pay-advance')?.value);
         if(!v||v<1||v>12) return toast('Enter 1\u201312 months','error');
         const amt = v*t.fee;
-        if(!await confirm2('Advance Payment',`Pay <strong style="color:#f0f0f8">\u20b9${amt.toLocaleString('en-IN')}</strong> advance for <strong style="color:#f0f0f8">${v} month${v>1?'s':''}</strong> to ${t.name}?`,'Pay',`<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="17" fill="rgba(124,107,255,.1)" stroke="rgba(124,107,255,.3)" stroke-width="1.5"/><path d="M11 23l7-10 7 10" stroke="#7c6bff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 20h6" stroke="#7c6bff" stroke-width="1.6" stroke-linecap="round"/></svg>`)) return;
+        if(!await confirm2('Advance Payment',`Pay <strong style="color:#f0f0f8">\u20b9${amt.toLocaleString('en-IN')}</strong> advance for <strong style="color:#f0f0f8">${v} month${v>1?'s':''}</strong> to ${t.name}?`,'Pay','🚀')) return;
         const p={teacherId:id,teacherName:t.name,subject:t.subject,monthsPaid:v,advanceMonths:v,amount:amt,type:'advance',paidOn:po,timestamp:Date.now()};
         const ref=await addDoc(pyCol(),p); p.id=ref.id; payments.push(p); saveToCache();
         toast('Advance \u20b9'+amt.toLocaleString('en-IN')+' paid \u2713','success');
@@ -7492,7 +7637,7 @@
         <button class="pwa-banner-close" id="pwaBannerClose"><svg width="12" height="12" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;flex-shrink:0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
       </div>
       <div class="pwa-banner-actions">
-        <button class="pwa-banner-install" id="pwaBannerInstall"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="display:inline-block;vertical-align:middle;margin-right:6px"><path d="M8 2v8M5 7l3 3 3-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Install App</button>
+        <button class="pwa-banner-install" id="pwaBannerInstall">&#128640; Install App</button>
         <button class="pwa-banner-later" id="pwaBannerLater">Not now</button>
       </div>
     </div>
@@ -7595,8 +7740,7 @@
 
     function setMenuInstallVisible(show) {
       const btn = document.getElementById('menuInstallBtn');
-      const alreadyInstalled = _isStandalone || localStorage.getItem('ftPWAInstalled') === '1';
-      if (btn) btn.classList.toggle('hidden', !show || alreadyInstalled);
+      if (btn) btn.classList.toggle('hidden', !show || _isStandalone);
     }
     // Also hide install banner if already installed
     if (_isStandalone) {
@@ -7606,8 +7750,6 @@
 
     window.addEventListener('beforeinstallprompt', e => {
       e.preventDefault();
-      // Don't show anything if user already installed
-      if (_isStandalone || localStorage.getItem('ftPWAInstalled') === '1') return;
       deferredInstallPrompt = e;
       setMenuInstallVisible(true);
       // Show banner after 3s if not previously dismissed
@@ -7657,7 +7799,6 @@
     // Already installed — hide everything
     window.addEventListener('appinstalled', () => {
       localStorage.setItem('ftInstallDismissed', '1');
-      localStorage.setItem('ftPWAInstalled', '1');
       hideInstallBanner();
       setMenuInstallVisible(false);
       deferredInstallPrompt = null;
