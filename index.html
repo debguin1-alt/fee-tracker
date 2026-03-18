@@ -1670,9 +1670,9 @@
 
     /* ₹ glyph placeholder — purple-tinted to hint at gradient text */
     .sk-login-glyph {
-      width: 56px; height: 72px; border-radius: 14px;
-      background: linear-gradient(135deg, rgba(124,107,255,.25), rgba(255,107,157,.15));
-      position: relative; overflow: hidden;
+      width: 80px; height: 80px; border-radius: 26px;
+      background: linear-gradient(135deg, rgba(124,107,255,.2), rgba(255,107,157,.12));
+      border: 1.5px solid rgba(124,107,255,.2);
     }
     .sk-login-glyph::after {
       content: '';
@@ -3404,8 +3404,8 @@
       100% { background-position: 0% 50%; }
     }
     @keyframes rupeePulse {
-      0%,100% { filter: drop-shadow(0 0 8px rgba(124,107,255,.5)); }
-      50%      { filter: drop-shadow(0 0 20px rgba(255,107,157,.6)); }
+      0%,100% { box-shadow: 0 8px 24px rgba(124,107,255,.18), 0 0 0 0 rgba(124,107,255,0); }
+      50%      { box-shadow: 0 8px 32px rgba(124,107,255,.35), 0 0 0 8px rgba(124,107,255,.06); }
     }
     @keyframes loginGlyphFloat {
       0%,100% { transform: translateY(0); }
@@ -3425,7 +3425,7 @@
     }
     #loginContent { position: relative; z-index: 1; }
     .login-glyph > div {
-      animation: loginGlyphFloat 3.5s ease-in-out infinite, rupeePulse 3.5s ease-in-out infinite !important;
+      animation: rupeePulse 4s ease-in-out infinite !important;
     }
 
   </style>
@@ -3524,7 +3524,7 @@
   <!-- LOGIN -->
   <!-- SPLASH SKELETON — shown immediately while Firebase auth resolves -->
   <div id="authOverlay">
-    <div class="auth-logo"><svg width="44" height="44" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block"><rect x="8" y="10" width="56" height="52" rx="10" fill="url(#al1)" opacity=".18"/><rect x="8" y="10" width="56" height="52" rx="10" stroke="url(#al2)" stroke-width="2.5"/><path d="M22 24h28M22 24v4a14 14 0 0 0 14 14M22 24h8a10 10 0 0 1 0 18M36 42l10 10" stroke="url(#al2)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="52" cy="52" r="8" fill="url(#al3)"/><path d="M49 52h6M52 49v6" stroke="#fff" stroke-width="2" stroke-linecap="round"/><defs><linearGradient id="al1" x1="8" y1="10" x2="64" y2="62" gradientUnits="userSpaceOnUse"><stop stop-color="#7c6bff"/><stop offset="1" stop-color="#ff6b9d"/></linearGradient><linearGradient id="al2" x1="8" y1="10" x2="64" y2="62" gradientUnits="userSpaceOnUse"><stop stop-color="#a090ff"/><stop offset="1" stop-color="#ff8fb8"/></linearGradient><linearGradient id="al3" x1="44" y1="44" x2="60" y2="60" gradientUnits="userSpaceOnUse"><stop stop-color="#7c6bff"/><stop offset="1" stop-color="#ff6b9d"/></linearGradient></defs></svg></div>
+    <div class="auth-logo"><div style="width:52px;height:52px;border-radius:17px;background:linear-gradient(135deg,rgba(124,107,255,.22),rgba(255,107,157,.15));display:flex;align-items:center;justify-content:center;border:1.5px solid rgba(124,107,255,.3);box-shadow:0 6px 24px rgba(124,107,255,.2);"><span style="font-size:28px;line-height:1;background:linear-gradient(140deg,#ffffff 0%,#c8baff 50%,#ff8fb8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:900;">₹</span></div></div>
     <div class="auth-ring"></div>
     <div class="auth-ring-label">Fee Tracker</div>
   </div>
@@ -3538,6 +3538,13 @@
       <div class="sk" style="width:40px;height:40px;border-radius:13px;flex-shrink:0;"></div>
     </div>
     <div class="splash-body">
+      <!-- Brand icon during loading -->
+      <div style="display:flex;flex-direction:column;align-items:center;margin:20px 0 24px;">
+        <div style="width:64px;height:64px;border-radius:20px;background:linear-gradient(135deg,rgba(124,107,255,.2),rgba(255,107,157,.12));display:flex;align-items:center;justify-content:center;border:1.5px solid rgba(124,107,255,.25);box-shadow:0 8px 24px rgba(124,107,255,.18);">
+          <span style="font-size:34px;line-height:1;background:linear-gradient(140deg,#ffffff 0%,#c8baff 50%,#ff8fb8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:900;">₹</span>
+        </div>
+        <div class="sk" style="width:90px;height:10px;border-radius:6px;margin-top:12px;opacity:.5;"></div>
+      </div>
       <div class="sk-hero"><div class="sk-hero-inner"><div>
         <div class="sk-hero-label"></div><div class="sk-hero-amount"></div><div class="sk-hero-sub"></div>
       </div><div class="sk-hero-pills">
