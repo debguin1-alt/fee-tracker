@@ -5462,7 +5462,20 @@
     }
 
     function renderBatchDetail(bid){
-        <div class="bd-sum-meta">
+      const root = document.getElementById('bdBody');
+      const sIds = Object.keys(batchStudents);
+      const pending = sIds.filter(sid => sMonthsDue(bid, sid) > 0).length;
+      const bName = batches[bid]?.name || '';
+      const bFee  = batches[bid]?.fee  || 0;
+      const totalDueAmt = sIds.reduce((s,sid) => s + sCalcDue(bid,sid), 0);
+      let h = `<div class="bd-summary-card">
+          <div class="bd-sum-main">
+            <div>
+              <div class="bd-sum-label">Outstanding</div>
+              <div class="bd-sum-amount" style="color:#fff">₹${totalDueAmt.toLocaleString('en-IN')}</div>
+            </div>
+          </div>
+          <div class="bd-sum-meta">
           <div class="bd-sum-pill"><div class="bd-sum-pill-val">${sIds.length}</div><div class="bd-sum-pill-lbl">Students</div></div>
           <div class="bd-sum-pill"><div class="bd-sum-pill-val">${pending}</div><div class="bd-sum-pill-lbl">Pending</div></div>
           <div class="bd-sum-pill"><div class="bd-sum-pill-val">${sIds.length-pending}</div><div class="bd-sum-pill-lbl">Clear</div></div>
