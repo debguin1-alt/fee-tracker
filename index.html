@@ -2929,10 +2929,7 @@
       cursor: pointer !important;
       transition: background .14s, box-shadow .14s, transform .12s !important;
     }
-    .teacher-card:active {
-      transform: scale(.985) !important;
-      background: var(--surface2) !important;
-    }
+    .teacher-card:active { opacity: .82 !important; }
     .tc-tap-hint {
       font-size: 10px; color: var(--muted);
       display: flex; align-items: center; gap: 4px;
@@ -3221,14 +3218,14 @@
     #batchDetailScreen { transform: translateZ(0); }
 
     /* ── Smooth tap feedback without janky animation conflicts ── */
-    .teacher-card, .batch-card, .standalone-card {
+    .teacher-card, .batch-card, .standalone-card, .student-card {
       -webkit-tap-highlight-color: transparent;
       cursor: pointer;
+      touch-action: manipulation;
     }
     .teacher-card:active, .batch-card:active, .standalone-card:active {
-      opacity: .88;
-      transform: scale(.985);
-      transition: opacity .08s ease, transform .08s ease;
+      opacity: .82;
+      transition: opacity .08s ease;
     }
 
     /* ── Modal overlay smooth blur ── */
@@ -3240,6 +3237,94 @@
       -webkit-user-select: none;
       user-select: none;
     }
+
+    /* ── Search placeholder animation ── */
+    @keyframes placeholderFade {
+      0%,15%  { opacity:1; transform:translateY(0); }
+      20%,95% { opacity:0; transform:translateY(-6px); }
+      100%    { opacity:1; transform:translateY(0); }
+    }
+    .search-input::placeholder { transition: none; }
+
+    /* ══════════════════════════════════════════════════
+       HISTORY SCREEN
+    ══════════════════════════════════════════════════ */
+    #historyScreen {
+      background: var(--bg);
+      position: fixed; inset: 0; z-index: 12;
+      display: flex; flex-direction: column;
+    }
+    .hist-topbar {
+      display: flex; align-items: center; gap: 12px;
+      padding: calc(env(safe-area-inset-top,20px) + 18px) 18px 14px;
+      background: linear-gradient(180deg, var(--bg) 75%, transparent);
+      position: sticky; top: 0; z-index: 5;
+    }
+    .hist-back {
+      width: 40px; height: 40px; border-radius: 14px;
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text2); font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0; transition: background .15s;
+    }
+    .hist-back:active { background: var(--surface3); }
+    .hist-title { font-family:'Syne',sans-serif; font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -.4px; flex: 1; }
+    .hist-export-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: 12px; padding: 8px 14px;
+      font-size: 12px; font-weight: 700; color: var(--accent3);
+      cursor: pointer; transition: background .15s;
+    }
+    .hist-export-btn:active { background: var(--surface3); }
+    .hist-body {
+      flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      padding: 0 16px 80px;
+    }
+    .hist-month-group { margin-bottom: 20px; }
+    .hist-month-label {
+      font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 800;
+      letter-spacing: 2px; text-transform: uppercase; color: var(--muted);
+      margin: 18px 0 10px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .hist-month-total {
+      font-size: 13px; font-weight: 800; color: var(--accent3);
+      font-family: 'Syne', sans-serif; letter-spacing: 0;
+    }
+    .hist-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border-radius: 14px;
+      background: var(--surface); border: 1px solid var(--border);
+      margin-bottom: 7px; transition: background .12s;
+    }
+    .hist-row:active { background: var(--surface2); }
+    .hist-row-icon {
+      width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hist-row-icon.full    { background: rgba(0,212,170,.12); color: var(--accent3); }
+    .hist-row-icon.partial { background: rgba(255,154,60,.12); color: var(--accent4); }
+    .hist-row-icon.advance { background: rgba(124,107,255,.12); color: var(--accent); }
+    .hist-row-body { flex: 1; min-width: 0; }
+    .hist-row-name { font-size: 13px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hist-row-sub  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .hist-row-amt  { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; color: var(--text); flex-shrink: 0; }
+    .hist-filter-row {
+      display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto;
+      padding-bottom: 4px; scrollbar-width: none;
+    }
+    .hist-filter-row::-webkit-scrollbar { display: none; }
+    .hist-filter-chip {
+      flex-shrink: 0; padding: 7px 16px; border-radius: 20px;
+      font-size: 12px; font-weight: 700; cursor: pointer;
+      border: 1.5px solid var(--border2); background: var(--surface2);
+      color: var(--text2); transition: all .15s; white-space: nowrap;
+    }
+    .hist-filter-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .hist-empty-state { text-align: center; padding: 60px 24px; color: var(--muted); }
+    .hist-empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .hist-empty-txt { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .hist-empty-sub { font-size: 12px; line-height: 1.7; }
 
   </style>
 </head>
@@ -3562,6 +3647,25 @@
     </div>
   </div>
 
+
+  <!-- HISTORY SCREEN -->
+  <div class="hidden" id="historyScreen">
+    <div class="hist-topbar">
+      <button class="hist-back" onclick="closeHistoryScreen()">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 4L6 9l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="hist-title">Payment History</div>
+      <button class="hist-export-btn" onclick="exportHistoryCSV()" id="histExportBtn">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v7M4 6l3 3 3-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v1.5A1.5 1.5 0 0 0 2.5 13h9A1.5 1.5 0 0 0 13 11.5V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Export CSV
+      </button>
+    </div>
+    <div class="hist-body" id="histBody">
+      <div class="hist-filter-row" id="histFilters"></div>
+      <div id="histContent"></div>
+    </div>
+  </div>
+
   <!-- MENU BACKDROP -->
   <div class="menu-backdrop hidden" id="menuBackdrop"></div>
 
@@ -3601,6 +3705,11 @@
       <div class="menu-item menu-item-install hidden" id="menuInstallBtn">
         <span class="menu-item-icon" style="display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v7M5 7l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
         <span class="menu-item-label">Add to Home Screen</span>
+        <span style="display:flex;align-items:center;color:var(--muted);"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+      <div class="menu-item" id="menuHistoryBtn" onclick="closeMenu();openHistoryScreen()">
+        <span class="menu-item-icon" style="display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" fill="currentColor" opacity=".1" stroke="currentColor" stroke-width="1.4"/><polyline points="8,4.5 8,8 10.5,9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="menu-item-label">Payment History</span>
         <span style="display:flex;align-items:center;color:var(--muted);"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </div>
       <div class="menu-item danger" id="signOutBtn">
@@ -4897,8 +5006,59 @@
       );
       if(dataChanged || !appRendered){
         render();
+        setTimeout(()=>window._searchPlaceholderStart?.(), 400);
       }
     }
+
+    // ── Animated search placeholder ──────────────────────────────────────
+    (function initSearchPlaceholder(){
+      let _searchTimer = null;
+      let _phIdx = 0;
+
+      function getPlaceholders(){
+        if(isT()){
+          const names = Object.values(batches).map(b=>b.name).slice(0,4);
+          const subjs = Object.values(batches).flatMap(b=>(b.subject||'').split(',').map(s=>s.trim())).filter(Boolean).slice(0,4);
+          const base = ['Search batch or subject…'];
+          names.forEach(n=>base.push('Search "'+n+'"…'));
+          subjs.forEach(s=>base.push('Search "'+s+'"…'));
+          return [...new Set(base)];
+        } else {
+          const names = Object.values(teachers).map(t=>t.name).slice(0,4);
+          const subjs = Object.values(teachers).map(t=>t.subject).filter(Boolean).slice(0,4);
+          const base = ['Search teacher or subject…'];
+          names.forEach(n=>base.push('Search "'+n+'"…'));
+          subjs.forEach(s=>base.push('Search "'+s+'"…'));
+          return [...new Set(base)];
+        }
+      }
+
+      function cyclePlaceholder(){
+        const inp = document.querySelector('#appInner .search-input');
+        if(!inp || document.activeElement===inp || searchQ) return;
+        const ph = getPlaceholders();
+        _phIdx = (_phIdx + 1) % ph.length;
+        inp.placeholder = ph[_phIdx];
+      }
+
+      function startCycle(){
+        stopCycle();
+        _searchTimer = setInterval(cyclePlaceholder, 2800);
+      }
+      function stopCycle(){
+        if(_searchTimer){ clearInterval(_searchTimer); _searchTimer = null; }
+      }
+
+      // Re-start after each render
+      const _origRender = window.render || function(){};
+      window._searchPlaceholderStart = startCycle;
+      window._searchPlaceholderStop  = stopCycle;
+
+      // Hook into appScreen visibility
+      document.addEventListener('visibilitychange', ()=>{
+        if(document.hidden) stopCycle(); else startCycle();
+      });
+    })();
 
     // PAY
     window.switchPayTab=function(id,type){
@@ -6647,7 +6807,7 @@
     // Long-press via event delegation — one listener on the container, survives re-renders
     // No need to re-attach after every render. Works as long as cards have data-id.
     (function initLongPressDelegate(){
-      const HOLD_MS = 420;
+      const HOLD_MS = 600;
       let _timer = null;
       let _startCard = null;
       let _moved = false;
@@ -6656,6 +6816,7 @@
         return el?.closest('.teacher-card[data-id],.batch-card[data-id],.student-card[data-id]');
       }
 
+      let _startX, _startY;
       function onStart(e){
         const card = cardFrom(e.target);
         if(!card) return;
@@ -6665,6 +6826,9 @@
         }
         _moved = false;
         _startCard = card;
+        const touch = e.touches?.[0];
+        _startX = touch ? touch.clientX : e.clientX;
+        _startY = touch ? touch.clientY : e.clientY;
         _timer = setTimeout(()=>{
           _timer = null;
           if(_moved || !_startCard) return;
@@ -6681,7 +6845,15 @@
         }, HOLD_MS);
       }
 
-      function onMove(){ _moved = true; if(_timer){ clearTimeout(_timer); _timer = null; } }
+      function onMove(e){
+        const touch = e.touches?.[0];
+        if (touch && _startX !== undefined) {
+          const dx = touch.clientX - _startX, dy = touch.clientY - _startY;
+          if (Math.hypot(dx, dy) < 8) return; // ignore tiny tremors
+        }
+        _moved = true;
+        if(_timer){ clearTimeout(_timer); _timer = null; }
+      }
       function onEnd(){  if(_timer){ clearTimeout(_timer); _timer = null; } _startCard = null; }
 
       // Attach to a stable container that always exists
@@ -7668,7 +7840,189 @@
       });
     })();
 
-  </script>
+  
+    // ══════════════════════════════════════════════════════════════════
+    // ANIMATED SEARCH PLACEHOLDER
+    // ══════════════════════════════════════════════════════════════════
+    (function initSearchPlaceholder(){
+      let _t = null, _idx = 0;
+      function getPH(){
+        const base = isT() ? ['Search batch or subject…'] : ['Search teacher or subject…'];
+        const items = isT()
+          ? Object.values(batches).flatMap(b=>[b.name,...(b.subject||'').split(',').map(s=>s.trim())]).filter(Boolean)
+          : Object.values(teachers).flatMap(t=>[t.name,t.subject]).filter(Boolean);
+        [...new Set(items)].slice(0,6).forEach(v=>base.push('Try "​'+v+'"'));
+        return base;
+      }
+      function cycle(){
+        const inp = document.querySelector('#appInner .search-input');
+        if(!inp || document.activeElement===inp || (window.searchQ||'')) return;
+        const ph = getPH();
+        _idx = (_idx+1) % ph.length;
+        inp.setAttribute('placeholder', ph[_idx]);
+      }
+      window._searchPHStart = function(){
+        clearInterval(_t);
+        _idx = 0;
+        _t = setInterval(cycle, 2800);
+      };
+      window._searchPHStop = function(){ clearInterval(_t); };
+      document.addEventListener('visibilitychange',()=>{ document.hidden?window._searchPHStop():window._searchPHStart(); });
+    })();
+
+    // ══════════════════════════════════════════════════════════════════
+    // HISTORY SCREEN
+    // ══════════════════════════════════════════════════════════════════
+    let _histFilter = 'all';
+
+    window.openHistoryScreen = function(){
+      const hs = document.getElementById('historyScreen');
+      if (!hs) return;
+      hs.classList.remove('hidden');
+      hs.style.opacity = '0';
+      void hs.offsetHeight;
+      hs.style.transition = 'opacity .2s ease';
+      hs.style.opacity = '1';
+      setTimeout(() => hs.style.transition = '', 220);
+      _histFilter = 'all';
+      _renderHistory();
+    };
+
+    window.closeHistoryScreen = function(){
+      const hs = document.getElementById('historyScreen');
+      if (!hs) return;
+      hs.style.transition = 'opacity .18s ease';
+      hs.style.opacity = '0';
+      setTimeout(() => {
+        hs.classList.add('hidden');
+        hs.style.opacity = '';
+        hs.style.transition = '';
+      }, 190);
+    };
+
+    window._setHistFilter = function(f){ _histFilter = f; _renderHistory(); };
+
+    function _renderHistory(){
+      const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const filEl = document.getElementById('histFilters');
+      const conEl = document.getElementById('histContent');
+      if (!filEl || !conEl) return;
+
+      // Build unified payment list
+      let allPays = [];
+      if (!isT()) {
+        // Student role
+        allPays = payments.map(p => ({
+          ...p,
+          _name: teachers[p.teacherId]?.name || p.teacherName || 'Teacher',
+          _sub : teachers[p.teacherId]?.subject || '',
+        }));
+      } else {
+        // Teacher role — gather from batchPayments and standalone
+        allPays = payments.map(p => ({
+          ...p,
+          _name: p.studentName || batchStudents?.[p.studentId]?.name || 'Student',
+          _sub : batches?.[p.batchId]?.name || '',
+        }));
+      }
+
+      // Filter
+      const shown = _histFilter === 'all' ? allPays
+        : allPays.filter(p => (p.type || 'full') === _histFilter);
+      shown.sort((a,b) => b.timestamp - a.timestamp);
+
+      // Filter chips
+      const cts = { all:allPays.length,
+        full:allPays.filter(p=>!p.type||p.type==='full').length,
+        partial:allPays.filter(p=>p.type==='partial').length,
+        advance:allPays.filter(p=>p.type==='advance').length };
+      filEl.innerHTML = [['all','All'],['full','Full'],['partial','Partial'],['advance','Advance']]
+        .filter(([k])=>cts[k]>0)
+        .map(([k,l]) =>
+          `<div class="hist-filter-chip${_histFilter===k?' active':''}" onclick="_setHistFilter('${k}')">${l} <span style="opacity:.65">${cts[k]}</span></div>`
+        ).join('');
+
+      if (!shown.length) {
+        conEl.innerHTML = `<div class="hist-empty-state">
+          <div class="hist-empty-icon"><svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="1.5" opacity=".2"/><polyline points="24,13 24,24 30,28" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="hist-empty-txt">No payments yet</div>
+          <div class="hist-empty-sub">Payments you record will appear here,<br>grouped by month.</div>
+        </div>`;
+        return;
+      }
+
+      // Group by month-year
+      const grps = {};
+      shown.forEach(p => {
+        const d = p.paidOn
+          ? new Date(p.paidOn.year, (p.paidOn.month||1)-1, p.paidOn.day||1)
+          : new Date(p.timestamp);
+        const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+        if (!grps[key]) grps[key] = { label: MONTHS[d.getMonth()]+' '+d.getFullYear(), pays:[], total:0 };
+        grps[key].pays.push(p);
+        grps[key].total += p.amount || 0;
+      });
+
+      const ICON = {
+        full: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="4" width="13" height="9" rx="2" fill="currentColor" opacity=".15" stroke="currentColor" stroke-width="1.4"/><line x1="1.5" y1="7.5" x2="14.5" y2="7.5" stroke="currentColor" stroke-width="1.4"/><rect x="3" y="10" width="4" height="1.5" rx=".75" fill="currentColor"/></svg>`,
+        partial:`<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="4" width="13" height="9" rx="2" fill="currentColor" opacity=".15" stroke="currentColor" stroke-width="1.4"/><line x1="1.5" y1="7.5" x2="14.5" y2="7.5" stroke="currentColor" stroke-width="1.4"/><path d="M3 10.5h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+        advance:`<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" fill="currentColor" opacity=".12" stroke="currentColor" stroke-width="1.4"/><path d="M5 10l3-4 3 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      };
+
+      let out = '';
+      Object.keys(grps).sort().reverse().forEach(key => {
+        const g = grps[key];
+        out += `<div class="hist-month-group">
+          <div class="hist-month-label"><span>${g.label}</span><span class="hist-month-total">₹${g.total.toLocaleString('en-IN')}</span></div>`;
+        g.pays.forEach(p => {
+          const t  = p.type || 'full';
+          const ic = ICON[t] || ICON.full;
+          const d  = p.paidOn ? `${p.paidOn.day||1} ${MONTHS[(p.paidOn.month||1)-1]}` : new Date(p.timestamp).toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+          const mo = p.monthsPaid ? ` · ${p.monthsPaid} mo` : '';
+          out += `<div class="hist-row">
+            <div class="hist-row-icon ${t}">${ic}</div>
+            <div class="hist-row-body">
+              <div class="hist-row-name">${p._name}</div>
+              <div class="hist-row-sub">${d}${mo}${p._sub?' · '+p._sub:''}</div>
+            </div>
+            <div class="hist-row-amt">₹${(p.amount||0).toLocaleString('en-IN')}</div>
+          </div>`;
+        });
+        out += '</div>';
+      });
+      conEl.innerHTML = out;
+    }
+
+    window.exportHistoryCSV = function(){
+      const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      let rows = [isT() ? 'Date,Student,Batch,Type,Months,Amount' : 'Date,Teacher,Subject,Type,Months,Amount'];
+      const all = isT()
+        ? payments.map(p=>({
+            date: p.paidOn?`${p.paidOn.year}-${String(p.paidOn.month).padStart(2,'0')}-${String(p.paidOn.day||1).padStart(2,'0')}`:new Date(p.timestamp).toISOString().slice(0,10),
+            name: p.studentName||batchStudents?.[p.studentId]?.name||'Student',
+            sub:  batches?.[p.batchId]?.name||'',
+            type: p.type||'full', months:p.monthsPaid||1, amt:p.amount||0
+          }))
+        : payments.map(p=>({
+            date: p.paidOn?`${p.paidOn.year}-${String(p.paidOn.month).padStart(2,'0')}-${String(p.paidOn.day||1).padStart(2,'0')}`:new Date(p.timestamp).toISOString().slice(0,10),
+            name: teachers[p.teacherId]?.name||p.teacherName||'Teacher',
+            sub:  teachers[p.teacherId]?.subject||'',
+            type: p.type||'full', months:p.monthsPaid||1, amt:p.amount||0
+          }));
+      all.sort((a,b)=>b.date.localeCompare(a.date))
+         .forEach(r=>rows.push([r.date,`"${r.name}"`,`"${r.sub}"`,r.type,r.months,r.amt].join(',')));
+      const blob = new Blob([rows.join('\n')],{type:'text/csv;charset=utf-8;'});
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      const now  = new Date();
+      a.href = url;
+      a.download = `payments-${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}.csv`;
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a); URL.revokeObjectURL(url);
+      toast('CSV downloaded','success');
+    };
+
+</script>
 
 
 
