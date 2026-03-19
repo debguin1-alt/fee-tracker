@@ -4997,12 +4997,22 @@
 
     // ── Generate a stable per-device ID (stored in localStorage) ──
     function getDeviceId() {
-      let id = localStorage.getItem('ft_device_id');
+      // Scoped per user — prevents two users on the same browser from sharing/colliding device IDs
+      const userKey = `ft_device_id_${uid() || 'anon'}`;
+      let id = localStorage.getItem(userKey);
       if (!id) {
-        // Crypto random 16-byte hex string — unique per browser profile
-        id = Array.from(crypto.getRandomValues(new Uint8Array(16)))
-               .map(b => b.toString(16).padStart(2,'0')).join('');
-        localStorage.setItem('ft_device_id', id);
+        // Migrate legacy unscoped key if present (so existing users keep their device ID)
+        const legacy = localStorage.getItem('ft_device_id');
+        if (legacy) {
+          id = legacy;
+          localStorage.setItem(userKey, id);
+          // Leave legacy key in place for safety — harmless
+        } else {
+          // Crypto random 16-byte hex string — unique per user per browser profile
+          id = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+                 .map(b => b.toString(16).padStart(2,'0')).join('');
+          localStorage.setItem(userKey, id);
+        }
       }
       return id;
     }
@@ -5081,10 +5091,11 @@
       try {
         const deviceId = getDeviceId();
         // Check Firestore first — if token exists, cache it locally and return
+        const tokenCacheKey = `ft_fcm_token_${uid()}`;  // user-scoped cache key
         const existing = await getDoc(doc(db, 'users', uid(), 'fcmTokens', deviceId));
         if (existing.exists()) {
-          if (!localStorage.getItem('ft_fcm_token')) {
-            localStorage.setItem('ft_fcm_token', existing.data().token);
+          if (!localStorage.getItem(tokenCacheKey)) {
+            localStorage.setItem(tokenCacheKey, existing.data().token);
           }
           return; // already have a token
         }
@@ -5092,7 +5103,7 @@
         const sw    = await navigator.serviceWorker.ready;
         const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: sw });
         if (!token) { console.warn('[FCM] getToken returned empty'); return; }
-        localStorage.setItem('ft_fcm_token', token);
+        localStorage.setItem(tokenCacheKey, token);
         await saveFCMToken(token);
         console.log('[FCM] New token created for existing user');
       } catch(e) { console.warn('[FCM] Token refresh failed:', e); }
@@ -6628,13 +6639,15 @@
         hideSplash();
         document.getElementById('appScreen').classList.remove('hidden');
         await loadAll(false); // renders from cache instantly, then re-renders only if Firestore data differs
-        // Init notifications after data is loaded (so checkLocalReminder has data)
+        // FIX: Immediately refresh token for users who already granted permission —
+        // no delay, no blocking — this is a silent background op.
+        refreshFCMTokenIfNeeded();
+        // FIX: Show permission prompt after a short grace so it doesn't interrupt
+        // the initial render, but short enough that quick-exit users are still captured.
         setTimeout(() => {
           initNotifications();
           showNotifPrompt();
-          // Silently refresh token if permission already granted
-          refreshFCMTokenIfNeeded();
-        }, 1500);
+        }, 400);
       }
     }
 
@@ -6974,7 +6987,8 @@
       if (Notification.permission === 'granted') {
         // Already on — toggle off by clearing token
         await removeFCMToken();
-        localStorage.removeItem('ft_fcm_token');
+        localStorage.removeItem(`ft_fcm_token_${uid()}`);
+        localStorage.removeItem('ft_fcm_token'); // also clear legacy unscoped key if present
         localStorage.removeItem('ft_last_reminder');
         localStorage.removeItem('ft_notif_dismissed');
         toast('Reminders turned off', '');
