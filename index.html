@@ -3339,6 +3339,9 @@
     /* ═════════════════════════════════════════════════
        DESKTOP / TABLET — responsive layout
     ═════════════════════════════════════════════════ */
+    /* ══════════════════════════════════════════════════════════════
+       RESPONSIVE — tablet (640px+) : centred phone column
+    ══════════════════════════════════════════════════════════════ */
     @media (min-width: 640px) {
       body { background: var(--bg); }
       #appScreen, #loginScreen, #onboardScreen,
@@ -3349,7 +3352,6 @@
         left: 50% !important; right: auto !important;
         transform: translateX(-50%) !important;
       }
-      /* fixed screens need special handling */
       #historyScreen, #teacherDashScreen, #studentDashScreen {
         position: fixed !important;
         left: 50% !important;
@@ -3361,19 +3363,19 @@
       .modal-sheet   {
         max-width: 520px !important;
         margin: auto !important;
-        border-radius: var(--r-xl) var(--r-xl) var(--r-xl) var(--r-xl) !important;
+        border-radius: var(--r-xl) !important;
         margin-bottom: 24px !important;
       }
       .sel-bar {
         max-width: 520px !important;
         left: 50% !important;
         transform: translateX(-50%) !important;
-        border-radius: 0 0 0 0 !important;
+        border-radius: 0 !important;
       }
       #installBanner .install-sheet {
         max-width: 480px !important;
         margin: 0 auto !important;
-        border-radius: var(--r-xl) var(--r-xl) var(--r-xl) var(--r-xl) !important;
+        border-radius: var(--r-xl) !important;
       }
       .topbar {
         max-width: 520px !important;
@@ -3383,18 +3385,244 @@
       .dash-stat-row { grid-template-columns: repeat(3, 1fr) !important; }
     }
 
-    @media (min-width: 900px) {
+    /* ══════════════════════════════════════════════════════════════
+       RESPONSIVE — desktop (960px+) : full two-panel layout
+    ══════════════════════════════════════════════════════════════ */
+    @media (min-width: 960px) {
+
+      /* ── Ambient background ── */
       body::before {
         content: '';
-        position: fixed; inset: 0;
-        background: radial-gradient(ellipse 60% 40% at 30% 20%, rgba(124,107,255,.06) 0%, transparent 70%),
-                    radial-gradient(ellipse 50% 50% at 70% 80%, rgba(255,107,157,.04) 0%, transparent 70%);
-        pointer-events: none; z-index: 0;
+        position: fixed; inset: 0; pointer-events: none; z-index: 0;
+        background:
+          radial-gradient(ellipse 55% 45% at 20% 20%, rgba(124,107,255,.07) 0%, transparent 65%),
+          radial-gradient(ellipse 45% 50% at 80% 75%, rgba(255,107,157,.04) 0%, transparent 65%),
+          radial-gradient(ellipse 35% 35% at 60% 40%, rgba(0,212,170,.03) 0%, transparent 65%);
       }
-      #appScreen, #loginScreen, #onboardScreen,
+
+      /* ── Root layout: sidebar + content ── */
+      body { display: flex; min-height: 100vh; }
+
+      /* ── Left sidebar ── */
+      #desktopSidebar {
+        position: fixed; top: 0; left: 0; bottom: 0;
+        width: 240px; z-index: 20;
+        display: flex; flex-direction: column;
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        padding: 28px 12px 24px;
+        gap: 4px;
+      }
+
+      .sb-logo {
+        display: flex; align-items: center; gap: 11px;
+        padding: 8px 12px 20px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 8px;
+      }
+      .sb-logo-icon {
+        width: 36px; height: 36px; border-radius: 12px;
+        background: linear-gradient(135deg, var(--accent), #5240e0);
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; box-shadow: 0 4px 14px rgba(124,107,255,.35);
+      }
+      .sb-logo-name {
+        font-family: 'Syne', sans-serif; font-size: 16px;
+        font-weight: 800; color: var(--text); letter-spacing: -.4px;
+      }
+      .sb-logo-sub { font-size: 10px; color: var(--muted); margin-top: 1px; }
+
+      .sb-section-label {
+        font-size: 9px; font-weight: 700; letter-spacing: 1.5px;
+        text-transform: uppercase; color: var(--muted);
+        padding: 8px 12px 4px;
+      }
+
+      .sb-item {
+        display: flex; align-items: center; gap: 11px;
+        padding: 10px 12px; border-radius: var(--r-md);
+        cursor: pointer; font-size: 13px; font-weight: 500;
+        color: var(--text2); transition: all .15s; border: none;
+        background: none; width: 100%; text-align: left;
+        font-family: 'DM Sans', sans-serif;
+      }
+      .sb-item:hover { background: var(--surface2); color: var(--text); }
+      .sb-item.active {
+        background: var(--accent-dim); color: var(--accent);
+        font-weight: 600;
+      }
+      .sb-item svg { flex-shrink: 0; opacity: .7; }
+      .sb-item.active svg { opacity: 1; }
+      .sb-spacer { flex: 1; }
+
+      .sb-user {
+        display: flex; align-items: center; gap: 10px;
+        padding: 10px 12px; border-radius: var(--r-md);
+        background: var(--surface2); border: 1px solid var(--border);
+        cursor: pointer; transition: background .15s;
+        margin-top: 4px;
+      }
+      .sb-user:hover { background: var(--surface3); }
+      .sb-user-av {
+        width: 32px; height: 32px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent), #5240e0);
+        display: flex; align-items: center; justify-content: center;
+        font-family: 'Syne', sans-serif; font-size: 13px;
+        font-weight: 700; color: #fff; flex-shrink: 0; overflow: hidden;
+      }
+      .sb-user-av img { width: 100%; height: 100%; object-fit: cover; }
+      .sb-user-info { flex: 1; min-width: 0; }
+      .sb-user-name {
+        font-family: 'Syne', sans-serif; font-size: 12px;
+        font-weight: 700; color: var(--text);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .sb-user-email {
+        font-size: 10px; color: var(--muted);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+
+      /* ── Main content area ── */
+      #appScreen {
+        position: fixed !important;
+        left: 240px !important; right: 0 !important;
+        top: 0 !important; bottom: 0 !important;
+        width: auto !important; max-width: none !important;
+        margin: 0 !important; transform: none !important;
+        overflow-y: auto !important;
+        background: var(--bg) !important;
+        box-shadow: none !important;
+      }
+
+      /* app-inner wider, two-column for teacher batches */
+      .app-inner {
+        max-width: 820px !important;
+        padding: 0 32px 80px !important;
+        margin: 0 auto !important;
+      }
+
+      /* Topbar expands full width inside content area */
+      .topbar {
+        max-width: none !important;
+        width: 100% !important;
+        padding-left: 32px !important;
+        padding-right: 32px !important;
+        /* Hide avatar + add btn — those live in sidebar on desktop */
+      }
+      /* Hide mobile-only topbar elements on desktop */
+      .topbar .avatar-btn { display: none !important; }
+
+      /* Total card wider */
+      .total-card { border-radius: 24px !important; }
+
+      /* Cards grid on desktop */
+      #cards-list {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px !important;
+      }
+      /* Batch cards in teacher view */
+      .batch-card { margin-bottom: 0 !important; }
+      /* Teacher/student cards in student view */
+      .teacher-card { margin-bottom: 0 !important; }
+
+      /* Modals centred, capped width */
+      .modal-overlay { align-items: center !important; }
+      .modal-sheet {
+        max-width: 560px !important;
+        margin: auto !important;
+        border-radius: var(--r-xl) !important;
+        margin-bottom: 24px !important;
+      }
+
+      /* Confirm dialog */
+      .confirm-overlay { left: 240px !important; }
+
+      /* Batch detail full-width inside content */
       #batchDetailScreen {
-        box-shadow: 0 0 0 1px var(--border), 0 24px 80px rgba(0,0,0,.5) !important;
+        position: fixed !important;
+        left: 240px !important; right: 0 !important;
+        top: 0 !important; bottom: 0 !important;
+        width: auto !important; max-width: none !important;
+        transform: none !important;
+        box-shadow: none !important;
       }
+      #bdBody { max-width: 820px; margin: 0 auto; padding: 0 32px 72px !important; }
+      .bd-topbar { max-width: 820px; margin: 0 auto; padding-left: 32px !important; padding-right: 32px !important; }
+      .bd-students-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+      }
+      .student-card { margin-bottom: 0 !important; }
+
+      /* Dash screens inside content column */
+      #teacherDashScreen, #studentDashScreen {
+        position: fixed !important;
+        left: 240px !important; right: 0 !important;
+        top: 0 !important; bottom: 0 !important;
+        width: auto !important; max-width: none !important;
+        transform: none !important;
+        box-shadow: none !important;
+      }
+      .dash-body { max-width: 820px; margin: 0 auto; padding: 0 32px 72px !important; }
+      .dash-topbar { max-width: 820px; margin: 0 auto; padding-left: 32px !important; padding-right: 32px !important; }
+      .dash-stat-row { grid-template-columns: repeat(4, 1fr) !important; }
+
+      /* History screen */
+      #historyScreen {
+        position: fixed !important;
+        left: 240px !important; right: 0 !important;
+        top: 0 !important; bottom: 0 !important;
+        width: auto !important; max-width: none !important;
+        transform: none !important;
+        box-shadow: none !important;
+      }
+      .hist-topbar { max-width: 820px; margin: 0 auto; padding-left: 32px !important; padding-right: 32px !important; }
+      #historyScreen > div:not(.hist-topbar) { max-width: 820px; margin: 0 auto; }
+
+      /* Selection bar */
+      .sel-bar {
+        left: 240px !important; right: 0 !important;
+        max-width: none !important; transform: none !important;
+        border-radius: 0 !important;
+      }
+
+      /* User menu anchored to sidebar */
+      .user-menu {
+        top: auto !important; bottom: 80px !important;
+        left: 252px !important;
+      }
+      .menu-backdrop { left: 240px !important; }
+
+      /* Overlays account for sidebar */
+      .modal-overlay { left: 240px !important; }
+      #splashSkeleton { left: 240px !important; }
+      #onboardScreen { left: 240px !important; }
+
+      /* Login centered in remaining space */
+      #loginScreen {
+        left: 0 !important; right: 0 !important;
+        max-width: none !important; transform: none !important;
+      }
+
+      /* Toast centered in content area */
+      .toast { left: calc(240px + 50%) !important; transform: translateX(-50%) !important; }
+
+      /* Offline banner starts after sidebar */
+      #offlineBanner { left: 240px !important; }
+
+      /* Standalone student section in two columns */
+      #standaloneStudentsSection .student-card { margin-bottom: 0 !important; }
+    }
+
+    /* ── 1280px+: wider content, 3-col cards ── */
+    @media (min-width: 1280px) {
+      #appScreen .app-inner { max-width: 1000px !important; }
+      .dash-body { max-width: 1000px !important; }
+      #bdBody { max-width: 1000px !important; }
+      .dash-topbar { max-width: 1000px !important; }
+      .bd-topbar { max-width: 1000px !important; }
     }
 
     /* ── Login animated gradient ── */
@@ -3434,6 +3662,57 @@
   <div class="blob blob1"></div>
   <div class="blob blob2"></div>
   <div class="blob blob3"></div>
+
+  <!-- ── DESKTOP SIDEBAR (hidden on mobile via JS class on body) ── -->
+  <nav id="desktopSidebar" style="display:none;">
+    <div class="sb-logo">
+      <div class="sb-logo-icon">
+        <svg width="20" height="20" viewBox="0 0 22 22" fill="none"><rect x="2" y="12" width="4" height="8" rx="1.5" fill="rgba(255,255,255,.5)"/><rect x="9" y="7" width="4" height="13" rx="1.5" fill="rgba(255,255,255,.75)"/><rect x="16" y="2" width="4" height="18" rx="1.5" fill="#fff"/></svg>
+      </div>
+      <div>
+        <div class="sb-logo-name">Fee Tracker</div>
+        <div class="sb-logo-sub">Smart · Simple · Personal</div>
+      </div>
+    </div>
+
+    <div class="sb-section-label">Navigation</div>
+
+    <button class="sb-item active" id="sbHome" onclick="closeBatchDetail();document.getElementById('batchDetailScreen')?.classList.add('hidden');document.getElementById('teacherDashScreen')?.classList.add('hidden');document.getElementById('studentDashScreen')?.classList.add('hidden');document.getElementById('historyScreen')?.classList.add('hidden');document.getElementById('appScreen')?.classList.remove('hidden');sbSetActive('sbHome');">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l6-4.5L14 8v6a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 15v-5h4v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Home
+    </button>
+
+    <button class="sb-item" id="sbAnalytics" onclick="(isT()?window.openTeacherDash:window.openStudentDash)?.();sbSetActive('sbAnalytics');">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><line x1="2" y1="14" x2="2" y2="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="2" y1="14" x2="15" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><polyline points="4,11 6.5,7 9,9 12,5 14,6.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+      Analytics
+    </button>
+
+    <button class="sb-item" id="sbHistory" onclick="window.openHistoryScreen?.();sbSetActive('sbHistory');">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3.5l2.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      History
+    </button>
+
+    <button class="sb-item" id="sbAdd" onclick="openAddModal?.()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="5" x2="8" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="5" y1="8" x2="11" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Add New
+    </button>
+
+    <div class="sb-spacer"></div>
+
+    <button class="sb-item" id="sbProfile" onclick="openProfileModal?.()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M2 14c0-3.3 2.7-5 6-5s6 1.7 6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Profile
+    </button>
+
+    <div class="sb-user" id="sbUserCard" onclick="window.doSignOut?.()">
+      <div class="sb-user-av" id="sbUserAv">?</div>
+      <div class="sb-user-info">
+        <div class="sb-user-name" id="sbUserName">Loading…</div>
+        <div class="sb-user-email" id="sbUserEmail">Sign out</div>
+      </div>
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0;color:var(--muted)"><path d="M10 7H2M8 4.5L10.5 7 8 9.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 3H4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    </div>
+  </nav>
 
   <!-- ONBOARDING — 3-step wizard, first login only -->
   <div id="onboardScreen" class="hidden">
@@ -6268,6 +6547,8 @@
       document.getElementById('menuName').textContent  = user.displayName||'User';
       document.getElementById('menuEmail').textContent = user.email||'';
       document.getElementById('loginScreen').classList.add('hidden');
+      // Sync desktop sidebar user card
+      window._syncSidebarUser?.(user);
 
       // ── Populate splash skeleton topbar with real user avatar immediately ──
       // This makes the splash→app transition seamless — no name/avatar pop
@@ -7913,6 +8194,38 @@
 
     // Sync notif on load
     _syncNotifToggle();
+
+    // ══════════════════════════════════════════════════════════════
+    // DESKTOP SIDEBAR — show/hide + sync user info
+    // ══════════════════════════════════════════════════════════════
+    (function initDesktopSidebar() {
+      const sidebar = document.getElementById('desktopSidebar');
+      if (!sidebar) return;
+      const isDesktop = () => window.innerWidth >= 960;
+      function applyLayout() {
+        sidebar.style.display = isDesktop() ? 'flex' : 'none';
+      }
+      applyLayout();
+      window.addEventListener('resize', applyLayout);
+    })();
+
+    window.sbSetActive = function(id) {
+      document.querySelectorAll('#desktopSidebar .sb-item').forEach(el => el.classList.remove('active'));
+      document.getElementById(id)?.classList.add('active');
+    };
+
+    window._syncSidebarUser = function(user) {
+      const av   = document.getElementById('sbUserAv');
+      const name = document.getElementById('sbUserName');
+      if (!av || !name) return;
+      const u = user || { displayName: profile.displayName, photoURL: null };
+      if (u.photoURL) {
+        av.innerHTML = `<img src="${u.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+      } else {
+        av.textContent = (u.displayName || 'U')[0].toUpperCase();
+      }
+      name.textContent = u.displayName || 'User';
+    };
 
     // Search topbar button — focuses the search input (renders it if needed)
     document.getElementById('searchTopbarBtn')?.addEventListener('click',()=>{
