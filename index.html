@@ -4960,22 +4960,17 @@
       navigator.serviceWorker?.controller?.postMessage({ type: 'ONLINE' });
 
       if (loaded && profile.role) {
-        // Normal case — already authenticated, just re-sync Firestore data
+        // Already authenticated — just re-sync Firestore data
         toast('Back online — syncing…', 'success');
         await loadAll(true);
-
       } else if (_offlineBooted) {
-        // Was in offline-boot mode — Firebase auth didn't resolve while offline.
-        // Reset flags so onAuthStateChanged can call bootApp() when it re-fires.
-        // Firebase automatically retries auth on reconnect.
+        // Was offline-booted — reset flags so onAuthStateChanged re-fires bootApp
         toast('Back online — syncing…', 'success');
         loaded = false;
         _offlineBooted = false;
-        // Give Firebase ~1.5s to re-fire onAuthStateChanged with the real user.
-        // If it doesn't (rare), force a reload as fallback.
-        setTimeout(() => {
-          if (!loaded) window.location.reload();
-        }, 3000);
+        // Firebase re-fires onAuthStateChanged on reconnect automatically.
+        // If it doesn't within 3s, force reload as fallback.
+        setTimeout(() => { if (!loaded) window.location.reload(); }, 3000);
       }
     });
     window.addEventListener('offline', ()=>{
@@ -5596,13 +5591,13 @@
     }
     function openAddBatchModal(){
       document.getElementById('teacherAddChoiceSheet').classList.add('hidden');
-      // Force correct panel state regardless of prior modal history
+      // Force correct panel regardless of prior modal state
       document.getElementById('addStudentFields').classList.add('hidden');
       document.getElementById('addTeacherFields').classList.remove('hidden');
       document.getElementById('addModalTitle').textContent = 'Add Batch';
       ['b-name','b-subject','b-class','b-session','b-fee','b-timing'].forEach(i=>{ const e=document.getElementById(i); if(e) e.value=''; });
       openModal('addModal');
-      setTimeout(()=>document.getElementById('b-name')?.focus(), 250);
+      setTimeout(() => document.getElementById('b-name')?.focus(), 250);
     }
     function closeAddModal(){
       closeModal('addModal');
@@ -5614,31 +5609,38 @@
       document.getElementById('addModalTitle').textContent = 'Add';
     }
     async function confirmAdd(){
-      if(isT()){
-        const nm=document.getElementById('b-name').value.trim();
-        const sb=document.getElementById('b-subject').value.trim();
-        const cl=document.getElementById('b-class').value.trim();
-        const ss=document.getElementById('b-session').value.trim();
-        const fe=parseInt(document.getElementById('b-fee').value);
-        const ti=document.getElementById('b-timing').value.trim();
-        if(!nm||!sb||!fe) return toast('Batch name, subject & fee required','error');
-        const bref=await addDoc(btCol(),{name:nm,subject:sb,class:cl,session:ss,fee:fe,timing:ti,createdAt:Date.now()});
-        batches[bref.id]={name:nm,subject:sb,class:cl,session:ss,fee:fe,timing:ti,createdAt:Date.now()}; saveToCache();
-        closeAddModal(); toast(`${nm} added ✓`,'success');
-      } else {
-        const nm=document.getElementById('f-name').value.trim();
-        const sb=document.getElementById('f-subject').value.trim();
-        const fe=parseInt(document.getElementById('f-fee').value);
-        if(!nm||!sb||!fe) return toast('Fill name, subject and fee','error');
-        const dv=document.getElementById('f-lastpaid').value;
-        const now2=new Date();
-        const mo=dv?parseInt(dv.split('-')[1]):now2.getMonth()+1;
-        const yr=dv?parseInt(dv.split('-')[0]):now2.getFullYear();
-        const tref=await addDoc(tcCol(),{name:nm,subject:sb,fee:fe,baselineMonth:mo,baselineYear:yr,lastPaidDate:dv||null});
-        teachers[tref.id]={name:nm,subject:sb,fee:fe,baselineMonth:mo,baselineYear:yr,lastPaidDate:dv||null}; saveToCache();
-        closeAddModal(); toast(`${nm} added ✓`,'success');
+      const btn = document.getElementById('confirmAddBtn');
+      if (btn) { btn.disabled = true; btn.textContent = 'Adding…'; }
+      try {
+        if(isT()){
+          const nm=document.getElementById('b-name').value.trim();
+          const sb=document.getElementById('b-subject').value.trim();
+          const cl=document.getElementById('b-class').value.trim();
+          const ss=document.getElementById('b-session').value.trim();
+          const fe=parseInt(document.getElementById('b-fee').value);
+          const ti=document.getElementById('b-timing').value.trim();
+          if(!nm||!sb||!fe){ toast('Batch name, subject & fee required','error'); return; }
+          const bref=await addDoc(btCol(),{name:nm,subject:sb,class:cl,session:ss,fee:fe,timing:ti,createdAt:Date.now()});
+          batches[bref.id]={name:nm,subject:sb,class:cl,session:ss,fee:fe,timing:ti,createdAt:Date.now()};
+          saveToCache(); closeAddModal(); render(); toast(`${nm} added ✓`,'success');
+        } else {
+          const nm=document.getElementById('f-name').value.trim();
+          const sb=document.getElementById('f-subject').value.trim();
+          const fe=parseInt(document.getElementById('f-fee').value);
+          if(!nm||!sb||!fe){ toast('Fill name, subject and fee','error'); return; }
+          const dv=document.getElementById('f-lastpaid').value;
+          const now2=new Date();
+          const mo=dv?parseInt(dv.split('-')[1]):now2.getMonth()+1;
+          const yr=dv?parseInt(dv.split('-')[0]):now2.getFullYear();
+          const tref=await addDoc(tcCol(),{name:nm,subject:sb,fee:fe,baselineMonth:mo,baselineYear:yr,lastPaidDate:dv||null});
+          teachers[tref.id]={name:nm,subject:sb,fee:fe,baselineMonth:mo,baselineYear:yr,lastPaidDate:dv||null};
+          saveToCache(); closeAddModal(); render(); toast(`${nm} added ✓`,'success');
+        }
+      } catch(e) {
+        toast('Error: '+e.message,'error');
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Add'; }
       }
-      render();
     }
 
     window.toggleHistory=function(id){
@@ -7296,7 +7298,7 @@
     function toggleSelItem(id){
       const nowSelected = !selItems.has(id);
       if(nowSelected) selItems.add(id); else selItems.delete(id);
-      // Check empty BEFORE applying state — if last item deselected, exit cleanly
+      // Exit immediately if last item deselected — exitSelMode handles all cleanup
       if(!selItems.size){ exitSelMode(); return; }
       _applySelState(id, nowSelected);
       updateSelBar();
@@ -7519,9 +7521,8 @@
         } else {
           // Save to standalone students collection
           const newRef = await addDoc(collection(db,'users',uid(),'students'),sd);
-          // Push into local array immediately so card appears without reload
-          const newStudent = { id: newRef.id, ...sd };
-          _standaloneStudents.push(newStudent);
+          // Push into local array so card appears instantly without reload
+          _standaloneStudents.push({ id: newRef.id, ...sd });
           idbSet('standalone_students', _standaloneStudents);
           toast(`${nm} added ✓`,'success');
         }
@@ -7699,11 +7700,7 @@
       }catch(e){ console.warn('standalone load failed',e); }
     }
 
-    window.deleteStandaloneStudent=async function(sid,name){
-      if(!await confirm2('Remove Student',`Remove <strong style="color:#f0f0f8">${name}</strong>?`,'Remove',_CI.rem)) return;
-      try{ await deleteDoc(doc(db,'users',uid(),'students',sid)); toast(`${name} removed`,''); loadAndRenderStandaloneStudents(document.getElementById('appInner')); }
-      catch(e){ toast('Error: '+e.message,'error'); }
-    };
+    ;
 
     window.assignStandaloneToExistingBatch=async function(sid,name){
       const bKeys=Object.keys(batches);
@@ -8599,7 +8596,8 @@
       shown.sort((a,b) => b.timestamp - a.timestamp);
 
       // ── Build filter rows ──────────────────────────────────
-      // Period filter is in the export sheet — not shown in history
+      // Row 1: period
+      // Period lives in export sheet only
       const periodRow = '';
 
       // Row 2: batch chips (teacher) or type chips (student)
@@ -8632,8 +8630,8 @@
         partial: typeBase.filter(p=>p.type==='partial').length,
         advance: typeBase.filter(p=>p.type==='advance').length,
       };
-      // Students: only show Part paid / Advance (no All, no Full/Paid)
-      // Teachers: show All + Part paid + Advance
+      // Students: only Part paid / Advance (no All, no Full, no counts)
+      // Teachers: All + Part paid + Advance
       const typeChips = isT()
         ? [['all','All'],['partial','Part paid'],['advance','Advance']].filter(([k])=>k==='all'||cts[k]>0)
         : [['partial','Part paid'],['advance','Advance']].filter(([k])=>cts[k]>0);
@@ -8694,189 +8692,150 @@
       conEl.innerHTML = out;
     }
 
-    // ── Export bottom-sheet ─────────────────────────────────────────────────
+    // ── Export sheet JS ─────────────────────────────────────────────────────
     let _exportPeriod = 'all', _exportBatches = new Set();
 
     window.openExportSheet = function() {
-      const MO = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      const MO=['January','February','March','April','May','June','July','August','September','October','November','December'];
       const now = new Date();
-      const el1 = document.getElementById('expThisLbl');
-      const el2 = document.getElementById('expPrevLbl');
-      if (el1) el1.textContent = MO[now.getMonth()] + ' ' + now.getFullYear();
-      const pm = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
-      const py = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
-      if (el2) el2.textContent = MO[pm] + ' ' + py;
-      document.getElementById('exportStepPeriod').style.display = '';
-      document.getElementById('exportStepBatch').style.display  = 'none';
+      const el1=document.getElementById('expThisLbl'), el2=document.getElementById('expPrevLbl');
+      if(el1) el1.textContent=MO[now.getMonth()]+' '+now.getFullYear();
+      const pm=now.getMonth()===0?11:now.getMonth()-1, py=now.getMonth()===0?now.getFullYear()-1:now.getFullYear();
+      if(el2) el2.textContent=MO[pm]+' '+py;
+      document.getElementById('exportStepPeriod').style.display='';
+      document.getElementById('exportStepBatch').style.display='none';
       _exportBatches.clear();
-      const sheet = document.getElementById('exportSheet');
-      const panel = document.getElementById('exportSheetPanel');
-      sheet.style.display = 'block';
-      requestAnimationFrame(() => requestAnimationFrame(() => { panel.style.transform = 'translateY(0)'; }));
+      const sheet=document.getElementById('exportSheet'), panel=document.getElementById('exportSheetPanel');
+      sheet.style.display='block';
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{ panel.style.transform='translateY(0)'; }));
     };
 
     window.closeExportSheet = function() {
-      const panel = document.getElementById('exportSheetPanel');
-      panel.style.transform = 'translateY(100%)';
-      setTimeout(() => { document.getElementById('exportSheet').style.display = 'none'; }, 300);
+      const panel=document.getElementById('exportSheetPanel');
+      panel.style.transform='translateY(100%)';
+      setTimeout(()=>{ document.getElementById('exportSheet').style.display='none'; },300);
     };
 
     window._exportPickPeriod = function(period) {
-      _exportPeriod = period; _histPeriod = period;
-      if (!isT()) { closeExportSheet(); setTimeout(() => exportHistoryCSV(), 320); return; }
-      // Teacher — show batch picker
+      _exportPeriod=period; _histPeriod=period;
+      if(!isT()){ closeExportSheet(); setTimeout(()=>exportHistoryCSV(),320); return; }
       _exportBatches.clear();
-      const MO = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-      const now = new Date();
-      const labels = { all:'All time', this:MO[now.getMonth()]+' '+now.getFullYear(),
-        prev:MO[now.getMonth()===0?11:now.getMonth()-1]+' '+(now.getMonth()===0?now.getFullYear()-1:now.getFullYear()) };
-      const lbl = document.getElementById('expBatchPeriodLabel');
-      if (lbl) lbl.textContent = labels[period] || '';
-      const list = document.getElementById('expBatchList');
-      if (list) {
-        const bIds = Object.keys(batches).sort((a,b)=>batches[a].name.localeCompare(batches[b].name));
-        bIds.forEach(bid => _exportBatches.add(bid));
-        const hasStandalone = payments.some(p => !p.batchId);
-        if (hasStandalone) _exportBatches.add('standalone');
-        const items = [
-          ...bIds.map(bid => ({ id:bid, name:batches[bid].name, sub:batches[bid].subject||'' })),
-          ...(hasStandalone ? [{ id:'standalone', name:'Standalone students', sub:'' }] : []),
-        ];
-        list.innerHTML = items.map(it => `
+      const MO=['January','February','March','April','May','June','July','August','September','October','November','December'];
+      const now=new Date();
+      const labels={all:'All time',this:MO[now.getMonth()]+' '+now.getFullYear(),prev:MO[now.getMonth()===0?11:now.getMonth()-1]+' '+(now.getMonth()===0?now.getFullYear()-1:now.getFullYear())};
+      const lbl=document.getElementById('expBatchPeriodLabel'); if(lbl) lbl.textContent=labels[period]||'';
+      const list=document.getElementById('expBatchList');
+      if(list){
+        const bIds=Object.keys(batches).sort((a,b)=>batches[a].name.localeCompare(batches[b].name));
+        bIds.forEach(bid=>_exportBatches.add(bid));
+        const hasStandalone=payments.some(p=>!p.batchId);
+        if(hasStandalone) _exportBatches.add('standalone');
+        const items=[...bIds.map(bid=>({id:bid,name:batches[bid].name,sub:batches[bid].subject||''})),...(hasStandalone?[{id:'standalone',name:'Standalone students',sub:''}]:[])];
+        list.innerHTML=items.map(it=>`
           <div class="exp-batch-item selected" id="expbi-${it.id}" onclick="_exportToggleBatch('${it.id}')">
-            <div class="exp-batch-check" id="expbc-${it.id}">
-              <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 4.5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <div style="flex:1;min-width:0;">
-              <div style="font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${it.name}</div>
-              ${it.sub?`<div style="font-size:11px;color:var(--muted);margin-top:1px;">${it.sub}</div>`:''}
-            </div>
+            <div class="exp-batch-check" id="expbc-${it.id}"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 4.5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${it.name}</div>${it.sub?`<div style="font-size:11px;color:var(--muted);margin-top:1px;">${it.sub}</div>`:''}</div>
           </div>`).join('');
       }
-      document.getElementById('exportStepPeriod').style.display = 'none';
-      document.getElementById('exportStepBatch').style.display  = '';
+      document.getElementById('exportStepPeriod').style.display='none';
+      document.getElementById('exportStepBatch').style.display='';
     };
 
     window._exportToggleBatch = function(bid) {
-      if (_exportBatches.has(bid)) { _exportBatches.delete(bid); }
-      else { _exportBatches.add(bid); }
-      document.getElementById('expbi-'+bid)?.classList.toggle('selected', _exportBatches.has(bid));
-      const btn = document.getElementById('expBatchConfirmBtn');
-      if (btn) btn.style.opacity = _exportBatches.size ? '1' : '.4';
+      if(_exportBatches.has(bid)) _exportBatches.delete(bid); else _exportBatches.add(bid);
+      document.getElementById('expbi-'+bid)?.classList.toggle('selected',_exportBatches.has(bid));
+      const btn=document.getElementById('expBatchConfirmBtn'); if(btn) btn.style.opacity=_exportBatches.size?'1':'.4';
     };
 
     window._exportBackToPeriod = function() {
-      document.getElementById('exportStepPeriod').style.display = '';
-      document.getElementById('exportStepBatch').style.display  = 'none';
+      document.getElementById('exportStepPeriod').style.display='';
+      document.getElementById('exportStepBatch').style.display='none';
     };
 
     window._exportConfirmBatches = function() {
-      if (!_exportBatches.size) { toast('Select at least one batch','error'); return; }
-      closeExportSheet();
-      setTimeout(() => exportHistoryCSV(), 320);
+      if(!_exportBatches.size){ toast('Select at least one batch','error'); return; }
+      closeExportSheet(); setTimeout(()=>exportHistoryCSV(),320);
     };
 
+    // ── Main export ──────────────────────────────────────────────────────────
     window.exportHistoryCSV = function(){
-      const MONTHS_S = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      const MONTHS_L = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-      const now = new Date();
+      const MS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const ML=['January','February','March','April','May','June','July','August','September','October','November','December'];
+      const now=new Date();
+      const C={bg1:'0D0D1F',bg2:'13132B',bg3:'1A1A3A',bg4:'22223C',accent:'4A35E0',accentLt:'7C6BFF',green:'00D4AA',amber:'FF9A3C',red:'FF5C7A',white:'FFFFFF',text:'EEEEF8',muted:'6B6B9A',border:'1E1E40'};
+      const sty=(bold,sz,fg,bg,align,numFmt)=>{const s={font:{bold:!!bold,sz:sz||10,color:{rgb:fg||C.text}}};if(bg)s.fill={fgColor:{rgb:bg}};if(align)s.alignment={horizontal:align,wrapText:false,vertical:'center'};if(numFmt)s.numFmt=numFmt;s.border={top:{style:'thin',color:{rgb:C.border}},bottom:{style:'thin',color:{rgb:C.border}},left:{style:'thin',color:{rgb:C.border}},right:{style:'thin',color:{rgb:C.border}}};return s;};
+      const sc=(ws,r,c,s)=>{const a=XLSX.utils.encode_cell({r,c});if(!ws[a])ws[a]={v:''};ws[a].s=s;};
 
-      // Colour palette
-      const C = {
-        bg1:'0D0D1F', bg2:'13132B', bg3:'1A1A3A', bg4:'22223C',
-        accent:'4A35E0', accentLt:'7C6BFF',
-        green:'00D4AA', amber:'FF9A3C', red:'FF5C7A',
-        white:'FFFFFF', text:'EEEEF8', muted:'6B6B9A', border:'1E1E40',
-      };
-      const sty = (bold,sz,fg,bg,align,numFmt) => {
-        const s = { font:{bold:!!bold,sz:sz||10,color:{rgb:fg||C.text}} };
-        if (bg)    s.fill      = {fgColor:{rgb:bg}};
-        if (align) s.alignment = {horizontal:align,wrapText:false,vertical:'center'};
-        if (numFmt) s.numFmt   = numFmt;
-        s.border = {top:{style:'thin',color:{rgb:C.border}},bottom:{style:'thin',color:{rgb:C.border}},left:{style:'thin',color:{rgb:C.border}},right:{style:'thin',color:{rgb:C.border}}};
-        return s;
-      };
-
-      if (typeof XLSX === 'undefined') {
+      if(typeof XLSX==='undefined'){
         // CSV fallback
-        let rows, fname;
-        if (!isT()) {
-          let pays = payments.map(p=>({date:p.paidOn?`${p.paidOn.year}-${String(p.paidOn.month).padStart(2,'0')}-${String(p.paidOn.day||1).padStart(2,'0')}`:new Date(p.timestamp).toISOString().slice(0,10),name:teachers[p.teacherId]?.name||p.teacherName||'Teacher',sub:teachers[p.teacherId]?.subject||'',type:p.type||'full',months:p.monthsPaid||1,amt:p.amount||0,ts:p.timestamp,paidOn:p.paidOn}));
-          if (_histPeriod==='this') pays=pays.filter(p=>{const d=p.paidOn?new Date(p.paidOn.year,(p.paidOn.month||1)-1,1):new Date(p.ts);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
-          else if (_histPeriod==='prev'){const pm=now.getMonth()===0?11:now.getMonth()-1,py=now.getMonth()===0?now.getFullYear()-1:now.getFullYear();pays=pays.filter(p=>{const d=p.paidOn?new Date(p.paidOn.year,(p.paidOn.month||1)-1,1):new Date(p.ts);return d.getMonth()===pm&&d.getFullYear()===py;});}
-          if (!pays.length){toast('No data to export','error');return;}
-          rows=['Date,Teacher,Subject,Type,Months,Amount',...pays.map(p=>[p.date,`"${p.name}"`,`"${p.sub}"`,p.type,p.months,p.amt].join(','))]; fname=`payments-${now.getFullYear()}.csv`;
-        } else {
+        let rows,fname;
+        if(!isT()){
+          let pays=payments.map(p=>({date:p.paidOn?`${p.paidOn.year}-${String(p.paidOn.month).padStart(2,'0')}-${String(p.paidOn.day||1).padStart(2,'0')}`:new Date(p.timestamp).toISOString().slice(0,10),name:teachers[p.teacherId]?.name||p.teacherName||'Teacher',sub:teachers[p.teacherId]?.subject||'',type:p.type||'full',months:p.monthsPaid||1,amt:p.amount||0,ts:p.timestamp,paidOn:p.paidOn}));
+          if(_histPeriod==='this')pays=pays.filter(p=>{const d=p.paidOn?new Date(p.paidOn.year,(p.paidOn.month||1)-1,1):new Date(p.ts);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+          else if(_histPeriod==='prev'){const pm=now.getMonth()===0?11:now.getMonth()-1,py=now.getMonth()===0?now.getFullYear()-1:now.getFullYear();pays=pays.filter(p=>{const d=p.paidOn?new Date(p.paidOn.year,(p.paidOn.month||1)-1,1):new Date(p.ts);return d.getMonth()===pm&&d.getFullYear()===py;});}
+          if(!pays.length){toast('No data to export','error');return;}
+          rows=['Date,Teacher,Subject,Type,Months,Amount',...pays.map(p=>[p.date,`"${p.name}"`,`"${p.sub}"`,p.type,p.months,p.amt].join(','))];fname=`payments-${now.getFullYear()}.csv`;
+        }else{
           let tPays=payments.filter(p=>!_exportBatches.size||_exportBatches.has(p.batchId||'standalone'));
-          if (_histPeriod==='this') tPays=tPays.filter(p=>p.paidOn?.month===now.getMonth()+1&&p.paidOn?.year===now.getFullYear());
-          else if (_histPeriod==='prev'){const pm=now.getMonth()===0?12:now.getMonth(),py=now.getMonth()===0?now.getFullYear()-1:now.getFullYear();tPays=tPays.filter(p=>p.paidOn?.month===pm&&p.paidOn?.year===py);}
-          if (!tPays.length){toast('No data to export','error');return;}
-          rows=['Student,Batch,Month,Date,Amount',...tPays.map(p=>[`"${p.studentName||'Student'}"`,`"${batches[p.batchId]?.name||'Standalone'}"`,MONTHS_S[(p.paidOn?.month||now.getMonth()+1)-1],p.paidOn?`${String(p.paidOn.day||1).padStart(2,'0')}/${String(p.paidOn.month).padStart(2,'0')}/${String(p.paidOn.year).slice(-2)}`:'—',p.amount||0].join(','))]; fname=`collections-${now.getFullYear()}.csv`;
+          if(_histPeriod==='this')tPays=tPays.filter(p=>p.paidOn?.month===now.getMonth()+1&&p.paidOn?.year===now.getFullYear());
+          else if(_histPeriod==='prev'){const pm=now.getMonth()===0?12:now.getMonth(),py=now.getMonth()===0?now.getFullYear()-1:now.getFullYear();tPays=tPays.filter(p=>p.paidOn?.month===pm&&p.paidOn?.year===py);}
+          if(!tPays.length){toast('No data to export','error');return;}
+          rows=['Student,Batch,Month,Date,Amount',...tPays.map(p=>[`"${p.studentName||'Student'}"`,`"${batches[p.batchId]?.name||'Standalone'}"`,MS[(p.paidOn?.month||now.getMonth()+1)-1],p.paidOn?`${String(p.paidOn.day||1).padStart(2,'0')}/${String(p.paidOn.month).padStart(2,'0')}/${String(p.paidOn.year).slice(-2)}`:'—',p.amount||0].join(','))];fname=`collections-${now.getFullYear()}.csv`;
         }
         const blob=new Blob([rows.join('\n')],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a');
         a.href=url;a.download=fname;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
-        toast('CSV exported (install app for Excel)','success'); return;
+        toast('CSV exported (install app for Excel)','success');return;
       }
 
-      const wb = XLSX.utils.book_new();
-      const sc = (ws,r,c,s)=>{const a=XLSX.utils.encode_cell({r,c});if(!ws[a])ws[a]={v:''};ws[a].s=s;};
+      const wb=XLSX.utils.book_new();
 
-      if (!isT()) {
+      if(!isT()){
         // ── Student: colourful flat list ──────────────────────────────────
-        let pays = payments.map(p=>({
-          dateDisp: p.paidOn?`${String(p.paidOn.day||1).padStart(2,'0')} ${MONTHS_S[p.paidOn.month-1]} ${p.paidOn.year}`:new Date(p.timestamp).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}),
-          date: p.paidOn?`${p.paidOn.year}-${String(p.paidOn.month).padStart(2,'0')}-${String(p.paidOn.day||1).padStart(2,'0')}`:new Date(p.timestamp).toISOString().slice(0,10),
-          name:teachers[p.teacherId]?.name||p.teacherName||'Teacher', sub:teachers[p.teacherId]?.subject||'',
-          type:p.type||'full', months:p.monthsPaid||1, amt:p.amount||0, ts:p.timestamp, paidOn:p.paidOn,
+        let pays=payments.map(p=>({
+          dateDisp:p.paidOn?`${String(p.paidOn.day||1).padStart(2,'0')} ${MS[p.paidOn.month-1]} ${p.paidOn.year}`:new Date(p.timestamp).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}),
+          date:p.paidOn?`${p.paidOn.year}-${String(p.paidOn.month).padStart(2,'0')}-${String(p.paidOn.day||1).padStart(2,'0')}`:new Date(p.timestamp).toISOString().slice(0,10),
+          name:teachers[p.teacherId]?.name||p.teacherName||'Teacher',sub:teachers[p.teacherId]?.subject||'',
+          type:p.type||'full',months:p.monthsPaid||1,amt:p.amount||0,ts:p.timestamp,paidOn:p.paidOn,
         }));
-        if (_histPeriod==='this') pays=pays.filter(p=>{const d=p.paidOn?new Date(p.paidOn.year,(p.paidOn.month||1)-1,1):new Date(p.ts);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
-        else if (_histPeriod==='prev'){const pm=now.getMonth()===0?11:now.getMonth()-1,py=now.getMonth()===0?now.getFullYear()-1:now.getFullYear();pays=pays.filter(p=>{const d=p.paidOn?new Date(p.paidOn.year,(p.paidOn.month||1)-1,1):new Date(p.ts);return d.getMonth()===pm&&d.getFullYear()===py;});}
-        if (!pays.length){toast('No data to export','error');return;}
+        if(_histPeriod==='this')pays=pays.filter(p=>{const d=p.paidOn?new Date(p.paidOn.year,(p.paidOn.month||1)-1,1):new Date(p.ts);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+        else if(_histPeriod==='prev'){const pm=now.getMonth()===0?11:now.getMonth()-1,py=now.getMonth()===0?now.getFullYear()-1:now.getFullYear();pays=pays.filter(p=>{const d=p.paidOn?new Date(p.paidOn.year,(p.paidOn.month||1)-1,1):new Date(p.ts);return d.getMonth()===pm&&d.getFullYear()===py;});}
+        if(!pays.length){toast('No data to export','error');return;}
         pays.sort((a,b)=>b.date.localeCompare(a.date));
-        const pLabel = _histPeriod==='this'?MONTHS_L[now.getMonth()]+' '+now.getFullYear():_histPeriod==='prev'?MONTHS_L[now.getMonth()===0?11:now.getMonth()-1]+' '+(now.getMonth()===0?now.getFullYear()-1:now.getFullYear()):'All Time';
+        const pLabel=_histPeriod==='this'?ML[now.getMonth()]+' '+now.getFullYear():_histPeriod==='prev'?ML[now.getMonth()===0?11:now.getMonth()-1]+' '+(now.getMonth()===0?now.getFullYear()-1:now.getFullYear()):'All Time';
         const aoa=[['Fee Tracker — My Payments'],[pLabel+'  ·  Exported: '+now.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})],[],['Date','Teacher','Subject','Type','Months Paid','Amount (₹)'],...pays.map(p=>[p.dateDisp,p.name,p.sub,p.type.charAt(0).toUpperCase()+p.type.slice(1),p.months,p.amt]),[],['','','','','Total',pays.reduce((s,p)=>s+p.amt,0)]];
         const ws=XLSX.utils.aoa_to_sheet(aoa);
         ws['!cols']=[{wch:18},{wch:24},{wch:20},{wch:12},{wch:12},{wch:14}];
         ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:5}},{s:{r:1,c:0},e:{r:1,c:5}}];
         for(let c=0;c<=5;c++){sc(ws,0,c,sty(true,15,C.accentLt,C.bg1,'left'));sc(ws,1,c,sty(false,9,C.muted,C.bg1,'left'));}
-        for(let c=0;c<=5;c++) sc(ws,3,c,sty(true,11,C.white,C.accent,'center'));
+        for(let c=0;c<=5;c++)sc(ws,3,c,sty(true,11,C.white,C.accent,'center'));
         const tc={full:C.green,partial:C.amber,advance:C.accentLt};
         pays.forEach((p,i)=>{const r=4+i,bg=i%2===0?C.bg2:C.bg1;sc(ws,r,0,sty(false,10,C.muted,bg,'center'));sc(ws,r,1,sty(true,10,C.text,bg,'left'));sc(ws,r,2,sty(false,10,C.muted,bg,'left'));sc(ws,r,3,sty(true,10,tc[p.type]||C.text,bg,'center'));sc(ws,r,4,sty(false,10,C.text,bg,'center'));const ac=XLSX.utils.encode_cell({r,c:5});if(!ws[ac])ws[ac]={v:p.amt};ws[ac].s=sty(true,10,C.green,bg,'right','#,##0');ws[ac].t='n';});
         const totR=4+pays.length+1;
         for(let c=0;c<=5;c++){if(c===5){const ta=XLSX.utils.encode_cell({r:totR,c:5});if(!ws[ta])ws[ta]={v:pays.reduce((s,p)=>s+p.amt,0)};ws[ta].s=sty(true,12,C.white,C.accentLt,'right','#,##0');ws[ta].t='n';}else if(c===4)sc(ws,totR,c,sty(true,11,C.white,C.accentLt,'right'));else sc(ws,totR,c,sty(false,10,C.muted,C.accentLt,'left'));}
         XLSX.utils.book_append_sheet(wb,ws,'Payments');
         const pL=_histPeriod==='this'?`-${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`:_histPeriod==='prev'?`-prev-month`:'';
-        XLSX.writeFile(wb,`my-payments${pL}.xlsx`); toast('Excel exported ✓','success'); return;
+        XLSX.writeFile(wb,`my-payments${pL}.xlsx`);toast('Excel exported ✓','success');return;
       }
 
       // ── Teacher: Student × Month matrix, one sheet per batch ─────────────
-      let tPays = payments.map(p=>({
-        studentId:p.studentId, studentName:p.studentName||'Student',
-        batchId:p.batchId||'standalone', batchName:batches?.[p.batchId]?.name||'Standalone',
-        moKey:p.paidOn?(p.paidOn.year*100+p.paidOn.month):(now.getFullYear()*100+now.getMonth()+1),
-        moLabel:p.paidOn?MONTHS_S[p.paidOn.month-1]:MONTHS_S[now.getMonth()],
-        dateStr:p.paidOn?`${String(p.paidOn.day||1).padStart(2,'0')}/${String(p.paidOn.month).padStart(2,'0')}/${String(p.paidOn.year).slice(-2)}`:'—',
-        amt:p.amount||0, type:p.type||'full', ts:p.timestamp,
-      }));
-      if (_histPeriod==='this') tPays=tPays.filter(p=>{const y=Math.floor(p.moKey/100),m=p.moKey%100;return y===now.getFullYear()&&m===now.getMonth()+1;});
-      else if (_histPeriod==='prev'){const pm=now.getMonth()===0?12:now.getMonth(),py=now.getMonth()===0?now.getFullYear()-1:now.getFullYear();tPays=tPays.filter(p=>Math.floor(p.moKey/100)===py&&p.moKey%100===pm);}
-      if (_exportBatches.size) tPays=tPays.filter(p=>_exportBatches.has(p.batchId));
-      if (!tPays.length){toast('No data to export','error');return;}
+      let tPays=payments.map(p=>({studentId:p.studentId,studentName:p.studentName||'Student',batchId:p.batchId||'standalone',batchName:batches?.[p.batchId]?.name||'Standalone',moKey:p.paidOn?(p.paidOn.year*100+p.paidOn.month):(now.getFullYear()*100+now.getMonth()+1),moLabel:p.paidOn?MS[p.paidOn.month-1]:MS[now.getMonth()],dateStr:p.paidOn?`${String(p.paidOn.day||1).padStart(2,'0')}/${String(p.paidOn.month).padStart(2,'0')}/${String(p.paidOn.year).slice(-2)}`:'—',amt:p.amount||0,type:p.type||'full',ts:p.timestamp}));
+      if(_histPeriod==='this')tPays=tPays.filter(p=>{const y=Math.floor(p.moKey/100),m=p.moKey%100;return y===now.getFullYear()&&m===now.getMonth()+1;});
+      else if(_histPeriod==='prev'){const pm=now.getMonth()===0?12:now.getMonth(),py=now.getMonth()===0?now.getFullYear()-1:now.getFullYear();tPays=tPays.filter(p=>Math.floor(p.moKey/100)===py&&p.moKey%100===pm);}
+      if(_exportBatches.size)tPays=tPays.filter(p=>_exportBatches.has(p.batchId));
+      if(!tPays.length){toast('No data to export','error');return;}
 
-      const bMap={};
-      tPays.forEach(p=>{if(!bMap[p.batchId])bMap[p.batchId]={name:p.batchName,pays:[]};bMap[p.batchId].pays.push(p);});
+      const bMap={};tPays.forEach(p=>{if(!bMap[p.batchId])bMap[p.batchId]={name:p.batchName,pays:[]};bMap[p.batchId].pays.push(p);});
       const bIds=Object.keys(bMap).sort((a,b)=>bMap[a].name.localeCompare(bMap[b].name));
-      const pLabelT=_histPeriod==='this'?MONTHS_L[now.getMonth()]+' '+now.getFullYear():_histPeriod==='prev'?MONTHS_L[now.getMonth()===0?11:now.getMonth()-1]+' '+(now.getMonth()===0?now.getFullYear()-1:now.getFullYear()):'All Time';
+      const pLabelT=_histPeriod==='this'?ML[now.getMonth()]+' '+now.getFullYear():_histPeriod==='prev'?ML[now.getMonth()===0?11:now.getMonth()-1]+' '+(now.getMonth()===0?now.getFullYear()-1:now.getFullYear()):'All Time';
 
       bIds.forEach((bid,si)=>{
-        const batch=bMap[bid], bPays=batch.pays;
+        const batch=bMap[bid],bPays=batch.pays;
         const moSet=[...new Set(bPays.map(p=>p.moKey))].sort();
-        const moLabels=moSet.map(m=>MONTHS_S[m%100-1]);
+        const moLabels=moSet.map(m=>MS[m%100-1]);
         const stuMap={};bPays.forEach(p=>{if(!stuMap[p.studentId])stuMap[p.studentId]=p.studentName;});
         const stuIds=Object.keys(stuMap).sort((a,b)=>stuMap[a].localeCompare(stuMap[b]));
         const cell={};bPays.forEach(p=>{const k=`${p.studentId}__${p.moKey}`;if(!cell[k]||p.ts>cell[k].ts)cell[k]=p;});
         const nCols=1+moSet.length;
-
         const aoa=[];
         aoa.push([batch.name,...moLabels.map(()=>'')]);
         aoa.push([pLabelT+'  ·  Exported '+now.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}),...moLabels.map(()=>'')]);
@@ -8896,17 +8855,11 @@
         for(let c=0;c<nCols;c++)sc(ws,2,c,sty(false,4,C.bg1,C.bg1));
         sc(ws,3,0,sty(true,11,C.white,C.bg3,'left'));
         for(let c=1;c<nCols;c++)sc(ws,3,c,sty(true,11,C.accentLt,C.bg3,'center'));
-
         stuIds.forEach((sid,ri)=>{
           const r=4+ri,bg=ri%2===0?C.bg2:C.bg1;
           sc(ws,r,0,sty(true,10,C.text,bg,'left'));
-          moSet.forEach((mo,mi)=>{
-            const p=cell[`${sid}__${mo}`],c=1+mi;
-            if(p){const fg=p.type==='partial'?C.amber:p.type==='advance'?C.accentLt:C.green;sc(ws,r,c,sty(false,10,fg,bg,'center'));}
-            else{const a=XLSX.utils.encode_cell({r,c});if(!ws[a])ws[a]={v:'—'};sc(ws,r,c,sty(false,10,C.muted,bg,'center'));}
-          });
+          moSet.forEach((mo,mi)=>{const p=cell[`${sid}__${mo}`],c=1+mi;if(p){const fg=p.type==='partial'?C.amber:p.type==='advance'?C.accentLt:C.green;sc(ws,r,c,sty(false,10,fg,bg,'center'));}else{const a=XLSX.utils.encode_cell({r,c});if(!ws[a])ws[a]={v:'—'};sc(ws,r,c,sty(false,10,C.muted,bg,'center'));}});
         });
-
         const spR=4+stuIds.length;for(let c=0;c<nCols;c++)sc(ws,spR,c,sty(false,4,C.bg1,C.bg1));
         const totR=spR+1;
         sc(ws,totR,0,sty(true,10,C.white,C.bg4,'left'));
@@ -8920,7 +8873,7 @@
       });
 
       const pL=_histPeriod==='this'?`-${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`:_histPeriod==='prev'?`-prev-month`:'';
-      XLSX.writeFile(wb,`collections${pL}.xlsx`); toast('Excel exported ✓','success');
+      XLSX.writeFile(wb,`collections${pL}.xlsx`);toast('Excel exported ✓','success');
     };
 
 </script>
