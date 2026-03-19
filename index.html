@@ -5613,31 +5613,38 @@
       document.getElementById('addModalTitle').textContent = 'Add';
     }
     async function confirmAdd(){
-      if(isT()){
-        const nm=document.getElementById('b-name').value.trim();
-        const sb=document.getElementById('b-subject').value.trim();
-        const cl=document.getElementById('b-class').value.trim();
-        const ss=document.getElementById('b-session').value.trim();
-        const fe=parseInt(document.getElementById('b-fee').value);
-        const ti=document.getElementById('b-timing').value.trim();
-        if(!nm||!sb||!fe) return toast('Batch name, subject & fee required','error');
-        const bref=await addDoc(btCol(),{name:nm,subject:sb,class:cl,session:ss,fee:fe,timing:ti,createdAt:Date.now()});
-        batches[bref.id]={name:nm,subject:sb,class:cl,session:ss,fee:fe,timing:ti,createdAt:Date.now()}; saveToCache();
-        closeAddModal(); toast(`${nm} added ✓`,'success');
-      } else {
-        const nm=document.getElementById('f-name').value.trim();
-        const sb=document.getElementById('f-subject').value.trim();
-        const fe=parseInt(document.getElementById('f-fee').value);
-        if(!nm||!sb||!fe) return toast('Fill name, subject and fee','error');
-        const dv=document.getElementById('f-lastpaid').value;
-        const now2=new Date();
-        const mo=dv?parseInt(dv.split('-')[1]):now2.getMonth()+1;
-        const yr=dv?parseInt(dv.split('-')[0]):now2.getFullYear();
-        const tref=await addDoc(tcCol(),{name:nm,subject:sb,fee:fe,baselineMonth:mo,baselineYear:yr,lastPaidDate:dv||null});
-        teachers[tref.id]={name:nm,subject:sb,fee:fe,baselineMonth:mo,baselineYear:yr,lastPaidDate:dv||null}; saveToCache();
-        closeAddModal(); toast(`${nm} added ✓`,'success');
+      const btn = document.getElementById('confirmAddBtn');
+      if (btn) { btn.disabled = true; btn.textContent = 'Adding…'; }
+      try {
+        if(isT()){
+          const nm=document.getElementById('b-name').value.trim();
+          const sb=document.getElementById('b-subject').value.trim();
+          const cl=document.getElementById('b-class').value.trim();
+          const ss=document.getElementById('b-session').value.trim();
+          const fe=parseInt(document.getElementById('b-fee').value);
+          const ti=document.getElementById('b-timing').value.trim();
+          if(!nm||!sb||!fe){ toast('Batch name, subject & fee required','error'); return; }
+          const bref=await addDoc(btCol(),{name:nm,subject:sb,class:cl,session:ss,fee:fe,timing:ti,createdAt:Date.now()});
+          batches[bref.id]={name:nm,subject:sb,class:cl,session:ss,fee:fe,timing:ti,createdAt:Date.now()};
+          saveToCache(); closeAddModal(); render(); toast(`${nm} added ✓`,'success');
+        } else {
+          const nm=document.getElementById('f-name').value.trim();
+          const sb=document.getElementById('f-subject').value.trim();
+          const fe=parseInt(document.getElementById('f-fee').value);
+          if(!nm||!sb||!fe){ toast('Fill name, subject and fee','error'); return; }
+          const dv=document.getElementById('f-lastpaid').value;
+          const now2=new Date();
+          const mo=dv?parseInt(dv.split('-')[1]):now2.getMonth()+1;
+          const yr=dv?parseInt(dv.split('-')[0]):now2.getFullYear();
+          const tref=await addDoc(tcCol(),{name:nm,subject:sb,fee:fe,baselineMonth:mo,baselineYear:yr,lastPaidDate:dv||null});
+          teachers[tref.id]={name:nm,subject:sb,fee:fe,baselineMonth:mo,baselineYear:yr,lastPaidDate:dv||null};
+          saveToCache(); closeAddModal(); render(); toast(`${nm} added ✓`,'success');
+        }
+      } catch(e) {
+        toast('Error: ' + e.message, 'error');
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Add'; }
       }
-      render();
     }
 
     window.toggleHistory=function(id){
@@ -7692,11 +7699,7 @@
       }catch(e){ console.warn('standalone load failed',e); }
     }
 
-    window.deleteStandaloneStudent=async function(sid,name){
-      if(!await confirm2('Remove Student',`Remove <strong style="color:#f0f0f8">${name}</strong>?`,'Remove',_CI.rem)) return;
-      try{ await deleteDoc(doc(db,'users',uid(),'students',sid)); toast(`${name} removed`,''); loadAndRenderStandaloneStudents(document.getElementById('appInner')); }
-      catch(e){ toast('Error: '+e.message,'error'); }
-    };
+;
 
     window.assignStandaloneToExistingBatch=async function(sid,name){
       const bKeys=Object.keys(batches);
