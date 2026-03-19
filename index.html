@@ -5613,38 +5613,31 @@
       document.getElementById('addModalTitle').textContent = 'Add';
     }
     async function confirmAdd(){
-      const btn = document.getElementById('confirmAddBtn');
-      if (btn) { btn.disabled = true; btn.textContent = 'Adding…'; }
-      try {
-        if(isT()){
-          const nm=document.getElementById('b-name').value.trim();
-          const sb=document.getElementById('b-subject').value.trim();
-          const cl=document.getElementById('b-class').value.trim();
-          const ss=document.getElementById('b-session').value.trim();
-          const fe=parseInt(document.getElementById('b-fee').value);
-          const ti=document.getElementById('b-timing').value.trim();
-          if(!nm||!sb||!fe){ toast('Batch name, subject & fee required','error'); return; }
-          const bref=await addDoc(btCol(),{name:nm,subject:sb,class:cl,session:ss,fee:fe,timing:ti,createdAt:Date.now()});
-          batches[bref.id]={name:nm,subject:sb,class:cl,session:ss,fee:fe,timing:ti,createdAt:Date.now()};
-          saveToCache(); closeAddModal(); render(); toast(`${nm} added ✓`,'success');
-        } else {
-          const nm=document.getElementById('f-name').value.trim();
-          const sb=document.getElementById('f-subject').value.trim();
-          const fe=parseInt(document.getElementById('f-fee').value);
-          if(!nm||!sb||!fe){ toast('Fill name, subject and fee','error'); return; }
-          const dv=document.getElementById('f-lastpaid').value;
-          const now2=new Date();
-          const mo=dv?parseInt(dv.split('-')[1]):now2.getMonth()+1;
-          const yr=dv?parseInt(dv.split('-')[0]):now2.getFullYear();
-          const tref=await addDoc(tcCol(),{name:nm,subject:sb,fee:fe,baselineMonth:mo,baselineYear:yr,lastPaidDate:dv||null});
-          teachers[tref.id]={name:nm,subject:sb,fee:fe,baselineMonth:mo,baselineYear:yr,lastPaidDate:dv||null};
-          saveToCache(); closeAddModal(); render(); toast(`${nm} added ✓`,'success');
-        }
-      } catch(e) {
-        toast('Error: ' + e.message, 'error');
-      } finally {
-        if (btn) { btn.disabled = false; btn.textContent = 'Add'; }
+      if(isT()){
+        const nm=document.getElementById('b-name').value.trim();
+        const sb=document.getElementById('b-subject').value.trim();
+        const cl=document.getElementById('b-class').value.trim();
+        const ss=document.getElementById('b-session').value.trim();
+        const fe=parseInt(document.getElementById('b-fee').value);
+        const ti=document.getElementById('b-timing').value.trim();
+        if(!nm||!sb||!fe) return toast('Batch name, subject & fee required','error');
+        const bref=await addDoc(btCol(),{name:nm,subject:sb,class:cl,session:ss,fee:fe,timing:ti,createdAt:Date.now()});
+        batches[bref.id]={name:nm,subject:sb,class:cl,session:ss,fee:fe,timing:ti,createdAt:Date.now()}; saveToCache();
+        closeAddModal(); toast(`${nm} added ✓`,'success');
+      } else {
+        const nm=document.getElementById('f-name').value.trim();
+        const sb=document.getElementById('f-subject').value.trim();
+        const fe=parseInt(document.getElementById('f-fee').value);
+        if(!nm||!sb||!fe) return toast('Fill name, subject and fee','error');
+        const dv=document.getElementById('f-lastpaid').value;
+        const now2=new Date();
+        const mo=dv?parseInt(dv.split('-')[1]):now2.getMonth()+1;
+        const yr=dv?parseInt(dv.split('-')[0]):now2.getFullYear();
+        const tref=await addDoc(tcCol(),{name:nm,subject:sb,fee:fe,baselineMonth:mo,baselineYear:yr,lastPaidDate:dv||null});
+        teachers[tref.id]={name:nm,subject:sb,fee:fe,baselineMonth:mo,baselineYear:yr,lastPaidDate:dv||null}; saveToCache();
+        closeAddModal(); toast(`${nm} added ✓`,'success');
       }
+      render();
     }
 
     window.toggleHistory=function(id){
@@ -6656,6 +6649,9 @@
       if (loaded) return;
       _reconnecting = false;
       loaded = true; cu = user;
+      // Re-enable Google button in case we boot again (e.g. after sign-out + sign-in)
+      const _gb = document.getElementById('googleSignInBtn');
+      if (_gb) { _gb.disabled = false; }
       // Persist uid for offline boot detection
       try { localStorage.setItem('ft_uid', user.uid); } catch {}
       // Persist UID so cache keys are correct on offline reloads
@@ -6815,13 +6811,22 @@
         if (_cachedUidSnapshot && (!navigator.onLine || _offlineBooted || _reconnecting)) return;
         // Real sign-out — clear everything
         cu=null; loaded=false; profile={}; appRendered=false; teachers={}; payments=[]; batches={};
+        _offlineBooted = false; _reconnecting = false;
         try { localStorage.removeItem('ft_uid'); } catch(e){}
+        // Clear IDB caches so stale data isn't shown on next sign-in
+        try { idbSet('profile',null); idbSet('teachers',null); idbSet('payments',null); idbSet('batches',null); } catch(e){}
         hideSplash();
         document.getElementById('onboardScreen').classList.add('hidden');
         document.getElementById('appScreen').classList.add('hidden');
         document.getElementById('loginScreen').classList.remove('hidden');
         sbSetPage?.('login');
         window._sbRefreshLayout?.();
+        // Reset the Google sign-in button so the user can sign back in
+        const gb = document.getElementById('googleSignInBtn');
+        if (gb) {
+          gb.disabled = false;
+          gb.innerHTML = '<svg class="google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Continue with Google';
+        }
         const ls=document.getElementById('loginSkeleton');
         const lc=document.getElementById('loginContent');
         if(ls){ ls.classList.add('fade-out'); setTimeout(()=>{ls.classList.add('hidden');if(lc){lc.style.opacity='1';lc.style.pointerEvents='auto';lc.classList.add('visible');}},420); }
@@ -6862,8 +6867,18 @@
     document.getElementById('avatarEl').addEventListener('click',toggleMenu);
     document.getElementById('menuBackdrop').addEventListener('click',closeMenu);
     document.getElementById('userMenu').addEventListener('click',e=>e.stopPropagation());
-    window.doSignOut=async function(){ window._clearSWCache?.(); await signOut(auth); };
-    document.getElementById('signOutBtn').addEventListener('click',async()=>{ closeMenu(); window._clearSWCache?.(); await signOut(auth); });
+    window.doSignOut=async function(){
+      // Clear reconnecting flag so onAuthStateChanged(null) isn't blocked
+      _reconnecting = false;
+      window._clearSWCache?.();
+      await signOut(auth);
+    };
+    document.getElementById('signOutBtn').addEventListener('click', async () => {
+      closeMenu();
+      _reconnecting = false; // must clear before signOut so the null event isn't swallowed
+      window._clearSWCache?.();
+      await signOut(auth);
+    });
     document.getElementById('editProfileBtn').addEventListener('click',()=>openProfileModal());
     document.getElementById('addBtn').addEventListener('click',openAddModal);
     document.getElementById('cancelAddBtn').addEventListener('click',closeAddModal);
@@ -7699,7 +7714,11 @@
       }catch(e){ console.warn('standalone load failed',e); }
     }
 
-;
+    window.deleteStandaloneStudent=async function(sid,name){
+      if(!await confirm2('Remove Student',`Remove <strong style="color:#f0f0f8">${name}</strong>?`,'Remove',_CI.rem)) return;
+      try{ await deleteDoc(doc(db,'users',uid(),'students',sid)); toast(`${name} removed`,''); loadAndRenderStandaloneStudents(document.getElementById('appInner')); }
+      catch(e){ toast('Error: '+e.message,'error'); }
+    };
 
     window.assignStandaloneToExistingBatch=async function(sid,name){
       const bKeys=Object.keys(batches);
