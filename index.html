@@ -3279,6 +3279,13 @@
       cursor: pointer; transition: background .15s;
     }
     .hist-export-btn:active { background: var(--surface3); }
+    .export-period-opt {
+      display: flex; align-items: center; gap: 14px;
+      width: 100%; padding: 14px 16px; border-radius: 16px;
+      background: transparent; border: none; cursor: pointer;
+      text-align: left; transition: background .15s; color: var(--text);
+    }
+    .export-period-opt:active { background: var(--surface2); }
     .hist-body {
       flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
       padding: 0 16px 80px;
@@ -3936,7 +3943,18 @@
       <div class="login-glyph"><div style="width:80px;height:80px;border-radius:26px;background:linear-gradient(135deg,rgba(124,107,255,.22),rgba(255,107,157,.15));display:flex;align-items:center;justify-content:center;border:1.5px solid rgba(124,107,255,.3);box-shadow:0 8px 32px rgba(124,107,255,.2);"><span style="font-size:46px;line-height:1;background:linear-gradient(140deg,#ffffff 0%,#c8baff 50%,#ff8fb8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:900;display:block;">₹</span></div></div>
       <div class="login-name">Fee Tracker</div>
       <div class="login-sub">Smart &middot; Simple &middot; Personal</div>
-      <div id="loginOfflineNotice" style="display:none;align-items:center;gap:6px;background:rgba(255,154,60,.12);border:1px solid rgba(255,154,60,.3);border-radius:10px;padding:8px 14px;margin-top:12px;font-size:12px;color:var(--accent4);"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2L1 12h12L7 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><line x1="7" y1="6" x2="7" y2="9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="11" r=".7" fill="currentColor"/></svg>Offline — sign in needs connection</div>
+      <div id="loginOfflineNotice" style="display:none;flex-direction:column;align-items:center;gap:10px;width:100%;margin-top:16px;">
+        <!-- Shown when user was previously signed in -->
+        <div id="loginOfflineReturning" style="display:none;align-items:center;gap:8px;background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.25);border-radius:12px;padding:12px 16px;font-size:12px;color:var(--accent3);width:100%;box-sizing:border-box;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4"/><polyline points="5,8.5 7,10.5 11,6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>You're signed in — connect to internet to open app</span>
+        </div>
+        <!-- Shown when no prior sign-in exists -->
+        <div id="loginOfflineNew" style="display:none;align-items:center;gap:6px;background:rgba(255,154,60,.12);border:1px solid rgba(255,154,60,.3);border-radius:10px;padding:8px 14px;font-size:12px;color:var(--accent4);">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2L1 12h12L7 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><line x1="7" y1="6" x2="7" y2="9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="11" r=".7" fill="currentColor"/></svg>
+          Offline — sign in needs connection
+        </div>
+      </div>
       <button class="google-btn" id="googleSignInBtn">
         <svg class="google-icon" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -4042,7 +4060,7 @@
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 4L6 9l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
       <div class="hist-title">Payment History</div>
-      <button class="hist-export-btn" onclick="exportHistoryCSV()" id="histExportBtn">
+      <button class="hist-export-btn" onclick="openExportSheet()" id="histExportBtn">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v7M4 6l3 3 3-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v1.5A1.5 1.5 0 0 0 2.5 13h9A1.5 1.5 0 0 0 13 11.5V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         Export
       </button>
@@ -4050,6 +4068,30 @@
     <div class="hist-body" id="histBody">
       <div class="hist-filter-row" id="histFilters"></div>
       <div id="histContent"></div>
+    </div>
+  </div>
+
+  <!-- EXPORT PERIOD SHEET -->
+  <div id="exportSheet" style="display:none;position:fixed;inset:0;z-index:9999;">
+    <div id="exportSheetBg" onclick="closeExportSheet()" style="position:absolute;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);"></div>
+    <div id="exportSheetPanel" style="position:absolute;bottom:0;left:0;right:0;background:var(--surface);border-radius:24px 24px 0 0;padding:0 0 max(24px,env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .28s cubic-bezier(.34,1.1,.64,1);">
+      <div style="width:36px;height:4px;border-radius:2px;background:var(--border2);margin:12px auto 20px;"></div>
+      <div style="padding:0 20px 4px;font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--text);letter-spacing:-.3px;">Export payments</div>
+      <div style="padding:6px 20px 0;font-size:12px;color:var(--muted);margin-bottom:16px;">Choose a period to export</div>
+      <div style="display:flex;flex-direction:column;gap:4px;padding:0 12px 8px;">
+        <button onclick="doExport('all')" class="export-period-opt">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="3" width="14" height="13" rx="3" stroke="currentColor" stroke-width="1.5" fill="currentColor" opacity=".1"/><path d="M6 1v3M12 1v3M2 7h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <div><div style="font-size:14px;font-weight:700;color:var(--text)">All time</div><div style="font-size:11px;color:var(--muted);margin-top:1px">Every payment on record</div></div>
+        </button>
+        <button onclick="doExport('this')" class="export-period-opt">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="3" width="14" height="13" rx="3" stroke="currentColor" stroke-width="1.5" fill="currentColor" opacity=".1"/><path d="M6 1v3M12 1v3M2 7h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><rect x="6" y="10" width="6" height="3" rx="1" fill="currentColor" opacity=".7"/></svg>
+          <div><div style="font-size:14px;font-weight:700;color:var(--text)">This month</div><div style="font-size:11px;color:var(--muted);margin-top:1px" id="exportThisMonthLabel"></div></div>
+        </button>
+        <button onclick="doExport('prev')" class="export-period-opt">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="3" width="14" height="13" rx="3" stroke="currentColor" stroke-width="1.5" fill="currentColor" opacity=".1"/><path d="M6 1v3M12 1v3M2 7h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M5.5 11.5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/></svg>
+          <div><div style="font-size:14px;font-weight:700;color:var(--text)">Last month</div><div style="font-size:11px;color:var(--muted);margin-top:1px" id="exportPrevMonthLabel"></div></div>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -7197,7 +7239,6 @@
         '#appInner .teacher-card[data-id],' +
         '#appInner .batch-card[data-id],' +
         '#appInner .standalone-card[data-id],' +
-        '#appInner .student-card[data-id],' +
         '#bdBody .student-card[data-id]'
       );
     }
@@ -7247,12 +7288,10 @@
     }
 
     function _applySelState(id, selected){
-      const card =
-        document.querySelector(`#appInner [data-id="${id}"].teacher-card`) ||
-        document.querySelector(`#appInner [data-id="${id}"].batch-card`) ||
-        document.querySelector(`#appInner [data-id="${id}"].standalone-card`) ||
-        document.querySelector(`#appInner [data-id="${id}"].student-card`) ||
-        document.querySelector(`#bdBody [data-id="${id}"].student-card`);
+      const card = document.querySelector(
+        `[data-id="${id}"].teacher-card,[data-id="${id}"].batch-card,` +
+        `[data-id="${id}"].student-card,[data-id="${id}"].standalone-card`
+      );
       if(!card) return;
       card.classList.toggle('selected', selected);
       const circle = card.querySelector('.sel-circle');
@@ -7262,8 +7301,10 @@
     function toggleSelItem(id){
       const nowSelected = !selItems.has(id);
       if(nowSelected) selItems.add(id); else selItems.delete(id);
-      _applySelState(id, nowSelected);
+      // Check BEFORE applying state — if last item just got deselected,
+      // exit selection mode entirely (exitSelMode cleans up all visual state)
       if(!selItems.size){ exitSelMode(); return; }
+      _applySelState(id, nowSelected);
       updateSelBar();
     }
     function updateSelBar(){
@@ -8556,12 +8597,8 @@
       shown.sort((a,b) => b.timestamp - a.timestamp);
 
       // ── Build filter rows ──────────────────────────────────
-      // Row 1: period
-      const periodRow = `<div class="hist-filter-row" style="margin-bottom:8px">
-        ${[['all','All time'],['this','This month'],['prev','Last month']].map(([k,l]) =>
-          `<div class="hist-filter-chip${_histPeriod===k?' active':''}" onclick="_setHistPeriod('${k}')">${l}</div>`
-        ).join('')}
-      </div>`;
+      // Period filter lives in the export bottom-sheet only
+      const periodRow = '';
 
       // Row 2: batch chips (teacher) or type chips (student)
       let row2 = '';
@@ -8579,8 +8616,8 @@
           batchChips.push([bid, name, count]);
         });
         row2 = `<div class="hist-filter-row" style="margin-bottom:8px">
-          ${batchChips.map(([k,l,c]) =>
-            `<div class="hist-filter-chip${_histBatch===k?' active':''}" onclick="_setHistBatch('${k}')" style="${k==='all'?'':'max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;'}">${l}${c!==undefined?` <span style="opacity:.6">${c}</span>`:''}</div>`
+          ${batchChips.map(([k,l]) =>
+            `<div class="hist-filter-chip${_histBatch===k?' active':''}" onclick="_setHistBatch('${k}')" style="${k==='all'?'':'max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;'}">${l}</div>`
           ).join('')}
         </div>`;
       }
@@ -8594,8 +8631,8 @@
         advance: typeBase.filter(p=>p.type==='advance').length,
       };
       const typeRow = `<div class="hist-filter-row">
-        ${[['all','·'],['full','Paid'],['partial','Part'],['advance','Adv']].filter(([k])=>cts[k]>0).map(([k,l]) =>
-          `<div class="hist-filter-chip${_histFilter===k?' active':''}" onclick="_setHistFilter('${k}')">${l} <span style="opacity:.6">${cts[k]}</span></div>`
+        ${[['all','All'],['partial','Part paid'],['advance','Advance']].filter(([k])=>k==='all'||cts[k]>0).map(([k,l]) =>
+          `<div class="hist-filter-chip${_histFilter===k?' active':''}" onclick="_setHistFilter('${k}')">${l}</div>`
         ).join('')}
       </div>`;
 
@@ -8650,6 +8687,30 @@
       conEl.innerHTML = out;
     }
 
+    window.openExportSheet = function() {
+      const MO = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      const now = new Date();
+      const el1 = document.getElementById('exportThisMonthLabel');
+      const el2 = document.getElementById('exportPrevMonthLabel');
+      if (el1) el1.textContent = MO[now.getMonth()] + ' ' + now.getFullYear();
+      const pm = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
+      const py = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
+      if (el2) el2.textContent = MO[pm] + ' ' + py;
+      const sheet = document.getElementById('exportSheet');
+      const panel = document.getElementById('exportSheetPanel');
+      sheet.style.display = 'block';
+      requestAnimationFrame(() => { panel.style.transform = 'translateY(0)'; });
+    };
+    window.closeExportSheet = function() {
+      const panel = document.getElementById('exportSheetPanel');
+      panel.style.transform = 'translateY(100%)';
+      setTimeout(() => { document.getElementById('exportSheet').style.display = 'none'; }, 300);
+    };
+    window.doExport = function(period) {
+      _histPeriod = period;
+      closeExportSheet();
+      setTimeout(() => exportHistoryCSV(), 320);
+    };
     window.exportHistoryCSV = function(){
       const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       const now = new Date();
@@ -9070,8 +9131,20 @@
   
     // ── Offline notice on login screen ──────────────────────────────────
     function _loginOffline(){
-      const n=document.getElementById('loginOfflineNotice');
-      if(n) n.style.display=navigator.onLine?'none':'flex';
+      const wrapper   = document.getElementById('loginOfflineNotice');
+      const returning = document.getElementById('loginOfflineReturning');
+      const newUser   = document.getElementById('loginOfflineNew');
+      if (!wrapper) return;
+      if (navigator.onLine) {
+        wrapper.style.display = 'none';
+        if (returning) returning.style.display = 'none';
+        if (newUser)   newUser.style.display   = 'none';
+      } else {
+        wrapper.style.display = 'flex';
+        const hasCached = !!localStorage.getItem('ft_uid');
+        if (returning) returning.style.display = hasCached ? 'flex' : 'none';
+        if (newUser)   newUser.style.display   = hasCached ? 'none' : 'flex';
+      }
     }
     window.addEventListener('online',  _loginOffline);
     window.addEventListener('offline', _loginOffline);
