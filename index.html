@@ -3646,71 +3646,15 @@
 
       /* Standalone student section in two columns */
       #standaloneStudentsSection .student-card { margin-bottom: 0 !important; }
-
-      /* ── Desktop hover states ── */
-      .teacher-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,.18); transition: transform .18s, box-shadow .18s; }
-      .batch-card:hover   { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,.18); transition: transform .18s, box-shadow .18s; }
-      .student-card:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(0,0,0,.15); transition: transform .18s, box-shadow .18s; }
-
-      /* ── Desktop topbar: show search inline, hide mobile search btn ── */
-      .search-topbar-btn { display: none !important; }
-      .search-wrap { margin-top: 0 !important; }
-
-      /* ── Batch detail: wider student grid ── */
-      .bd-students-grid {
-        display: grid !important;
-        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)) !important;
-        gap: 12px !important;
-      }
-
-      /* ── History screen: wider body ── */
-      .hist-body { padding: 0 32px 80px !important; }
-
-      /* ── Export sheet: capped, centered ── */
-      #exportSheetPanel { max-width: 480px !important; margin: 0 auto !important; }
-
-      /* ── Standalone section two columns ── */
-      #standaloneSection {
-        display: grid !important;
-        grid-template-columns: 1fr 1fr !important;
-        gap: 10px !important;
-      }
-      #standaloneSection .section-label,
-      #standaloneSection .standalone-section-lbl { grid-column: 1 / -1 !important; }
-
-      /* ── Scrollbar styling ── */
-      ::-webkit-scrollbar { width: 6px; height: 6px; }
-      ::-webkit-scrollbar-track { background: transparent; }
-      ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
-      ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
-
-      /* ── Keyboard shortcut hint on search ── */
-      .search-wrap::after {
-        content: '⌘K';
-        position: absolute; right: 14px; top: 50%;
-        transform: translateY(-50%);
-        font-size: 10px; color: var(--muted); pointer-events: none;
-        font-family: 'DM Sans', sans-serif; letter-spacing: .5px;
-      }
-      .search-wrap { position: relative; }
-      .search-wrap:focus-within::after { display: none; }
-
-      /* ── Confirm dialog wider ── */
-      .confirm-sheet { max-width: 420px !important; margin: auto !important; }
-
-      /* ── Modal backdrop blur ── */
-      .modal-overlay { backdrop-filter: blur(8px) !important; -webkit-backdrop-filter: blur(8px) !important; }
     }
 
     /* ── 1280px+: wider content, 3-col cards ── */
     @media (min-width: 1280px) {
-      #appScreen .app-inner { max-width: 1100px !important; }
-      .dash-body { max-width: 1100px !important; }
-      #bdBody { max-width: 1100px !important; }
-      .dash-topbar { max-width: 1100px !important; }
-      .bd-topbar { max-width: 1100px !important; }
-      #cards-list { grid-template-columns: 1fr 1fr 1fr !important; }
-      .bd-students-grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important; }
+      #appScreen .app-inner { max-width: 1000px !important; }
+      .dash-body { max-width: 1000px !important; }
+      #bdBody { max-width: 1000px !important; }
+      .dash-topbar { max-width: 1000px !important; }
+      .bd-topbar { max-width: 1000px !important; }
     }
 
     /* ── Login animated gradient ── */
@@ -4952,21 +4896,22 @@
       navigator.serviceWorker?.controller?.postMessage({ type: 'ONLINE' });
 
       if (loaded && profile.role) {
-        // Re-sync Firestore data — this also pulls back any queued offline payments
-        // with their real Firestore IDs replacing the temporary local_* IDs
-        const hadLocalPays = (payments||[]).some(p => p.id?.startsWith('local_'));
-        toast(hadLocalPays ? 'Back online — uploading payments…' : 'Back online — syncing…', 'success');
+        // Normal case — already authenticated, just re-sync Firestore data
+        toast('Back online — syncing…', 'success');
         await loadAll(true);
 
       } else if (_offlineBooted) {
+        // Was in offline-boot mode — Firebase auth didn't resolve while offline.
+        // Reset flags so onAuthStateChanged can call bootApp() when it re-fires.
+        // Firebase automatically retries auth on reconnect.
         toast('Back online — syncing…', 'success');
-        _reconnecting  = true;
-        loaded         = false;
+        loaded = false;
         _offlineBooted = false;
+        // Give Firebase ~1.5s to re-fire onAuthStateChanged with the real user.
+        // If it doesn't (rare), force a reload as fallback.
         setTimeout(() => {
-          _reconnecting = false;
           if (!loaded) window.location.reload();
-        }, 5000);
+        }, 3000);
       }
     });
     window.addEventListener('offline', ()=>{
@@ -5517,15 +5462,8 @@
         const amt=v*t.fee;
         if(!await confirm2('Confirm Payment',`Mark <strong style="color:#f0f0f8">₹${amt.toLocaleString('en-IN')}</strong> for <strong style="color:#f0f0f8">${v} month${v>1?'s':''}</strong> to ${t.name}?`,'Mark',_CI.pay)) return;
         const newPay={teacherId:id,teacherName:t.name,subject:t.subject,monthsPaid:v,amount:amt,type:'full',paidOn:po,timestamp:Date.now()};
-        if(!navigator.onLine){
-          newPay.id='local_'+Date.now(); payments.push(newPay); saveToCache();
-          toast(`Paid ₹${amt.toLocaleString('en-IN')} ✓ (queued — will sync online)`,'success');
-          // Fire-and-forget: Firestore SDK will sync when back online
-          addDoc(pyCol(),newPay).catch(()=>{});
-        } else {
-          const fref=await addDoc(pyCol(),newPay); newPay.id=fref.id; payments.push(newPay); saveToCache();
-          toast(`Paid ₹${amt.toLocaleString('en-IN')} ✓`,'success');
-        }
+        const fref=await addDoc(pyCol(),newPay); newPay.id=fref.id; payments.push(newPay); saveToCache();
+        toast(`Paid ₹${amt.toLocaleString('en-IN')} ✓`,'success');
         setTimeout(updateTotalCard, 100);
       } else if(type==='partial'){
         const amt=parseInt(document.getElementById('pay-partial-'+id).value);
@@ -5536,14 +5474,8 @@
         const rem=t.fee-tot;
         if(!await confirm2('Partial Payment',`Record <strong style="color:#f0f0f8">₹${amt.toLocaleString('en-IN')}</strong> partial to ${t.name}?<br><small style="color:var(--muted)">Still owed: ₹${rem.toLocaleString('en-IN')}</small>`,'Record',_CI.part)) return;
         const newPay2={teacherId:id,teacherName:t.name,subject:t.subject,amount:amt,type:'partial',paidOn:po,timestamp:Date.now()};
-        if(!navigator.onLine){
-          newPay2.id='local_'+Date.now(); payments.push(newPay2); saveToCache();
-          toast(`Partial ₹${amt.toLocaleString('en-IN')} queued — syncs online`,'success');
-          addDoc(pyCol(),newPay2).catch(()=>{});
-        } else {
-          const fref2=await addDoc(pyCol(),newPay2); newPay2.id=fref2.id; payments.push(newPay2); saveToCache();
-          toast(`Partial ₹${amt.toLocaleString('en-IN')} recorded`,'success');
-        }
+        const fref2=await addDoc(pyCol(),newPay2); newPay2.id=fref2.id; payments.push(newPay2); saveToCache();
+        toast(`Partial ₹${amt.toLocaleString('en-IN')} recorded`,'success');
         setTimeout(updateTotalCard, 100);
       } else if(type==='advance'){
         if(monthsDue(id)>0) return toast('Clear dues first','error');
@@ -5552,14 +5484,8 @@
         const amt=v*t.fee;
         if(!await confirm2('Advance Payment',`Pay <strong style="color:#f0f0f8">₹${amt.toLocaleString('en-IN')}</strong> advance for <strong style="color:#f0f0f8">${v} month${v>1?'s':''}</strong> to ${t.name}?<br><small style="color:var(--muted)">No dues for next ${v} month${v>1?'s':''}</small>`,'Pay',_CI.adv)) return;
         const newPay3={teacherId:id,teacherName:t.name,subject:t.subject,monthsPaid:v,advanceMonths:v,amount:amt,type:'advance',paidOn:po,timestamp:Date.now()};
-        if(!navigator.onLine){
-          newPay3.id='local_'+Date.now(); payments.push(newPay3); saveToCache();
-          toast(`Advance ₹${amt.toLocaleString('en-IN')} queued — syncs online`,'success');
-          addDoc(pyCol(),newPay3).catch(()=>{});
-        } else {
-          const fref3=await addDoc(pyCol(),newPay3); newPay3.id=fref3.id; payments.push(newPay3); saveToCache();
-          toast(`Advance ₹${amt.toLocaleString('en-IN')} paid ✓`,'success');
-        }
+        const fref3=await addDoc(pyCol(),newPay3); newPay3.id=fref3.id; payments.push(newPay3); saveToCache();
+        toast(`Advance ₹${amt.toLocaleString('en-IN')} paid ✓`,'success');
         setTimeout(updateTotalCard, 100);
       }
       render();
@@ -6035,27 +5961,21 @@
         if(!v||v<1||v>max)return toast('Enter 1\u2013'+max,'error');
         const amt=v*fee;
         if(!await confirm2('Mark Payment',`<strong style="color:#f0f0f8">${st.name}</strong><br>\u20b9${amt.toLocaleString('en-IN')} \u00b7 ${v} month${v>1?'s':''}?`,'Mark',_CI.pay))return;
-        const _sp1={studentId:sid,studentName:st.name,monthsPaid:v,amount:amt,type:'full',paidOn:po,timestamp:Date.now(),batchId:bid};
-        if(!navigator.onLine){ _sp1.id='local_'+Date.now(); payments.push(_sp1); batchPayments.push(_sp1); saveToCache(); addDoc(bpyCol(bid),_sp1).catch(()=>{}); }
-        else { const _sr1=await addDoc(bpyCol(bid),_sp1); _sp1.id=_sr1.id; payments.push(_sp1); batchPayments.push(_sp1); saveToCache(); }
+        await addDoc(bpyCol(bid),{studentId:sid,studentName:st.name,monthsPaid:v,amount:amt,type:'full',paidOn:po,timestamp:Date.now()});
         document.getElementById('spay-'+sid).value='';toast('\u20b9'+amt.toLocaleString('en-IN')+' marked \u2713','success');
       }else if(type==='partial'){
         const amt=parseInt(document.getElementById('spay-partial-'+sid).value);
         if(!amt||amt<1)return toast('Enter amount','error');if(amt>=fee)return toast('Use Full tab','error');
         const tot=sPartialBal(bid,sid)+amt;if(tot>=fee)return toast('Use Full tab instead','error');
         if(!await confirm2('Partial Payment',`<strong style="color:#f0f0f8">${st.name}</strong><br>\u20b9${amt.toLocaleString('en-IN')} partial<br><small style="color:var(--muted)">Still owed: \u20b9${(fee-tot).toLocaleString('en-IN')}</small>`,'Mark',_CI.part))return;
-        const _sp2={studentId:sid,studentName:st.name,amount:amt,type:'partial',paidOn:po,timestamp:Date.now(),batchId:bid};
-        if(!navigator.onLine){ _sp2.id='local_'+Date.now(); payments.push(_sp2); batchPayments.push(_sp2); saveToCache(); addDoc(bpyCol(bid),_sp2).catch(()=>{}); }
-        else { const _sr2=await addDoc(bpyCol(bid),_sp2); _sp2.id=_sr2.id; payments.push(_sp2); batchPayments.push(_sp2); saveToCache(); }
+        await addDoc(bpyCol(bid),{studentId:sid,studentName:st.name,amount:amt,type:'partial',paidOn:po,timestamp:Date.now()});
         document.getElementById('spay-partial-'+sid).value='';toast('Partial \u20b9'+amt.toLocaleString('en-IN')+' recorded','success');
       }else if(type==='advance'){
         if(sMonthsDue(bid,sid)>0)return toast('Clear dues first','error');
         const v=parseInt(document.getElementById('spay-advance-'+sid).value);
         if(!v||v<1||v>12)return toast('Enter 1\u201312','error');const amt=v*fee;
         if(!await confirm2('Advance Payment',`<strong style="color:#f0f0f8">${st.name}</strong><br>\u20b9${amt.toLocaleString('en-IN')} \u00b7 ${v} month${v>1?'s':''} ahead?`,'Mark',_CI.adv))return;
-        const _sp3={studentId:sid,studentName:st.name,monthsPaid:v,advanceMonths:v,amount:amt,type:'advance',paidOn:po,timestamp:Date.now(),batchId:bid};
-        if(!navigator.onLine){ _sp3.id='local_'+Date.now(); payments.push(_sp3); batchPayments.push(_sp3); saveToCache(); addDoc(bpyCol(bid),_sp3).catch(()=>{}); }
-        else { const _sr3=await addDoc(bpyCol(bid),_sp3); _sp3.id=_sr3.id; payments.push(_sp3); batchPayments.push(_sp3); saveToCache(); }
+        await addDoc(bpyCol(bid),{studentId:sid,studentName:st.name,monthsPaid:v,advanceMonths:v,amount:amt,type:'advance',paidOn:po,timestamp:Date.now()});
         document.getElementById('spay-advance-'+sid).value='';toast('Advance \u20b9'+amt.toLocaleString('en-IN')+' \u2713','success');
       }
       await loadBatchDetail(bid);};
@@ -6659,10 +6579,7 @@
 
     async function bootApp(user) {
       if (loaded) return;
-      _reconnecting = false;
       loaded = true; cu = user;
-      const _gb = document.getElementById('googleSignInBtn');
-      if (_gb) _gb.disabled = false;
       // Persist uid for offline boot detection
       try { localStorage.setItem('ft_uid', user.uid); } catch {}
       // Persist UID so cache keys are correct on offline reloads
@@ -6742,7 +6659,6 @@
     // this snapshot preserves it so the offline guard always works.
     const _cachedUidSnapshot = localStorage.getItem('ft_uid');
     let _offlineBooted = false;
-    let _reconnecting  = false; // blocks false signout during reconnect window
 
     // ── Shared cache-boot helper ───────────────────────────────────────────
     async function _bootFromCache(cachedUid, cachedProfile) {
@@ -6764,8 +6680,7 @@
       if (hasCachedData) render();
       hideSplash();
       document.getElementById('appScreen').classList.remove('hidden');
-      // Only show offline banner if actually offline
-      if (!navigator.onLine) showOfflineBanner(true);
+      showOfflineBanner(true);
     }
 
     // ── Primary offline boot — 150ms ──────────────────────────────────────
@@ -6791,7 +6706,7 @@
         hideSplash();
         document.getElementById('loginScreen')?.classList.add('hidden');
         document.getElementById('appScreen').classList.remove('hidden');
-        if (!navigator.onLine) showOfflineBanner(true);
+        showOfflineBanner(true);
         const root = document.getElementById('appInner');
         if (root) root.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;padding:40px 24px;text-align:center;gap:16px;"><svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" stroke="var(--border2)" stroke-width="2"/><path d="M24 14v10l6 4" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:var(--text);">Waiting for connection…</div><div style="font-size:13px;color:var(--muted);line-height:1.6;">Connect to the internet to load your data.</div></div>`;
       }
@@ -6820,17 +6735,10 @@
         if (!loaded) await bootApp(user);
       } else {
         // Firebase fires null when offline — ignore if user was previously signed in
-        if (_cachedUidSnapshot && (!navigator.onLine || _offlineBooted || _reconnecting)) return;
+        if (_cachedUidSnapshot && (!navigator.onLine || _offlineBooted)) return;
         // Real sign-out — clear everything
         cu=null; loaded=false; profile={}; appRendered=false; teachers={}; payments=[]; batches={};
-        _offlineBooted = false; _reconnecting = false;
         try { localStorage.removeItem('ft_uid'); } catch(e){}
-        try { idbSet('profile',null); idbSet('teachers',null); idbSet('payments',null); idbSet('batches',null); } catch(e){}
-        const _gb2 = document.getElementById('googleSignInBtn');
-        if (_gb2) {
-          _gb2.disabled = false;
-          _gb2.innerHTML = '<svg class="google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Continue with Google';
-        }
         hideSplash();
         document.getElementById('onboardScreen').classList.add('hidden');
         document.getElementById('appScreen').classList.add('hidden');
@@ -6877,17 +6785,8 @@
     document.getElementById('avatarEl').addEventListener('click',toggleMenu);
     document.getElementById('menuBackdrop').addEventListener('click',closeMenu);
     document.getElementById('userMenu').addEventListener('click',e=>e.stopPropagation());
-    window.doSignOut=async function(){
-      _reconnecting = false;
-      window._clearSWCache?.();
-      await signOut(auth);
-    };
-    document.getElementById('signOutBtn').addEventListener('click', async () => {
-      closeMenu();
-      _reconnecting = false;
-      window._clearSWCache?.();
-      await signOut(auth);
-    });
+    window.doSignOut=async function(){ window._clearSWCache?.(); await signOut(auth); };
+    document.getElementById('signOutBtn').addEventListener('click',async()=>{ closeMenu(); window._clearSWCache?.(); await signOut(auth); });
     document.getElementById('editProfileBtn').addEventListener('click',()=>openProfileModal());
     document.getElementById('addBtn').addEventListener('click',openAddModal);
     document.getElementById('cancelAddBtn').addEventListener('click',closeAddModal);
@@ -8281,14 +8180,8 @@
         const amt = v*t.fee;
         if(!await confirm2('Confirm Payment',`Mark <strong style="color:#f0f0f8">\u20b9${amt.toLocaleString('en-IN')}</strong> for <strong style="color:#f0f0f8">${v} month${v>1?'s':''}</strong> to ${t.name}?`,'Mark',_CI.pay)) return;
         const p={teacherId:id,teacherName:t.name,subject:t.subject,monthsPaid:v,amount:amt,type:'full',paidOn:po,timestamp:Date.now()};
-        if(!navigator.onLine){
-          p.id='local_'+Date.now(); payments.push(p); saveToCache();
-          addDoc(pyCol(),p).catch(()=>{});
-          toast(`Paid \u20b9${amt.toLocaleString('en-IN')}  (queued)`,'success');
-        } else {
-          const ref=await addDoc(pyCol(),p); p.id=ref.id; payments.push(p); saveToCache();
-          toast(`Paid \u20b9${amt.toLocaleString('en-IN')} \u2713`,'success');
-        }
+        const ref=await addDoc(pyCol(),p); p.id=ref.id; payments.push(p); saveToCache();
+        toast(`Paid \u20b9${amt.toLocaleString('en-IN')} \u2713`,'success');
       } else if(type==='partial'){
         const amt = parseInt(document.getElementById('tds-pay-partial')?.value);
         if(!amt||amt<1) return toast('Enter an amount','error');
@@ -8297,9 +8190,8 @@
         if(tot>=t.fee) return toast('Total covers full month — use Full tab','error');
         if(!await confirm2('Partial Payment',`Record <strong style="color:#f0f0f8">\u20b9${amt.toLocaleString('en-IN')}</strong> partial to ${t.name}?<br><small style="color:var(--muted)">Still owed: \u20b9${(t.fee-tot).toLocaleString('en-IN')}</small>`,'Record',_CI.part)) return;
         const p={teacherId:id,teacherName:t.name,subject:t.subject,amount:amt,type:'partial',paidOn:po,timestamp:Date.now()};
-        if(!navigator.onLine){ p.id='local_'+Date.now(); payments.push(p); saveToCache(); addDoc(pyCol(),p).catch(()=>{}); toast('Partial \u20b9'+amt.toLocaleString('en-IN')+' queued','success'); }
-        else { const ref=await addDoc(pyCol(),p); p.id=ref.id; payments.push(p); saveToCache();
-        toast('Partial \u20b9'+amt.toLocaleString('en-IN')+' recorded','success'); }
+        const ref=await addDoc(pyCol(),p); p.id=ref.id; payments.push(p); saveToCache();
+        toast('Partial \u20b9'+amt.toLocaleString('en-IN')+' recorded','success');
       } else if(type==='advance'){
         if(dm>0) return toast('Clear dues first','error');
         const v = parseInt(document.getElementById('tds-pay-advance')?.value);
@@ -8307,9 +8199,8 @@
         const amt = v*t.fee;
         if(!await confirm2('Advance Payment',`Pay <strong style="color:#f0f0f8">\u20b9${amt.toLocaleString('en-IN')}</strong> advance for <strong style="color:#f0f0f8">${v} month${v>1?'s':''}</strong> to ${t.name}?`,'Pay',_CI.adv)) return;
         const p={teacherId:id,teacherName:t.name,subject:t.subject,monthsPaid:v,advanceMonths:v,amount:amt,type:'advance',paidOn:po,timestamp:Date.now()};
-        if(!navigator.onLine){ p.id='local_'+Date.now(); payments.push(p); saveToCache(); addDoc(pyCol(),p).catch(()=>{}); toast('Advance \u20b9'+amt.toLocaleString('en-IN')+' queued','success'); }
-        else { const ref=await addDoc(pyCol(),p); p.id=ref.id; payments.push(p); saveToCache();
-        toast('Advance \u20b9'+amt.toLocaleString('en-IN')+' paid \u2713','success'); }
+        const ref=await addDoc(pyCol(),p); p.id=ref.id; payments.push(p); saveToCache();
+        toast('Advance \u20b9'+amt.toLocaleString('en-IN')+' paid \u2713','success');
       }
       setTimeout(updateTotalCard, 80);
       renderCards();
@@ -8446,15 +8337,6 @@
     sbSetPage('home');
 
     // Search topbar button — focuses the search input (renders it if needed)
-    // ── Desktop: Cmd/Ctrl+K focuses search ──
-    document.addEventListener('keydown', e => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        const si = document.getElementById('teacherSearchInp') || document.getElementById('searchInp');
-        if (si) { si.focus(); si.select(); }
-      }
-    });
-
     document.getElementById('searchTopbarBtn')?.addEventListener('click',()=>{
       const inp = document.querySelector('#appInner .search-input');
       if(inp){
@@ -8676,11 +8558,7 @@
         partial: typeBase.filter(p=>p.type==='partial').length,
         advance: typeBase.filter(p=>p.type==='advance').length,
       };
-      const typeRow = `<div class="hist-filter-row">
-        ${[['all','·'],['full','Paid'],['partial','Part'],['advance','Adv']].filter(([k])=>cts[k]>0).map(([k,l]) =>
-          `<div class="hist-filter-chip${_histFilter===k?' active':''}" onclick="_setHistFilter('${k}')">${l} <span style="opacity:.6">${cts[k]}</span></div>`
-        ).join('')}
-      </div>`;
+      const typeRow = ''; // type chips removed per user request
 
       filEl.innerHTML = periodRow + row2 + typeRow;
 
