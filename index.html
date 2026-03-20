@@ -8643,10 +8643,8 @@
       }
 
       // ── Type filter ────────────────────────────────────────
-      const shown = _histFilter === 'all' ? batchFiltered
-        : batchFiltered.filter(p => (p.type||'full') === _histFilter);
-      shown.sort((a,b) => b.timestamp - a.timestamp);
-
+      const shown = batchFiltered;
+shown.sort((a,b) => b.timestamp - a.timestamp);
       // ── Build filter rows ──────────────────────────────────
       // Row 1: period
       const periodRow = `<div class="hist-filter-row" style="margin-bottom:8px">
