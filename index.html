@@ -6776,7 +6776,7 @@
     }
 
     // ── Primary offline boot — 200ms ──────────────────────────────────────
-    // ONLY runs offline. Online = Firebase handles boot directly.
+    // ONLY runs when offline. Online = Firebase handles auth directly.
     setTimeout(async () => {
       if (navigator.onLine) return;
       if (loaded || _offlineBooted) return;
@@ -6787,7 +6787,7 @@
     }, 150);
 
     // ── Secondary offline boot — 1400ms ───────────────────────────────────
-    // ONLY runs offline.
+    // ONLY runs when offline.
     setTimeout(async () => {
       if (navigator.onLine) return;
       if (loaded || _offlineBooted) return;
@@ -7558,9 +7558,8 @@
           toast(`${nm} added to ${batches[bid].name} ✓`,'success');
         } else {
           // Save to standalone students collection
-          const _newRef = await addDoc(collection(db,'users',uid(),'students'),sd);
-          // Push locally so card appears immediately without reload
-          _standaloneStudents.push({id:_newRef.id,...sd});
+          const _ssRef = await addDoc(collection(db,'users',uid(),'students'),sd);
+          _standaloneStudents.push({id:_ssRef.id,...sd});
           idbSet('standalone_students',_standaloneStudents);
           toast(`${nm} added ✓`,'success');
         }
