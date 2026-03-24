@@ -13,6 +13,21 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Fee Tracker">
   <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="description" content="Fee Tracker — Smart, simple fee management for students and teachers. Track tuition payments, manage batches, and never miss a due date.">
+  <meta property="og:type"         content="website">
+  <meta property="og:url"          content="https://fee.tracker1.workers.dev/">
+  <meta property="og:title"        content="Fee Tracker — Smart · Simple · Personal">
+  <meta property="og:description"  content="Track tuition fees and payments effortlessly. Students see what they owe. Teachers manage batches and collect dues — all in one place.">
+  <meta property="og:image"        content="https://fee.tracker1.workers.dev/preview.png">
+  <meta property="og:image:width"  content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name"    content="Fee Tracker">
+  <meta property="og:locale"       content="en_IN">
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:title"       content="Fee Tracker — Smart · Simple · Personal">
+  <meta name="twitter:description" content="Track tuition fees effortlessly. Works offline, PWA ready.">
+  <meta name="twitter:image"       content="https://fee.tracker1.workers.dev/preview.png">
+  <link rel="canonical"            href="https://fee.tracker1.workers.dev/">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
@@ -4669,6 +4684,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app-check.js";
     import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc, updateDoc,
              enableIndexedDbPersistence }
       from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -4709,6 +4725,10 @@
 
     const cfg = { apiKey:"AIzaSyDlpLbd5g78eHv_elhiiLRlOdhPMvn9ijA", authDomain:"fee-tracker-f32f8.firebaseapp.com", projectId:"fee-tracker-f32f8", storageBucket:"fee-tracker-f32f8.firebasestorage.app", messagingSenderId:"1061066310105", appId:"1:1061066310105:web:4ca8c0feaa9d6614cd19c8" };
     const _app = initializeApp(cfg);
+    initializeAppCheck(_app, {
+      provider: new ReCaptchaV3Provider('6LfvBpIsAAAAAGwH54i-DnUY-UXEVqOnSFj944ex'),
+      isTokenAutoRefreshEnabled: true
+    });
     const db   = getFirestore(_app);
     const auth = getAuth();
     const provider = new GoogleAuthProvider();
