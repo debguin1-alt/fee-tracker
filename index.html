@@ -14,20 +14,20 @@
   <meta name="apple-mobile-web-app-title" content="Fee Tracker">
   <link rel="apple-touch-icon" href="icon-192.png">
   <meta name="description" content="Fee Tracker — Smart, simple fee management for students and teachers. Track tuition payments, manage batches, and never miss a due date.">
-  <meta property="og:type"         content="website">
-  <meta property="og:url"          content="https://fee.tracker1.workers.dev/">
-  <meta property="og:title"        content="Fee Tracker — Smart · Simple · Personal">
-  <meta property="og:description"  content="Track tuition fees and payments effortlessly. Students see what they owe. Teachers manage batches and collect dues — all in one place.">
-  <meta property="og:image"        content="https://fee.tracker1.workers.dev/preview.png">
-  <meta property="og:image:width"  content="1200">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://fee.tracker1.workers.dev/">
+  <meta property="og:title" content="Fee Tracker — Smart · Simple · Personal">
+  <meta property="og:description" content="Track tuition fees and payments effortlessly. Students see what they owe. Teachers manage batches and collect dues — all in one place.">
+  <meta property="og:image" content="https://fee.tracker1.workers.dev/preview.png">
+  <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:site_name"    content="Fee Tracker">
-  <meta property="og:locale"       content="en_IN">
-  <meta name="twitter:card"        content="summary_large_image">
-  <meta name="twitter:title"       content="Fee Tracker — Smart · Simple · Personal">
+  <meta property="og:site_name" content="Fee Tracker">
+  <meta property="og:locale" content="en_IN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Fee Tracker — Smart · Simple · Personal">
   <meta name="twitter:description" content="Track tuition fees effortlessly. Works offline, PWA ready.">
-  <meta name="twitter:image"       content="https://fee.tracker1.workers.dev/preview.png">
-  <link rel="canonical"            href="https://fee.tracker1.workers.dev/">
+  <meta name="twitter:image" content="https://fee.tracker1.workers.dev/preview.png">
+  <link rel="canonical" href="https://fee.tracker1.workers.dev/">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
@@ -4165,6 +4165,11 @@
         <span class="menu-item-label">Add to Home Screen</span>
         <span style="display:flex;align-items:center;color:var(--muted);"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </div>
+      <div class="menu-item" id="menuConnectBtn" onclick="closeMenu();setTimeout(()=>{ window.location.href='connect.html'; },80);">
+        <span class="menu-item-icon" style="display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="4" cy="8" r="2.5" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="4" r="2.5" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.5"/><line x1="6.2" y1="7" x2="9.8" y2="4.8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="6.2" y1="9" x2="9.8" y2="11.2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></span>
+        <span class="menu-item-label">Connect</span>
+        <span style="display:flex;align-items:center;color:var(--muted);"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
       <div class="menu-item" id="menuHistoryBtn" onclick="closeMenu();openHistoryScreen()">
         <span class="menu-item-icon" style="display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" fill="currentColor" opacity=".1" stroke="currentColor" stroke-width="1.4"/><polyline points="8,4.5 8,8 10.5,9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         <span class="menu-item-label">Payment History</span>
@@ -4725,10 +4730,12 @@
 
     const cfg = { apiKey:"AIzaSyDlpLbd5g78eHv_elhiiLRlOdhPMvn9ijA", authDomain:"fee-tracker-f32f8.firebaseapp.com", projectId:"fee-tracker-f32f8", storageBucket:"fee-tracker-f32f8.firebasestorage.app", messagingSenderId:"1061066310105", appId:"1:1061066310105:web:4ca8c0feaa9d6614cd19c8" };
     const _app = initializeApp(cfg);
-    initializeAppCheck(_app, {
-      provider: new ReCaptchaV3Provider('6LfvBpIsAAAAAGwH54i-DnUY-UXEVqOnSFj944ex'),
-      isTokenAutoRefreshEnabled: true
-    });
+    try {
+      initializeAppCheck(_app, {
+        provider: new ReCaptchaV3Provider('6LfvBpIsAAAAAGwH54i-DnUY-UXEVqOnSFj944ex'),
+        isTokenAutoRefreshEnabled: true
+      });
+    } catch(e) { console.warn('[AppCheck] init failed:', e.message); }
     const db   = getFirestore(_app);
     const auth = getAuth();
     const provider = new GoogleAuthProvider();
@@ -5045,11 +5052,14 @@
     // DUE CALC
     function lastPaid(id){
       const t=teachers[id];
-      let lp={month:t.baselineMonth,year:t.baselineYear};
+      // Seed day from lastPaidDate field if available (YYYY-MM-DD)
+      let seedDay=1;
+      if(t.lastPaidDate){ const pp=t.lastPaidDate.split('-'); if(pp[2]) seedDay=parseInt(pp[2])||1; }
+      let lp={month:t.baselineMonth,year:t.baselineYear,day:seedDay};
       let rp=0;
       payments.filter(p=>p.teacherId===id).sort((a,b)=>a.timestamp-b.timestamp).forEach(p=>{
-        if(p.type==='partial'){ rp+=p.amount; const c=Math.floor(rp/t.fee); if(c>0){lp=addM(lp,c);rp%=t.fee;} }
-        else if(p.monthsPaid){ lp=addM(lp,p.monthsPaid); rp=0; }
+        if(p.type==='partial'){ rp+=p.amount; const c=Math.floor(rp/t.fee); if(c>0){lp=addM(lp,c); lp.day=p.paidOn?.day||lp.day; rp%=t.fee;} }
+        else if(p.monthsPaid){ lp=addM(lp,p.monthsPaid); lp.day=p.paidOn?.day||1; rp=0; }
       });
       return lp;
     }
@@ -5060,7 +5070,13 @@
       });
       return c;
     }
-    function monthsDue(id){ const n=new Date(); return Math.max(mBetween(lastPaid(id),{month:n.getMonth()+1,year:n.getFullYear()}),0); }
+    function monthsDue(id){
+      const n=new Date(), lp=lastPaid(id);
+      let m=mBetween(lp,{month:n.getMonth()+1,year:n.getFullYear()});
+      // Day-aware: if today < payment day of month, that month isn't due yet
+      if(m>0 && n.getDate()<(lp.day||1)) m--;
+      return Math.max(m,0);
+    }
     function calcDue(id){
       const t=teachers[id],mo=monthsDue(id); if(!mo) return 0;
       let d=mo*t.fee;
@@ -6027,16 +6043,18 @@
     const sFee=bid=>batches[bid]?.fee||0;
     function sLastPaid(bid,sid){
       const fee=sFee(bid),st=batchStudents[sid];
-      let lp={month:st.baselineMonth,year:st.baselineYear},rp=0;
+      let seedDay=1;
+      if(st.lastPaidDate){const pp=st.lastPaidDate.split('-');if(pp[2])seedDay=parseInt(pp[2])||1;}
+      let lp={month:st.baselineMonth,year:st.baselineYear,day:seedDay},rp=0;
       batchPayments.filter(p=>p.studentId===sid).sort((a,b)=>a.timestamp-b.timestamp).forEach(p=>{
-        if(p.type==='partial'){rp+=p.amount;const cc=Math.floor(rp/fee);if(cc>0){lp=addM(lp,cc);rp%=fee;}}
-        else if(p.monthsPaid){lp=addM(lp,p.monthsPaid);rp=0;}
+        if(p.type==='partial'){rp+=p.amount;const cc=Math.floor(rp/fee);if(cc>0){lp=addM(lp,cc);lp.day=p.paidOn?.day||lp.day;rp%=fee;}}
+        else if(p.monthsPaid){lp=addM(lp,p.monthsPaid);lp.day=p.paidOn?.day||1;rp=0;}
       });return lp;
     }
     function sPartialBal(bid,sid){const fee=sFee(bid);let cc=0;
       batchPayments.filter(p=>p.studentId===sid).sort((a,b)=>a.timestamp-b.timestamp)
         .forEach(p=>{if(p.type==='partial'){cc+=p.amount;cc%=fee;}else if(p.monthsPaid)cc=0;});return cc;}
-    function sMonthsDue(bid,sid){const n=new Date();return Math.max(mBetween(sLastPaid(bid,sid),{month:n.getMonth()+1,year:n.getFullYear()}),0);}
+    function sMonthsDue(bid,sid){const n=new Date(),lp=sLastPaid(bid,sid);let m=mBetween(lp,{month:n.getMonth()+1,year:n.getFullYear()});if(m>0&&n.getDate()<(lp.day||1))m--;return Math.max(m,0);}
     function sCalcDue(bid,sid){const fee=sFee(bid),mo=sMonthsDue(bid,sid);return mo?Math.max(mo*fee-sPartialBal(bid,sid),0):0;}
     function sTotalDue(bid){return Object.keys(batchStudents).reduce((s,sid)=>s+sCalcDue(bid,sid),0);}
     function sLastPaidStr(sid){const tp=batchPayments.filter(p=>p.studentId===sid).sort((a,b)=>b.timestamp-a.timestamp);

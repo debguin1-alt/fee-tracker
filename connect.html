@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Connect — Fee Tracker</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#080812" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f2f2fa" media="(prefers-color-scheme: light)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#06060f; --surface:#0d0d1f; --surface2:#131328; --surface3:#1a1a35;
+      --border:rgba(255,255,255,.065); --border2:rgba(255,255,255,.11);
+      --accent:#7c6bff; --accent2:#ff6b9d; --accent3:#00d4aa; --accent4:#ff9a3c;
+      --accent-dim:rgba(124,107,255,.13);
+      --text:#eeeef8; --text2:#8a8ab5; --muted:#4a4a72;
+      --yellow:#ffd166; --red:#ff4d6d;
+      --r-xl:22px; --r-lg:15px; --r-md:11px; --r-sm:7px;
+      --card-shadow:0 1px 0 rgba(255,255,255,.04),0 4px 20px rgba(0,0,0,.3);
+    }
+    :root.light {
+      --bg:#f0f0f8; --surface:#ffffff; --surface2:#e8e8f4; --surface3:#d8d8ee;
+      --border:rgba(80,80,140,.09); --border2:rgba(80,80,140,.16);
+      --accent:#6255e8; --accent2:#e8527a; --accent3:#00b894; --accent4:#e07020;
+      --accent-dim:rgba(98,85,232,.12);
+      --text:#18182e; --text2:#4e4e82; --muted:#8888b2;
+      --yellow:#c48a00; --red:#d63050;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;user-select:none;-webkit-user-select:none;}
+    input,textarea,select{user-select:text;-webkit-user-select:text;}
+    @keyframes ftSlideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes ftFadeIn{from{opacity:0}to{opacity:1}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+    /* ── TOPBAR ── */
+    .topbar{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top,16px) + 12px) 16px 12px;background:linear-gradient(180deg,var(--bg) 72%,transparent);animation:ftFadeIn .3s ease both;}
+    .back-btn{width:38px;height:38px;border-radius:13px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background .15s,transform .12s;}
+    .back-btn:active{transform:scale(.9);background:var(--surface3);}
+    .topbar-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:var(--text);letter-spacing:-.3px;flex:1;}
+    .topbar-badge{background:var(--accent2);color:#fff;font-size:11px;font-weight:700;border-radius:10px;padding:2px 7px;min-width:20px;text-align:center;}
+
+    /* ── MAIN ── */
+    .page{padding:calc(env(safe-area-inset-top,16px) + 66px) 0 32px;max-width:480px;margin:0 auto;}
+    .section{padding:0 16px;margin-bottom:24px;animation:ftSlideUp .28s ease both;}
+
+    /* ── SEARCH ── */
+    .search-wrap{position:relative;margin-bottom:16px;}
+    .search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;display:flex;}
+    .search-input{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:14px;padding:11px 14px 11px 40px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;}
+    .search-input::placeholder{color:var(--muted);}
+    .search-input:focus{border-color:rgba(124,107,255,.4);}
+
+    /* ── SECTION LABEL ── */
+    .sec-lbl{font-family:'Syne',sans-serif;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+
+    /* ── TEACHER CARD (browse) ── */
+    .tc-card{background:var(--surface);border:1.5px solid var(--border);border-radius:18px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;animation:ftSlideUp .24s ease both;transition:border-color .15s,background .15s;}
+    .tc-card:active{background:var(--surface2);}
+    .tc-avatar{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:#fff;flex-shrink:0;}
+    .tc-info{flex:1;min-width:0;}
+    .tc-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--text);margin-bottom:2px;}
+    .tc-meta{font-size:11px;color:var(--muted);}
+    .tc-fee{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--accent3);flex-shrink:0;text-align:right;}
+    .tc-fee-lbl{font-size:9px;color:var(--muted);text-align:right;}
+
+    /* ── REQUEST BUTTON ── */
+    .req-btn{border:none;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;flex-shrink:0;}
+    .req-btn.primary{background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(124,107,255,.3);}
+    .req-btn.primary:active{transform:scale(.95);}
+    .req-btn.sent{background:var(--surface2);color:var(--muted);border:1px solid var(--border);cursor:default;}
+    .req-btn.connected{background:rgba(0,212,170,.12);color:var(--accent3);border:1px solid rgba(0,212,170,.25);cursor:default;}
+
+    /* ── MY PROFILE CARD (teacher) ── */
+    .profile-card{background:linear-gradient(135deg,rgba(124,107,255,.18),rgba(255,107,157,.1));border:1.5px solid rgba(124,107,255,.25);border-radius:22px;padding:20px;margin-bottom:16px;}
+    .profile-card-top{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+    .profile-big-avatar{width:56px;height:56px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--accent),#5240e0);flex-shrink:0;}
+    .profile-card-name{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.3px;}
+    .profile-card-sub{font-size:12px;color:var(--text2);margin-top:3px;}
+    .profile-stat-row{display:flex;gap:8px;margin-bottom:14px;}
+    .profile-stat{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:12px;padding:10px 12px;}
+    .profile-stat-val{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--text);}
+    .profile-stat-lbl{font-size:10px;color:var(--muted);margin-top:2px;}
+    .share-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--accent);color:#fff;border:none;border-radius:13px;padding:13px;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;box-shadow:0 4px 18px rgba(124,107,255,.35);}
+    .share-btn:active{transform:scale(.97);}
+    .share-link-row{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-top:10px;}
+    .share-link-txt{flex:1;font-size:12px;color:var(--text2);font-family:monospace,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .copy-btn{background:var(--surface3);border:1px solid var(--border2);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;flex-shrink:0;transition:all .15s;}
+    .copy-btn:active{background:var(--accent-dim);color:var(--accent);}
+
+    /* ── CODE CARD (teacher) ── */
+    .code-card{background:var(--surface);border:1.5px solid var(--border);border-radius:18px;padding:16px;margin-bottom:10px;}
+    .code-display{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;letter-spacing:8px;color:var(--accent);text-align:center;padding:16px 0 8px;}
+    .code-hint{font-size:12px;color:var(--muted);text-align:center;margin-bottom:14px;}
+    .code-regen{display:flex;align-items:center;justify-content:center;gap:6px;background:transparent;border:1px solid var(--border2);border-radius:10px;padding:8px 16px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;width:100%;transition:all .15s;}
+    .code-regen:active{background:var(--surface2);}
+
+    /* ── REQUEST ITEM (teacher incoming) ── */
+    .req-item{background:var(--surface);border:1.5px solid var(--border);border-radius:18px;padding:14px;margin-bottom:10px;animation:ftSlideUp .24s ease both;}
+    .req-item-top{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+    .req-student-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--accent2),#c040a0);flex-shrink:0;}
+    .req-student-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--text);}
+    .req-student-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+    .req-time{font-size:10px;color:var(--muted);margin-left:auto;flex-shrink:0;}
+    .req-actions{display:flex;gap:8px;}
+    .req-accept{flex:1;background:rgba(0,212,170,.12);color:var(--accent3);border:1.5px solid rgba(0,212,170,.3);border-radius:11px;padding:9px;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;}
+    .req-accept:active{background:rgba(0,212,170,.22);}
+    .req-decline{flex:1;background:rgba(255,77,109,.08);color:var(--red);border:1.5px solid rgba(255,77,109,.2);border-radius:11px;padding:9px;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;}
+    .req-decline:active{background:rgba(255,77,109,.15);}
+
+    /* ── CONNECTION ITEM ── */
+    .conn-item{background:var(--surface);border:1.5px solid var(--border);border-radius:18px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;animation:ftSlideUp .24s ease both;}
+    .conn-badge{font-size:10px;font-weight:700;border-radius:6px;padding:3px 7px;background:rgba(0,212,170,.12);color:var(--accent3);border:1px solid rgba(0,212,170,.25);margin-left:auto;flex-shrink:0;}
+    .conn-badge.pending{background:rgba(255,154,60,.12);color:var(--accent4);border-color:rgba(255,154,60,.25);}
+
+    /* ── SETUP CARD (teacher no profile) ── */
+    .setup-card{background:linear-gradient(135deg,rgba(124,107,255,.13),rgba(0,212,170,.07));border:1.5px solid rgba(124,107,255,.2);border-radius:22px;padding:24px;text-align:center;margin-bottom:16px;}
+    .setup-icon{font-size:40px;margin-bottom:12px;}
+    .setup-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--text);margin-bottom:6px;}
+    .setup-sub{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:18px;}
+    .setup-btn{background:var(--accent);color:#fff;border:none;border-radius:13px;padding:13px 24px;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;box-shadow:0 4px 18px rgba(124,107,255,.35);}
+    .setup-btn:active{transform:scale(.97);}
+
+    /* ── MODAL ── */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:200;display:flex;align-items:flex-end;justify-content:center;animation:ftFadeIn .15s ease;}
+    .modal-overlay.hidden{display:none!important;}
+    .modal-sheet{background:var(--surface);border:1px solid var(--border2);border-radius:22px 22px 0 0;padding:16px 18px calc(env(safe-area-inset-bottom,0px) + 32px);width:100%;max-width:480px;max-height:90vh;overflow-y:auto;}
+    .modal-handle{width:36px;height:4px;border-radius:2px;background:var(--border2);margin:0 auto 18px;}
+    .modal-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--text);margin-bottom:16px;}
+    .field-label{font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text2);margin-bottom:6px;display:block;}
+    .field-input{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:13px;padding:12px 14px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;margin-bottom:14px;transition:border-color .2s;}
+    .field-input:focus{border-color:rgba(124,107,255,.4);}
+    .field-input::placeholder{color:var(--muted);}
+    .chip-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px;}
+    .chip{background:var(--surface2);border:1.5px solid var(--border);border-radius:20px;padding:6px 13px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s;}
+    .chip.selected{background:rgba(0,212,170,.12);border-color:rgba(0,212,170,.35);color:var(--accent3);}
+    .btn-primary{width:100%;background:var(--accent);color:#fff;border:none;border-radius:13px;padding:14px;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;box-shadow:0 4px 18px rgba(124,107,255,.3);margin-top:4px;}
+    .btn-primary:active{transform:scale(.98);}
+    .btn-primary:disabled{opacity:.5;cursor:not-allowed;}
+
+    /* ── EMPTY STATE ── */
+    .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;text-align:center;gap:10px;}
+    .empty-icon{font-size:36px;opacity:.4;}
+    .empty-txt{font-size:14px;color:var(--muted);line-height:1.6;}
+
+    /* ── TABS ── */
+    .tab-row{display:flex;background:var(--surface2);border-radius:14px;padding:3px;margin-bottom:20px;}
+    .tab{flex:1;padding:9px;text-align:center;font-size:13px;font-weight:700;font-family:'Syne',sans-serif;border-radius:11px;cursor:pointer;color:var(--text2);transition:all .2s;}
+    .tab.active{background:var(--surface);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.2);}
+
+    /* ── SPINNER ── */
+    .spinner{width:32px;height:32px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:32px auto;}
+
+    /* ── TOAST ── */
+    .toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--surface2);border:1px solid var(--border2);border-radius:50px;padding:10px 22px;font-size:13px;font-weight:600;color:var(--text);opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;z-index:999;white-space:nowrap;}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+    .toast.success{border-color:rgba(0,212,170,.35);color:var(--accent3);}
+    .toast.error{border-color:rgba(255,77,109,.35);color:var(--red);}
+
+    /* ── LOADING SCREEN ── */
+    #loadingScreen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:14px;}
+    #loadingScreen.hidden{display:none;}
+    .load-logo{width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,var(--accent),#5240e0);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#fff;}
+    .load-txt{font-size:13px;color:var(--muted);}
+  </style>
+</head>
+<body>
+
+<div id="loadingScreen">
+  <div class="load-logo">₹</div>
+  <div class="spinner" style="margin:0;width:24px;height:24px;border-width:2.5px;"></div>
+  <div class="load-txt">Loading…</div>
+</div>
+
+<!-- LOGIN GATE -->
+<div id="loginGate" class="hidden" style="position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;">
+  <div style="width:64px;height:64px;border-radius:20px;background:linear-gradient(135deg,var(--accent),#5240e0);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:#fff;margin-bottom:8px;">₹</div>
+  <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--text);text-align:center;">Sign in to Connect</div>
+  <div style="font-size:14px;color:var(--muted);text-align:center;line-height:1.6;">You need to be signed in to Fee Tracker to use Connect.</div>
+  <button onclick="window.location.href='index.html'" style="background:var(--accent);color:#fff;border:none;border-radius:14px;padding:14px 32px;font-size:15px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:8px;">Go to Fee Tracker</button>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar" id="topbar" style="display:none;">
+  <button class="back-btn" onclick="history.back()">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 4L6 9l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <span class="topbar-title" id="topbarTitle">Connect</span>
+  <span class="topbar-badge hidden" id="pendingBadge">0</span>
+</div>
+
+<!-- MAIN PAGE -->
+<div class="page" id="mainPage" style="display:none;">
+
+  <!-- STUDENT VIEW -->
+  <div id="studentView">
+    <!-- Tab row -->
+    <div class="section">
+      <div class="tab-row">
+        <div class="tab active" id="tabBrowse" onclick="switchTab('browse')">Find Teachers</div>
+        <div class="tab" id="tabMyConn" onclick="switchTab('myconn')">My Connections</div>
+      </div>
+    </div>
+
+    <!-- Browse tab -->
+    <div id="browsePaneWrap" class="section">
+      <div class="search-wrap">
+        <span class="search-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="10" x2="14" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+        <input class="search-input" id="teacherSearch" placeholder="Search by name or subject…" oninput="filterTeachers()" autocomplete="off" autocorrect="off" spellcheck="false"/>
+      </div>
+      <div class="sec-lbl">All Teachers</div>
+      <div id="teacherListWrap"><div class="spinner"></div></div>
+    </div>
+
+    <!-- My connections tab -->
+    <div id="myConnPaneWrap" class="section" style="display:none;">
+      <div class="sec-lbl">Connected Teachers</div>
+      <div id="myConnListWrap"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- TEACHER VIEW -->
+  <div id="teacherView" style="display:none;">
+    <div class="section">
+      <!-- No profile -->
+      <div id="noProfileCard" style="display:none;">
+        <div class="setup-card">
+          <div class="setup-icon">👤</div>
+          <div class="setup-title">Create Your Profile</div>
+          <div class="setup-sub">Make your profile public so students can find and connect with you.</div>
+          <button class="setup-btn" onclick="openProfileSetup()">Create Profile</button>
+        </div>
+      </div>
+
+      <!-- Has profile -->
+      <div id="hasProfileCard" style="display:none;">
+        <div class="profile-card" id="teacherProfileCard"></div>
+
+        <!-- Verification Code -->
+        <div class="sec-lbl" style="margin-top:4px;">Verification Code</div>
+        <div class="code-card">
+          <div class="code-display" id="codeDisplay">——</div>
+          <div class="code-hint">Share this code with students to verify your identity</div>
+          <button class="code-regen" onclick="regenCode()">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7a5 5 0 0 1 9.5-2M12 7a5 5 0 0 1-9.5 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M11 2.5V5H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 9v2.5H.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Regenerate Code
+          </button>
+        </div>
+
+        <!-- Incoming Requests -->
+        <div id="reqSection">
+          <div class="sec-lbl" style="margin-top:16px;">Join Requests <span id="reqCount" style="color:var(--accent2);"></span></div>
+          <div id="reqListWrap"><div class="spinner"></div></div>
+        </div>
+
+        <!-- Connected Students -->
+        <div id="studentsSection">
+          <div class="sec-lbl" style="margin-top:16px;">Connected Students</div>
+          <div id="connStudentsWrap"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE SETUP MODAL -->
+<div class="modal-overlay hidden" id="profileSetupModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Your Public Profile</div>
+    <label class="field-label">Full Name</label>
+    <input class="field-input" id="setupName" placeholder="e.g. Mr. Roy"/>
+    <label class="field-label">Subjects You Teach</label>
+    <input class="field-input" id="setupSubject" placeholder="e.g. Mathematics, Physics"/>
+    <label class="field-label">Classes You Teach</label>
+    <div class="chip-row" id="setupClassChips">
+      <div class="chip" data-val="Cls 9" onclick="toggleSetupChip(this)">Cls 9</div>
+      <div class="chip" data-val="Cls 10" onclick="toggleSetupChip(this)">Cls 10</div>
+      <div class="chip" data-val="Cls 11" onclick="toggleSetupChip(this)">Cls 11</div>
+      <div class="chip" data-val="Cls 12" onclick="toggleSetupChip(this)">Cls 12</div>
+      <div class="chip" data-val="1st Yr" onclick="toggleSetupChip(this)">1st Yr</div>
+      <div class="chip" data-val="2nd Yr" onclick="toggleSetupChip(this)">2nd Yr</div>
+      <div class="chip" data-val="3rd Yr" onclick="toggleSetupChip(this)">3rd Yr</div>
+      <div class="chip" data-val="Grad" onclick="toggleSetupChip(this)">Grad</div>
+    </div>
+    <label class="field-label">Monthly Fee (₹)</label>
+    <input class="field-input" id="setupFee" type="number" placeholder="e.g. 800"/>
+    <label class="field-label">Academic Session</label>
+    <input class="field-input" id="setupSession" placeholder="e.g. 2025–26"/>
+    <button class="btn-primary" id="saveProfileBtn" onclick="saveTeacherProfile()">Save Profile</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app-check.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import {
+    getFirestore, collection, doc, getDoc, getDocs, setDoc, addDoc,
+    updateDoc, deleteDoc, query, where, orderBy, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const cfg = {
+    apiKey:"AIzaSyDlpLbd5g78eHv_elhiiLRlOdhPMvn9ijA",
+    authDomain:"fee-tracker-f32f8.firebaseapp.com",
+    projectId:"fee-tracker-f32f8",
+    storageBucket:"fee-tracker-f32f8.firebasestorage.app",
+    messagingSenderId:"1061066310105",
+    appId:"1:1061066310105:web:4ca8c0feaa9d6614cd19c8"
+  };
+
+  const _app = initializeApp(cfg);
+  try {
+    initializeAppCheck(_app, {
+      provider: new ReCaptchaV3Provider('6LfvBpIsAAAAAGwH54i-DnUY-UXEVqOnSFj944ex'),
+      isTokenAutoRefreshEnabled: true
+    });
+  } catch(e){ console.warn('[AppCheck]', e.message); }
+
+  const auth = getAuth(_app);
+  const db   = getFirestore(_app);
+
+  // ── Collections ──
+  const profilesCol   = () => collection(db, 'profiles');
+  const profileDoc    = uid  => doc(db, 'profiles', uid);
+  const connectionsCol = ()  => collection(db, 'connections');
+  const connDoc       = id   => doc(db, 'connections', id);
+
+  // ── State ──
+  let cu = null, myProfile = null, allTeachers = [], myConnections = [];
+  let _toastTimer = null;
+
+  // ── Toast ──
+  function toast(msg, type=''){
+    const t = document.getElementById('toast');
+    if(_toastTimer){ clearTimeout(_toastTimer); t.classList.remove('show'); void t.offsetWidth; }
+    t.textContent = msg; t.className = 'toast '+(type||'');
+    void t.offsetWidth; t.classList.add('show');
+    _toastTimer = setTimeout(()=>{ t.classList.remove('show'); _toastTimer=null; }, 2800);
+  }
+
+  function hide(id){ const el=document.getElementById(id); if(el) el.classList.add('hidden'); }
+  function show(id){ const el=document.getElementById(id); if(el) el.classList.remove('hidden'); }
+  function setHTML(id,h){ const el=document.getElementById(id); if(el) el.innerHTML=h; }
+
+  // ── Colour for avatars ──
+  const COLORS = ['#7c6bff','#ff6b9d','#00d4aa','#ff9a3c','#5a9eff','#c084fc'];
+  function avatarColor(name){ let h=0; for(let c of name) h=(h<<5)-h+c.charCodeAt(0); return COLORS[Math.abs(h)%COLORS.length]; }
+  function initials(name){ return (name||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2); }
+
+  // ── Time ago ──
+  function timeAgo(ts){
+    if(!ts) return '';
+    const s = Math.floor((Date.now()-(ts.toMillis ? ts.toMillis() : ts))/1000);
+    if(s<60) return 'just now';
+    if(s<3600) return Math.floor(s/60)+'m ago';
+    if(s<86400) return Math.floor(s/3600)+'h ago';
+    return Math.floor(s/86400)+'d ago';
+  }
+
+  // ── Generate 6-char alphanumeric code ──
+  function genCode(){ return Math.random().toString(36).slice(2,8).toUpperCase(); }
+
+  // ── Apply saved theme ──
+  (function(){
+    const saved=localStorage.getItem('ft_theme');
+    const dark = saved ? saved==='dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if(!dark) document.documentElement.classList.add('light');
+  })();
+
+  // ── Auth guard ──
+  onAuthStateChanged(auth, async user => {
+    if(!user){
+      hide('loadingScreen');
+      document.getElementById('loginGate').classList.remove('hidden');
+      return;
+    }
+    cu = user;
+    await boot();
+  });
+
+  async function boot(){
+    // load my profile (from main app meta/profile)
+    try {
+      const snap = await getDoc(doc(db, 'users', cu.uid, 'meta', 'profile'));
+      if(snap.exists()) myProfile = snap.data();
+    } catch(e){ console.warn('profile load:', e.message); }
+
+    hide('loadingScreen');
+    document.getElementById('topbar').style.display = '';
+    document.getElementById('mainPage').style.display = '';
+
+    if(myProfile?.role === 'teacher'){
+      document.getElementById('teacherView').style.display = '';
+      document.getElementById('topbarTitle').textContent = 'Connect';
+      await bootTeacher();
+    } else {
+      document.getElementById('studentView').style.display = '';
+      document.getElementById('topbarTitle').textContent = 'Find Teachers';
+      await bootStudent();
+    }
+  }
+
+  // ═══════════════════════════ STUDENT ═══════════════════════════
+
+  async function bootStudent(){
+    await Promise.all([loadAllTeachers(), loadMyConnections()]);
+    renderTeacherList();
+    renderMyConnections();
+  }
+
+  async function loadAllTeachers(){
+    try {
+      const snap = await getDocs(query(profilesCol(), where('role','==','teacher')));
+      allTeachers = snap.docs.map(d=>({id:d.id,...d.data()}));
+    } catch(e){ console.warn('teachers:', e.message); allTeachers=[]; }
+  }
+
+  async function loadMyConnections(){
+    try {
+      const snap = await getDocs(query(connectionsCol(), where('studentId','==',cu.uid)));
+      myConnections = snap.docs.map(d=>({id:d.id,...d.data()}));
+    } catch(e){ console.warn('conns:', e.message); myConnections=[]; }
+  }
+
+  // Expose for search input
+  window.filterTeachers = function(){
+    renderTeacherList();
+  };
+
+  function renderTeacherList(){
+    const q = (document.getElementById('teacherSearch')?.value||'').toLowerCase().trim();
+    const filtered = allTeachers.filter(t=>{
+      if(!q) return true;
+      return (t.name||'').toLowerCase().includes(q) || (t.subject||'').toLowerCase().includes(q);
+    });
+    if(!filtered.length){
+      setHTML('teacherListWrap', `<div class="empty"><div class="empty-icon">🔍</div><div class="empty-txt">${q?'No teacher found for "'+q+'"':'No teachers yet'}</div></div>`);
+      return;
+    }
+    const connMap = {};
+    myConnections.forEach(c=>{ connMap[c.teacherId]=c.status; });
+    setHTML('teacherListWrap', filtered.map(t=>{
+      const col = avatarColor(t.name||'T');
+      const ini = initials(t.name||'T');
+      const status = connMap[t.id];
+      let btn = '';
+      if(status==='active')
+        btn = `<button class="req-btn connected">Connected</button>`;
+      else if(status==='pending')
+        btn = `<button class="req-btn sent">Requested</button>`;
+      else
+        btn = `<button class="req-btn primary" onclick="sendRequest('${t.id}','${(t.name||'').replace(/'/g,"\\'")}')">Request</button>`;
+      return `<div class="tc-card">
+        <div class="tc-avatar" style="background:${col};">${ini}</div>
+        <div class="tc-info">
+          <div class="tc-name">${t.name||'—'}</div>
+          <div class="tc-meta">${[t.subject,t.classes?.join(', ')].filter(Boolean).join(' · ')}</div>
+        </div>
+        <div>
+          <div class="tc-fee">₹${(t.fee||0).toLocaleString('en-IN')}</div>
+          <div class="tc-fee-lbl">/month</div>
+        </div>
+        ${btn}
+      </div>`;
+    }).join(''));
+  }
+
+  window.sendRequest = async function(teacherId, teacherName){
+    const connId = cu.uid + '_' + teacherId;
+    // Check if already exists
+    const existing = myConnections.find(c=>c.teacherId===teacherId);
+    if(existing){ toast('Request already sent',''); return; }
+    try {
+      await setDoc(connDoc(connId), {
+        studentId: cu.uid,
+        studentName: myProfile?.displayName || cu.displayName || 'Student',
+        studentClass: myProfile?.className || '',
+        teacherId,
+        teacherName,
+        status: 'pending',
+        createdAt: serverTimestamp()
+      });
+      myConnections.push({ id:connId, teacherId, status:'pending' });
+      toast(`Request sent to ${teacherName} ✓`, 'success');
+      renderTeacherList();
+    } catch(e){ toast('Failed: '+e.message, 'error'); }
+  };
+
+  function renderMyConnections(){
+    const active  = myConnections.filter(c=>c.status==='active');
+    const pending = myConnections.filter(c=>c.status==='pending');
+    if(!active.length && !pending.length){
+      setHTML('myConnListWrap', `<div class="empty"><div class="empty-icon">🔗</div><div class="empty-txt">No connections yet. Find and request teachers.</div></div>`);
+      return;
+    }
+    const teacherMap = {};
+    allTeachers.forEach(t=>{ teacherMap[t.id]=t; });
+    const rows = [...active, ...pending].map(c=>{
+      const t = teacherMap[c.teacherId]||{};
+      const col = avatarColor(t.name||c.teacherName||'T');
+      const ini = initials(t.name||c.teacherName||'T');
+      const badge = c.status==='active'
+        ? `<span class="conn-badge">Connected</span>`
+        : `<span class="conn-badge pending">Pending</span>`;
+      return `<div class="conn-item">
+        <div class="tc-avatar" style="background:${col};width:40px;height:40px;border-radius:12px;font-size:15px;">${ini}</div>
+        <div class="tc-info">
+          <div class="tc-name">${t.name||c.teacherName||'—'}</div>
+          <div class="tc-meta">${t.subject||''}</div>
+        </div>
+        ${badge}
+      </div>`;
+    }).join('');
+    setHTML('myConnListWrap', rows);
+  }
+
+  window.switchTab = function(tab){
+    const isBrowse = tab==='browse';
+    document.getElementById('tabBrowse').className   = 'tab'+(isBrowse?' active':'');
+    document.getElementById('tabMyConn').className   = 'tab'+(!isBrowse?' active':'');
+    document.getElementById('browsePaneWrap').style.display  = isBrowse  ? '' : 'none';
+    document.getElementById('myConnPaneWrap').style.display  = !isBrowse ? '' : 'none';
+  };
+
+  // ═══════════════════════════ TEACHER ═══════════════════════════
+
+  async function bootTeacher(){
+    // Check for public profile in /profiles/{uid}
+    try {
+      const snap = await getDoc(profileDoc(cu.uid));
+      if(snap.exists()){
+        const p = snap.data();
+        showTeacherProfile(p);
+        await Promise.all([loadRequests(), loadConnectedStudents()]);
+      } else {
+        document.getElementById('noProfileCard').style.display = '';
+      }
+    } catch(e){ console.warn('teacher boot:', e.message); document.getElementById('noProfileCard').style.display=''; }
+  }
+
+  function showTeacherProfile(p){
+    document.getElementById('noProfileCard').style.display = 'none';
+    document.getElementById('hasProfileCard').style.display = '';
+    const col = avatarColor(p.name||'T');
+    const ini = initials(p.name||'T');
+    const url = `${location.origin}${location.pathname}?join=${cu.uid}`;
+    document.getElementById('teacherProfileCard').innerHTML = `
+      <div class="profile-card-top">
+        <div class="profile-big-avatar" style="background:linear-gradient(135deg,${col},${col}cc);">${ini}</div>
+        <div>
+          <div class="profile-card-name">${p.name||'—'}</div>
+          <div class="profile-card-sub">${[p.subject, p.classes?.join(', ')].filter(Boolean).join(' · ')}</div>
+        </div>
+      </div>
+      <div class="profile-stat-row">
+        <div class="profile-stat">
+          <div class="profile-stat-val">₹${(p.fee||0).toLocaleString('en-IN')}</div>
+          <div class="profile-stat-lbl">per month</div>
+        </div>
+        <div class="profile-stat">
+          <div class="profile-stat-val" id="connCount">—</div>
+          <div class="profile-stat-lbl">students</div>
+        </div>
+        <div class="profile-stat">
+          <div class="profile-stat-val" id="pendingCount">—</div>
+          <div class="profile-stat-lbl">pending</div>
+        </div>
+      </div>
+      <button class="share-btn" onclick="shareProfile()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M11 4.5a2 2 0 1 0 0-2 2 2 0 0 0 0 2zM5 8.5a2 2 0 1 0 0-2 2 2 0 0 0 0 2zM11 12.5a2 2 0 1 0 0-2 2 2 0 0 0 0 2z" stroke="currentColor" stroke-width="1.4"/><line x1="7" y1="7.4" x2="9.1" y2="5.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="7" y1="9.6" x2="9.1" y2="11.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Share My Profile
+      </button>
+      <div class="share-link-row">
+        <span class="share-link-txt" id="shareLinkTxt">${url}</span>
+        <button class="copy-btn" onclick="copyLink()">Copy</button>
+      </div>
+      <div style="margin-top:12px;">
+        <button onclick="openProfileSetup(true)" style="background:transparent;border:1px solid var(--border2);border-radius:10px;padding:7px 14px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;width:100%;">Edit Profile</button>
+      </div>
+    `;
+    // Load code
+    loadOrGenCode();
+  }
+
+  async function loadOrGenCode(){
+    try {
+      const snap = await getDoc(profileDoc(cu.uid));
+      const p = snap.data()||{};
+      if(p.code){
+        document.getElementById('codeDisplay').textContent = p.code;
+      } else {
+        const code = genCode();
+        await updateDoc(profileDoc(cu.uid), { code });
+        document.getElementById('codeDisplay').textContent = code;
+      }
+    } catch(e){ console.warn('code:', e.message); }
+  }
+
+  window.regenCode = async function(){
+    const code = genCode();
+    try {
+      await updateDoc(profileDoc(cu.uid), { code });
+      document.getElementById('codeDisplay').textContent = code;
+      toast('New code generated', 'success');
+    } catch(e){ toast('Failed: '+e.message, 'error'); }
+  };
+
+  window.shareProfile = function(){
+    const url = `${location.origin}${location.pathname}?join=${cu.uid}`;
+    const snap = profileDoc(cu.uid);
+    const name = myProfile?.displayName || 'My Teacher';
+    const msg  = `Hi! I use Fee Tracker to manage fees. Connect with me here: ${url}`;
+    if(navigator.share){
+      navigator.share({ title:'Fee Tracker — Connect', text: msg }).catch(()=>{});
+    } else {
+      navigator.clipboard?.writeText(url).then(()=>toast('Link copied!','success'));
+    }
+  };
+
+  window.copyLink = function(){
+    const url = document.getElementById('shareLinkTxt')?.textContent;
+    navigator.clipboard?.writeText(url).then(()=>toast('Link copied!','success'));
+  };
+
+  async function loadRequests(){
+    try {
+      const snap = await getDocs(query(connectionsCol(), where('teacherId','==',cu.uid), where('status','==','pending')));
+      const reqs = snap.docs.map(d=>({id:d.id,...d.data()}));
+      const pendBadge = document.getElementById('pendingBadge');
+      const reqCountEl = document.getElementById('reqCount');
+      if(pendBadge){ if(reqs.length){ pendBadge.textContent=reqs.length; pendBadge.classList.remove('hidden'); } else pendBadge.classList.add('hidden'); }
+      if(reqCountEl) reqCountEl.textContent = reqs.length ? `(${reqs.length})` : '';
+      if(!reqs.length){
+        setHTML('reqListWrap','<div class="empty" style="padding:20px 0;"><div class="empty-txt">No pending requests</div></div>');
+        return;
+      }
+      setHTML('reqListWrap', reqs.map(r=>`
+        <div class="req-item" id="req_${r.id}">
+          <div class="req-item-top">
+            <div class="req-student-avatar">${initials(r.studentName||'S')}</div>
+            <div>
+              <div class="req-student-name">${r.studentName||'Student'}</div>
+              <div class="req-student-meta">${r.studentClass||''}</div>
+            </div>
+            <div class="req-time">${timeAgo(r.createdAt)}</div>
+          </div>
+          <div class="req-actions">
+            <button class="req-accept" onclick="acceptRequest('${r.id}','${r.studentId}','${(r.studentName||'Student').replace(/'/g,"\\'")}')">Accept</button>
+            <button class="req-decline" onclick="declineRequest('${r.id}')">Decline</button>
+          </div>
+        </div>`).join(''));
+    } catch(e){ console.warn('requests:', e.message); }
+  }
+
+  window.acceptRequest = async function(connId, studentId, studentName){
+    try {
+      await updateDoc(connDoc(connId), { status:'active', acceptedAt: serverTimestamp() });
+      const el = document.getElementById('req_'+connId);
+      if(el){ el.style.opacity='0'; el.style.transform='translateX(20px)'; el.style.transition='all .3s'; setTimeout(()=>el.remove(),300); }
+      toast(`${studentName} connected ✓`,'success');
+      // Update counts
+      await loadConnectedStudents();
+    } catch(e){ toast('Failed: '+e.message,'error'); }
+  };
+
+  window.declineRequest = async function(connId){
+    try {
+      await deleteDoc(connDoc(connId));
+      const el = document.getElementById('req_'+connId);
+      if(el){ el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(),300); }
+      toast('Request declined','');
+    } catch(e){ toast('Failed: '+e.message,'error'); }
+  };
+
+  async function loadConnectedStudents(){
+    try {
+      const snap = await getDocs(query(connectionsCol(), where('teacherId','==',cu.uid), where('status','==','active')));
+      const conns = snap.docs.map(d=>({id:d.id,...d.data()}));
+      const countEl = document.getElementById('connCount');
+      if(countEl) countEl.textContent = conns.length;
+      if(!conns.length){
+        setHTML('connStudentsWrap','<div class="empty" style="padding:20px 0;"><div class="empty-txt">No connected students yet</div></div>');
+        return;
+      }
+      setHTML('connStudentsWrap', conns.map(c=>{
+        const col = avatarColor(c.studentName||'S');
+        const ini = initials(c.studentName||'S');
+        return `<div class="conn-item">
+          <div class="tc-avatar" style="background:${col};width:40px;height:40px;border-radius:50%;font-size:15px;">${ini}</div>
+          <div class="tc-info">
+            <div class="tc-name">${c.studentName||'Student'}</div>
+            <div class="tc-meta">${c.studentClass||''}</div>
+          </div>
+          <span class="conn-badge">Active</span>
+        </div>`;
+      }).join(''));
+    } catch(e){ console.warn('conn students:', e.message); }
+  }
+
+  // ── Profile setup (create / edit) ──
+  let _editMode = false;
+  window.openProfileSetup = async function(edit=false){
+    _editMode = edit;
+    if(edit){
+      try {
+        const snap = await getDoc(profileDoc(cu.uid));
+        if(snap.exists()){
+          const p = snap.data();
+          document.getElementById('setupName').value = p.name||'';
+          document.getElementById('setupSubject').value = p.subject||'';
+          document.getElementById('setupFee').value = p.fee||'';
+          document.getElementById('setupSession').value = p.session||'';
+          document.querySelectorAll('#setupClassChips .chip').forEach(ch=>{
+            ch.classList.toggle('selected', (p.classes||[]).includes(ch.dataset.val));
+          });
+        }
+      } catch(e){}
+    }
+    document.getElementById('profileSetupModal').classList.remove('hidden');
+  };
+
+  window.toggleSetupChip = function(el){
+    el.classList.toggle('selected');
+  };
+
+  window.saveTeacherProfile = async function(){
+    const btn = document.getElementById('saveProfileBtn');
+    const name    = document.getElementById('setupName').value.trim();
+    const subject = document.getElementById('setupSubject').value.trim();
+    const fee     = parseInt(document.getElementById('setupFee').value)||0;
+    const session = document.getElementById('setupSession').value.trim();
+    const classes = [...document.querySelectorAll('#setupClassChips .chip.selected')].map(c=>c.dataset.val);
+    if(!name){ toast('Enter your name','error'); return; }
+    if(!subject){ toast('Enter at least one subject','error'); return; }
+    btn.textContent='Saving…'; btn.disabled=true;
+    try {
+      const data = {
+        uid: cu.uid,
+        name, subject, fee, session, classes,
+        role: 'teacher',
+        email: cu.email||'',
+        displayName: myProfile?.displayName||cu.displayName||name,
+        updatedAt: serverTimestamp()
+      };
+      await setDoc(profileDoc(cu.uid), data, { merge:true });
+      document.getElementById('profileSetupModal').classList.add('hidden');
+      toast('Profile saved ✓','success');
+      showTeacherProfile(data);
+      document.getElementById('noProfileCard').style.display='none';
+      document.getElementById('hasProfileCard').style.display='';
+      if(!_editMode) await Promise.all([loadRequests(), loadConnectedStudents()]);
+    } catch(e){ toast('Failed: '+e.message,'error'); }
+    btn.textContent='Save Profile'; btn.disabled=false;
+  };
+
+  // ── Handle incoming ?join= link ──
+  (async function handleJoinLink(){
+    const params = new URLSearchParams(location.search);
+    const joinTeacherId = params.get('join');
+    if(!joinTeacherId) return;
+    // Wait for auth
+    const unsub = onAuthStateChanged(auth, async user=>{
+      if(!user) return;
+      unsub();
+      // Load teacher profile to show info
+      try {
+        const snap = await getDoc(profileDoc(joinTeacherId));
+        if(!snap.exists()){ toast('Teacher profile not found','error'); return; }
+        const t = snap.data();
+        toast(`Viewing ${t.name}'s profile`,'success');
+        // Scroll to that teacher in the list if student
+        document.getElementById('teacherSearch').value = t.name||'';
+        filterTeachers?.();
+      } catch(e){}
+    });
+  })();
+
+  // Close modal on backdrop tap
+  document.getElementById('profileSetupModal').addEventListener('click', function(e){
+    if(e.target === this) this.classList.add('hidden');
+  });
+</script>
+</body>
+</html>
