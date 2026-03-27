@@ -162,9 +162,11 @@
     .toast.success{border-color:rgba(0,212,170,.35);color:var(--accent3);}
     .toast.error{border-color:rgba(255,77,109,.35);color:var(--red);}
 
+    /* ── HIDDEN UTILITY ── */
+    .hidden{display:none!important;}
+
     /* ── LOADING SCREEN ── */
     #loadingScreen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:14px;}
-    #loadingScreen.hidden{display:none;}
     .load-logo{width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,var(--accent),#5240e0);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#fff;}
     .load-txt{font-size:13px;color:var(--muted);}
   </style>
@@ -178,7 +180,7 @@
 </div>
 
 <!-- LOGIN GATE -->
-<div id="loginGate" class="hidden" style="position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;">
+<div id="loginGate" class="hidden" style="position:fixed;inset:0;z-index:100;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;">
   <div style="width:64px;height:64px;border-radius:20px;background:linear-gradient(135deg,var(--accent),#5240e0);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:#fff;margin-bottom:8px;">₹</div>
   <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--text);text-align:center;">Sign in to Connect</div>
   <div style="font-size:14px;color:var(--muted);text-align:center;line-height:1.6;">You need to be signed in to Fee Tracker to use Connect.</div>
@@ -380,7 +382,9 @@
   onAuthStateChanged(auth, async user => {
     if(!user){
       hide('loadingScreen');
-      document.getElementById('loginGate').classList.remove('hidden');
+      const lg = document.getElementById('loginGate');
+      lg.classList.remove('hidden');
+      lg.style.display = 'flex';
       return;
     }
     cu = user;
