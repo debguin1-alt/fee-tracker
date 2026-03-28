@@ -5697,7 +5697,7 @@
         if(!amt||amt<1) return toast('Enter an amount','error');
         if(amt>=t.fee) return toast(`Use Full tab for ${fmt(t.fee)}+`,'error');
         const ex=partialBal(id), tot=ex+amt;
-        if(tot>=t.fee) return toast(`Total ₹${tot} covers full month — use Full tab`,'error');
+        if(tot>=t.fee) return toast(`Total ${fmt(tot)} covers full month — use Full tab`,'error');
         const rem=t.fee-tot;
         if(!await confirm2('Partial Payment',`Record <strong style="color:#f0f0f8">${fmt(amt)}</strong> partial to ${t.name}?<br><small style="color:var(--muted)">Still owed: ${fmt(rem)}</small>`,'Record',_CI.part)) return;
         const newPay2={teacherId:id,teacherName:t.name,subject:t.subject,amount:amt,type:'partial',paidOn:po,timestamp:Date.now()};
@@ -6227,7 +6227,7 @@
         const _sp2={studentId:sid,studentName:st.name,amount:amt,type:'partial',paidOn:po,timestamp:Date.now(),batchId:bid};
         if(!navigator.onLine){ _sp2.id='local_'+Date.now(); payments.push(_sp2); batchPayments.push(_sp2); saveToCache(); addDoc(bpyCol(bid),_sp2).catch(()=>{}); }
         else { const _sr2=await addDoc(bpyCol(bid),_sp2); _sp2.id=_sr2.id; payments.push(_sp2); batchPayments.push(_sp2); saveToCache(); _invalidateBatchCache(bid); }
-        document.getElementById('spay-partial-'+sid).value='';toast('Partial \u20b9'+amt.toLocaleString('en-IN')+' recorded','success');
+        document.getElementById('spay-partial-'+sid).value='';toast('Partial '+fmt(amt)+' recorded','success');
       }else if(type==='advance'){
         if(sMonthsDue(bid,sid)>0)return toast('Clear dues first','error');
         const v=parseInt(document.getElementById('spay-advance-'+sid).value);
@@ -6236,7 +6236,7 @@
         const _sp3={studentId:sid,studentName:st.name,monthsPaid:v,advanceMonths:v,amount:amt,type:'advance',paidOn:po,timestamp:Date.now(),batchId:bid};
         if(!navigator.onLine){ _sp3.id='local_'+Date.now(); payments.push(_sp3); batchPayments.push(_sp3); saveToCache(); addDoc(bpyCol(bid),_sp3).catch(()=>{}); }
         else { const _sr3=await addDoc(bpyCol(bid),_sp3); _sp3.id=_sr3.id; payments.push(_sp3); batchPayments.push(_sp3); saveToCache(); _invalidateBatchCache(bid); }
-        document.getElementById('spay-advance-'+sid).value='';toast('Advance \u20b9'+amt.toLocaleString('en-IN')+' \u2713','success');
+        document.getElementById('spay-advance-'+sid).value='';toast('Advance '+fmt(amt)+' ✓','success');
       }
       await loadBatchDetail(bid);};
 
@@ -8538,9 +8538,9 @@
         if(tot>=t.fee) return toast('Total covers full month — use Full tab','error');
         if(!await confirm2('Partial Payment',`Record <strong style="color:#f0f0f8">${fmt(amt)}</strong> partial to ${t.name}?<br><small style="color:var(--muted)">Still owed: ${fmt((t.fee-tot))}</small>`,'Record',_CI.part)) return;
         const p={teacherId:id,teacherName:t.name,subject:t.subject,amount:amt,type:'partial',paidOn:po,timestamp:Date.now()};
-        if(!navigator.onLine){ p.id='local_'+Date.now(); payments.push(p); saveToCache(); addDoc(pyCol(),p).catch(()=>{}); toast('Partial \u20b9'+amt.toLocaleString('en-IN')+' queued','success'); }
+        if(!navigator.onLine){ p.id='local_'+Date.now(); payments.push(p); saveToCache(); addDoc(pyCol(),p).catch(()=>{}); toast('Partial '+fmt(amt)+' queued','success'); }
         else { const ref=await addDoc(pyCol(),p); p.id=ref.id; payments.push(p); saveToCache();
-        toast('Partial \u20b9'+amt.toLocaleString('en-IN')+' recorded','success'); }
+        toast('Partial '+fmt(amt)+' recorded','success'); }
       } else if(type==='advance'){
         if(dm>0) return toast('Clear dues first','error');
         const v = parseInt(document.getElementById('tds-pay-advance')?.value);
@@ -8548,9 +8548,9 @@
         const amt = v*t.fee;
         if(!await confirm2('Advance Payment',`Pay <strong style="color:#f0f0f8">${fmt(amt)}</strong> advance for <strong style="color:#f0f0f8">${v} month${v>1?'s':''}</strong> to ${t.name}?`,'Pay',_CI.adv)) return;
         const p={teacherId:id,teacherName:t.name,subject:t.subject,monthsPaid:v,advanceMonths:v,amount:amt,type:'advance',paidOn:po,timestamp:Date.now()};
-        if(!navigator.onLine){ p.id='local_'+Date.now(); payments.push(p); saveToCache(); addDoc(pyCol(),p).catch(()=>{}); toast('Advance \u20b9'+amt.toLocaleString('en-IN')+' queued','success'); }
+        if(!navigator.onLine){ p.id='local_'+Date.now(); payments.push(p); saveToCache(); addDoc(pyCol(),p).catch(()=>{}); toast('Advance '+fmt(amt)+' queued','success'); }
         else { const ref=await addDoc(pyCol(),p); p.id=ref.id; payments.push(p); saveToCache();
-        toast('Advance \u20b9'+amt.toLocaleString('en-IN')+' paid \u2713','success'); }
+        toast('Advance '+fmt(amt)+' paid ✓','success'); }
       }
       setTimeout(updateTotalCard, 80);
       renderCards();
